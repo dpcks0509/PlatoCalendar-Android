@@ -2,7 +2,7 @@ package com.example.plato_calendar.data.repository
 
 import com.example.plato_calendar.domain.subject.SubjectRepository
 
-class SubjectRepositoryImpl : SubjectRepository {
+class LocalSubjectRepository : SubjectRepository {
     private val subjects: Map<String, String> = mapOf(
         "EA1101050" to "디지털 스토리텔링과 게임",
         "EA1101053" to "혁신을위한모순해결",
