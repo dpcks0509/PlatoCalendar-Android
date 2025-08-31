@@ -1,4 +1,4 @@
-package com.example.platocalendar_aos
+package com.example.plato_calendar
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -1,6 +1,5 @@
-package com.example.platocalendar_aos.ui.theme
+package com.example.plato_calendar.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

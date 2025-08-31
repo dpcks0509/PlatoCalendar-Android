@@ -1,4 +1,4 @@
-package com.example.platocalendar_aos
+package com.example.plato_calendar
 
 import org.junit.Test
 

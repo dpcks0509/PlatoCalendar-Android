@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.platocalendar_aos"
+    namespace = "com.example.plato_calendar"
     compileSdk = 36
 
     defaultConfig {

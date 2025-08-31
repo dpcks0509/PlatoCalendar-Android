@@ -1,4 +1,4 @@
-package com.example.platocalendar_aos.ui.theme
+package com.example.plato_calendar.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
