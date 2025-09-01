@@ -1,6 +1,6 @@
 package com.example.plato_calendar.data.mapper
 
-import com.example.plato_calendar.data.ScheduleDto
+import com.example.plato_calendar.data.dto.ScheduleDto
 import com.example.plato_calendar.domain.model.Schedule
 
 fun List<ScheduleDto>.toDomain(): List<Schedule> {

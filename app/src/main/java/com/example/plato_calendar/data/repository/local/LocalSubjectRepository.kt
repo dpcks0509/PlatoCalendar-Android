@@ -1,6 +1,6 @@
 package com.example.plato_calendar.data.repository.local
 
-import com.example.plato_calendar.domain.subject.SubjectRepository
+import com.example.plato_calendar.domain.repository.SubjectRepository
 
 class LocalSubjectRepository : SubjectRepository {
     private val subjects: Map<String, String> = mapOf(

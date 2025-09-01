@@ -1,6 +1,6 @@
-package com.example.plato_calendar.data.service
+package com.example.plato_calendar.data.repository.remote.service
 
-import com.example.plato_calendar.data.ScheduleDto
+import com.example.plato_calendar.data.dto.ScheduleDto
 import retrofit2.http.POST
 
 private const val CALENDAR_BASE_URL = "calendar/"

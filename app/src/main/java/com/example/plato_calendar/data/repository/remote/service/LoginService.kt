@@ -1,4 +1,4 @@
-package com.example.plato_calendar.data.service
+package com.example.plato_calendar.data.repository.remote.service
 
 import retrofit2.http.GET
 import retrofit2.http.POST

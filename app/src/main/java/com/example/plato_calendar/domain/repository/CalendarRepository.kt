@@ -1,4 +1,4 @@
-package com.example.plato_calendar.domain.subject
+package com.example.plato_calendar.domain.repository
 
 import com.example.plato_calendar.domain.model.Schedule
 

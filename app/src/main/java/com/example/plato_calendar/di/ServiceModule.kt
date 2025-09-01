@@ -1,7 +1,7 @@
 package com.example.plato_calendar.di
 
-import com.example.plato_calendar.data.service.CalendarService
-import com.example.plato_calendar.data.service.LoginService
+import com.example.plato_calendar.data.repository.remote.service.CalendarService
+import com.example.plato_calendar.data.repository.remote.service.LoginService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

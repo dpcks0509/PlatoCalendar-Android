@@ -1,6 +1,6 @@
 package com.example.plato_calendar.data.repository.remote
 
-import com.example.plato_calendar.data.service.LoginService
+import com.example.plato_calendar.data.repository.remote.service.LoginService
 import com.example.plato_calendar.domain.repository.LoginRepository
 import javax.inject.Inject
 

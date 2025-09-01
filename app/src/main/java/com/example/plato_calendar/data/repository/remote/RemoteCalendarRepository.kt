@@ -1,9 +1,9 @@
 package com.example.plato_calendar.data.repository.remote
 
 import com.example.plato_calendar.data.mapper.toDomain
-import com.example.plato_calendar.data.service.CalendarService
+import com.example.plato_calendar.data.repository.remote.service.CalendarService
 import com.example.plato_calendar.domain.model.Schedule
-import com.example.plato_calendar.domain.subject.CalendarRepository
+import com.example.plato_calendar.domain.repository.CalendarRepository
 import javax.inject.Inject
 
 class RemoteCalendarRepository @Inject constructor(
