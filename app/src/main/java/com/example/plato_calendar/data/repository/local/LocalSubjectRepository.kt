@@ -1,4 +1,4 @@
-package com.example.plato_calendar.data.repository
+package com.example.plato_calendar.data.repository.local
 
 import com.example.plato_calendar.domain.subject.SubjectRepository
 
