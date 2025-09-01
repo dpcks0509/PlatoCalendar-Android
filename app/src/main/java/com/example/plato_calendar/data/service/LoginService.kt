@@ -1,15 +1,14 @@
 package com.example.plato_calendar.data.service
 
-import com.example.plato_calendar.BuildConfig
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-private const val BASE_URL = BuildConfig.PLATO_BASE_URL
+private const val LOGIN_BASE_URL = "login/"
 
-interface UserService {
-    @POST(BASE_URL + "login/index.php")
+interface LoginService {
+    @POST(LOGIN_BASE_URL + "index.php")
     fun login(username: String, password: String): Result<Unit>
 
-    @GET(BASE_URL + "login/logout.php")
+    @GET(LOGIN_BASE_URL + "logout.php")
     fun logout(sessKey: String): Result<Unit>
 }
