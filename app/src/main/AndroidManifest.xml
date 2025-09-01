@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
+        android:name=".PlatoCalendarApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlatoCalendarAOS">
         <activity
-            android:name="com.example.plato_calendar.MainActivity"
+            android:name="com.example.plato_calendar.PlatoCalendarActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PlatoCalendarAOS">

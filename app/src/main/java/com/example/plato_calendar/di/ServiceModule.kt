@@ -1,6 +1,7 @@
 package com.example.plato_calendar.di
 
-import com.example.plato_calendar.data.service.UserService
+import com.example.plato_calendar.data.service.CalendarService
+import com.example.plato_calendar.data.service.LoginService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,10 +11,16 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ServiceModule {
+object ServiceModule {
     @Provides
     @Singleton
-    fun providesUserService(retrofit: Retrofit): UserService {
-        return retrofit.create(UserService::class.java)
+    fun providesLoginService(@Gson retrofit: Retrofit): LoginService {
+        return retrofit.create(LoginService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providesCalendarService(@Scalars retrofit: Retrofit): CalendarService {
+        return retrofit.create(CalendarService::class.java)
     }
 }

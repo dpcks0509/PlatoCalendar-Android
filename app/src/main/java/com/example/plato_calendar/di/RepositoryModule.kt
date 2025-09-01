@@ -1,6 +1,8 @@
 package com.example.plato_calendar.di
 
-import com.example.plato_calendar.data.repository.LocalSubjectRepository
+import com.example.plato_calendar.data.repository.local.LocalSubjectRepository
+import com.example.plato_calendar.data.repository.remote.RemoteCalendarRepository
+import com.example.plato_calendar.domain.subject.CalendarRepository
 import com.example.plato_calendar.domain.subject.SubjectRepository
 import dagger.Binds
 import dagger.Module
@@ -13,5 +15,9 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindsSubjectRepository(repositoryImpl: LocalSubjectRepository): SubjectRepository
+    abstract fun bindsSubjectRepository(subjectRepositoryImpl: LocalSubjectRepository): SubjectRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindsCalendarRepository(calendarRepositoryImpl: RemoteCalendarRepository): CalendarRepository
 }
