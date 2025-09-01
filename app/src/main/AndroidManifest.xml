@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:name=".PlatoCalendarApplication"
+        android:name="pnu.dpcks0509.plato_calendar.PlatoCalendarApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlatoCalendarAOS">
         <activity
-            android:name="com.example.plato_calendar.PlatoCalendarActivity"
+            android:name="pnu.dpcks0509.plato_calendar.PlatoCalendarActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PlatoCalendarAOS">
