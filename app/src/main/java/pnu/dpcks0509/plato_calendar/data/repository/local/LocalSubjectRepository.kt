@@ -4340,6 +4340,10 @@ class LocalSubjectRepository : SubjectRepository {
     )
 
     override fun getSubjectName(subjectId: String): String {
-        return subjects[subjectId] ?: "알 수 없는 교과목"
+        return subjects[subjectId] ?: UNKOWN_SUBJECT_NAME
+    }
+
+    companion object {
+        private const val UNKOWN_SUBJECT_NAME = "알 수 없는 교과목"
     }
 }
