@@ -1,0 +1,17 @@
+package pusan.university.plato_calendar.data.repository.remote
+
+import pusan.university.plato_calendar.data.mapper.toDomain
+import pusan.university.plato_calendar.data.repository.remote.service.CalendarService
+import pusan.university.plato_calendar.domain.model.Schedule
+import pusan.university.plato_calendar.domain.repository.CalendarRepository
+import javax.inject.Inject
+
+class RemoteCalendarRepository @Inject constructor(
+    private val calendarService: CalendarService
+) : CalendarRepository {
+    override fun getSchedules(): Result<List<Schedule>> {
+        val sessKey = "" // todo get from local database
+
+        return calendarService.getSchedules(sessKey = sessKey).map { it.toDomain() }
+    }
+}
