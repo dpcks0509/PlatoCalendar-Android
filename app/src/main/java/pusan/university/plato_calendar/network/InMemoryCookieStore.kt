@@ -30,6 +30,7 @@ class InMemoryCookieStore @Inject constructor() : CookieJar {
             expiresAt == Long.MAX_VALUE || expiresAt > now
         }
         hostToCookies[url.host] = valid.toMutableList()
+
         return valid.filter { it.matches(url) }
     }
 
@@ -40,7 +41,7 @@ class InMemoryCookieStore @Inject constructor() : CookieJar {
             val expiresAt = cookie.expiresAt
             (expiresAt == Long.MAX_VALUE || expiresAt > now) && cookie.name == name
         }
-        // Return the last set cookie value with this name
+
         return valid.lastOrNull()?.value
     }
 }

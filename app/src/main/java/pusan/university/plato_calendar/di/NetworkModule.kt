@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.CookieJar
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import pusan.university.plato_calendar.network.InMemoryCookieStore
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -30,10 +31,16 @@ object NetworkModule {
     @Singleton
     @Provides
     fun providesOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            level =
+                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        }
+
         return OkHttpClient.Builder()
             .cookieJar(cookieJar)
-            .followRedirects(true)
-            .followSslRedirects(true)
+            .followRedirects(false)
+            .followSslRedirects(false)
+            .addInterceptor(logging)
             .build()
     }
 

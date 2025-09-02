@@ -14,7 +14,6 @@ interface LoginService {
     @FormUrlEncoded
     @POST(LOGIN_BASE_URL + "index.php")
     suspend fun login(
-        @Header("Content-Length") contentLength: String,
         @Field("username") userName: String,
         @Field("password") password: String,
     ): Response<Unit>

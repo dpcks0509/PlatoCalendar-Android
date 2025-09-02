@@ -1,10 +1,10 @@
 package pusan.university.plato_calendar.data.repository.remote
 
+import androidx.core.net.toUri
 import pusan.university.plato_calendar.data.repository.remote.service.LoginService
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import pusan.university.plato_calendar.network.InMemoryCookieStore
 import retrofit2.HttpException
-import java.net.URLEncoder
 import javax.inject.Inject
 
 class RemoteLoginRepository @Inject constructor(
@@ -12,33 +12,30 @@ class RemoteLoginRepository @Inject constructor(
     private val cookieStore: InMemoryCookieStore
 ) : LoginRepository {
     override suspend fun login(userName: String, password: String): Result<String> {
-        val encodedUserName = URLEncoder.encode(userName, Charsets.UTF_8.name())
-        val encodedPassword = URLEncoder.encode(password, Charsets.UTF_8.name())
-        val requestBody = "username=$encodedUserName&password=$encodedPassword"
-        val contentLength = requestBody.length.toString()
-
-        println("Request Body: $requestBody")
-        println("Content Length: $contentLength")
-
         val response = loginService.login(
-            contentLength = contentLength,
             userName = userName,
             password = password
         )
-        
-        if (response.code() == 303) {
+
+        // Location 헤더 꺼내오기
+        val location = response.headers()["Location"]
+
+        if (location != null) {
+            val uri = location.toUri()
+
+            // 실패: errorcode=3 이면 잘못된 계정 정보
+            if (uri.getQueryParameter("errorcode") == "3") {
+                return Result.failure(IllegalStateException(INVALID_CREDENTIALS_ERROR))
+            }
+
+            // 성공: MoodleSession 쿠키 꺼내오기
             val baseUrl = response.raw().request.url.newBuilder().encodedPath("/").build()
             val moodleSession = cookieStore.getCookieValue(baseUrl.host, "MoodleSession")
 
             moodleSession?.let { return Result.success(moodleSession) }
-        } else {
-            val errorCode = response.raw().request.url.queryParameter("errorcode")
-
-            if (errorCode == "3") {
-                return Result.failure(IllegalStateException(INVALID_CREDENTIALS_ERROR))
-            }
         }
 
+        // 그 외 알 수 없는 상황
         return Result.failure(IllegalStateException(UNKNOWN_LOGIN_ERROR))
     }
 
