@@ -1,6 +1,6 @@
 package pnu.dpcks0509.plato_calendar.domain.repository
 
 interface LoginRepository {
-    fun login(username: String, password: String): Result<Unit>
-    fun logout(sessKey: String): Result<Unit>
+    suspend fun login(userName: String, password: String): Result<String>
+    suspend fun logout(sessKey: String): Result<Unit>
 }

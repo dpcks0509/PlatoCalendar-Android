@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pnu.dpcks0509.plato_calendar.data.repository.local.LocalSubjectRepository
 import pnu.dpcks0509.plato_calendar.data.repository.remote.RemoteCalendarRepository
+import pnu.dpcks0509.plato_calendar.data.repository.remote.RemoteLoginRepository
 import pnu.dpcks0509.plato_calendar.domain.repository.CalendarRepository
 import pnu.dpcks0509.plato_calendar.domain.repository.LoginRepository
 import pnu.dpcks0509.plato_calendar.domain.repository.SubjectRepository
@@ -24,5 +25,5 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindsLoginRepository(loginRepositoryImpl: LoginRepository): LoginRepository
+    abstract fun bindsLoginRepository(loginRepositoryImpl: RemoteLoginRepository): LoginRepository
 }

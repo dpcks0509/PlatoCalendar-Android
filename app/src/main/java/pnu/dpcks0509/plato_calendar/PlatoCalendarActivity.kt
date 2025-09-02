@@ -11,14 +11,43 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import pnu.dpcks0509.plato_calendar.domain.repository.CalendarRepository
+import pnu.dpcks0509.plato_calendar.domain.repository.LoginRepository
+import pnu.dpcks0509.plato_calendar.domain.repository.SubjectRepository
 import pnu.dpcks0509.plato_calendar.ui.theme.PlatoCalendarAOSTheme
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlatoCalendarActivity : ComponentActivity() {
+    private lateinit var moodleSession: String
+    private lateinit var sessKey: String
+
+    @Inject
+    lateinit var loginRepository: LoginRepository
+
+    @Inject
+    lateinit var subjectRepository: SubjectRepository
+
+    @Inject
+    lateinit var calendarRepository: CalendarRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        lifecycleScope.launch {
+            loginRepository.login("202055643", "mxkuy0508!")
+                .onSuccess { session ->
+                    moodleSession = session
+                    println("Login Success. MoodleSession=$session")
+                }.onFailure {
+                    println("Login Failed : $it")
+                }
+        }
+
         setContent {
             PlatoCalendarAOSTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

@@ -5,6 +5,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.CookieJar
+import okhttp3.OkHttpClient
+import pnu.dpcks0509.plato_calendar.network.InMemoryCookieStore
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -16,13 +19,32 @@ import javax.inject.Singleton
 object NetworkModule {
     private const val PLAT_BASE_URL = BuildConfig.PLATO_BASE_URL
 
+    @Singleton
+    @Provides
+    fun providesCookieStore(): InMemoryCookieStore = InMemoryCookieStore()
+
+    @Singleton
+    @Provides
+    fun providesCookieJar(cookieStore: InMemoryCookieStore): CookieJar = cookieStore
+
+    @Singleton
+    @Provides
+    fun providesOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+        return OkHttpClient.Builder()
+            .cookieJar(cookieJar)
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .build()
+    }
+
     @Gson
     @Singleton
     @Provides
-    fun providesGsonRetrofit(): Retrofit {
+    fun providesGsonRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit
             .Builder()
             .baseUrl(PLAT_BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -30,10 +52,11 @@ object NetworkModule {
     @Scalars
     @Singleton
     @Provides
-    fun providesScalarsRetrofit(): Retrofit {
+    fun providesScalarsRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit
             .Builder()
             .baseUrl(PLAT_BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
     }
