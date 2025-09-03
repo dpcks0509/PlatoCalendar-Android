@@ -19,5 +19,7 @@ interface LoginService {
     ): Response<ResponseBody>
 
     @GET(LOGIN_BASE_URL + "logout.php")
-    suspend fun logout(@Query("sesskey") sessKey: String): Response<Unit>
+    suspend fun logout(
+        @Query("sesskey") sessKey: String
+    ): Response<Unit>
 }
