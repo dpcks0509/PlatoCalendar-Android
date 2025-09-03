@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation
+package pusan.university.plato_calendar.presentation.main
 
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel

@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlatoCalendarAOS">
         <activity
-            android:name="pusan.university.plato_calendar.presentation.PlatoCalendarActivity"
+            android:name="pusan.university.plato_calendar.presentation.main.PlatoCalendarActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PlatoCalendarAOS">
