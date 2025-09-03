@@ -6,12 +6,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.CookieJar
+import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import pusan.university.plato_calendar.network.InMemoryCookieStore
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.net.CookieManager
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -22,18 +23,17 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun providesCookieStore(): InMemoryCookieStore = InMemoryCookieStore()
+    fun providesCookieManager(): CookieManager = CookieManager()
 
     @Singleton
     @Provides
-    fun providesCookieJar(cookieStore: InMemoryCookieStore): CookieJar = cookieStore
+    fun providesCookieJar(cookieManager: CookieManager): CookieJar = JavaNetCookieJar(cookieManager)
 
     @Singleton
     @Provides
     fun providesOkHttpClient(cookieJar: CookieJar): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level =
-                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
 
         return OkHttpClient.Builder()

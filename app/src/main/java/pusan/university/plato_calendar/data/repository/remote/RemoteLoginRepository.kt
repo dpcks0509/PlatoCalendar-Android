@@ -3,13 +3,14 @@ package pusan.university.plato_calendar.data.repository.remote
 import androidx.core.net.toUri
 import pusan.university.plato_calendar.data.repository.remote.service.LoginService
 import pusan.university.plato_calendar.domain.repository.LoginRepository
-import pusan.university.plato_calendar.network.InMemoryCookieStore
 import retrofit2.HttpException
+import java.net.CookieManager
+import java.net.URI
 import javax.inject.Inject
 
 class RemoteLoginRepository @Inject constructor(
     private val loginService: LoginService,
-    private val cookieStore: InMemoryCookieStore
+    private val cookieManager: CookieManager
 ) : LoginRepository {
     override suspend fun login(userName: String, password: String): Result<String> {
         val response = loginService.login(
@@ -17,25 +18,25 @@ class RemoteLoginRepository @Inject constructor(
             password = password
         )
 
-        // Location 헤더 꺼내오기
         val location = response.headers()["Location"]
 
         if (location != null) {
             val uri = location.toUri()
 
-            // 실패: errorcode=3 이면 잘못된 계정 정보
             if (uri.getQueryParameter("errorcode") == "3") {
                 return Result.failure(IllegalStateException(INVALID_CREDENTIALS_ERROR))
             }
 
-            // 성공: MoodleSession 쿠키 꺼내오기
             val baseUrl = response.raw().request.url.newBuilder().encodedPath("/").build()
-            val moodleSession = cookieStore.getCookieValue(baseUrl.host, "MoodleSession")
+            val requestUri: URI = URI.create(baseUrl.toString())
+            val cookies = cookieManager.cookieStore.get(requestUri)
+            val moodleSession = cookies.firstOrNull { it.name == "MoodleSession" }?.value
 
-            moodleSession?.let { return Result.success(moodleSession) }
+            if (moodleSession != null) {
+                return Result.success(moodleSession)
+            }
         }
 
-        // 그 외 알 수 없는 상황
         return Result.failure(IllegalStateException(UNKNOWN_LOGIN_ERROR))
     }
 
