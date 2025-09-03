@@ -37,7 +37,7 @@ class RemoteLoginRepository @Inject constructor(
             }
         }
 
-        return Result.failure(IllegalStateException(UNKNOWN_LOGIN_ERROR))
+        return Result.failure(IllegalStateException(FAILED_LOGIN_ERROR))
     }
 
     override suspend fun logout(sessKey: String): Result<Unit> {
@@ -51,6 +51,6 @@ class RemoteLoginRepository @Inject constructor(
 
     companion object {
         private const val INVALID_CREDENTIALS_ERROR = "아이디 또는 패스워드가 잘못 입력되었습니다."
-        private const val UNKNOWN_LOGIN_ERROR = "알 수 없는 로그인 오류가 발생했습니다."
+        private const val FAILED_LOGIN_ERROR = "로그인에 실패했습니다."
     }
 }
