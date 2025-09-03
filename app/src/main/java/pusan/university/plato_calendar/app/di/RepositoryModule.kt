@@ -17,13 +17,13 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindsSubjectRepository(subjectRepositoryImpl: LocalSubjectRepository): SubjectRepository
+    abstract fun bindSubjectRepository(subjectRepositoryImpl: LocalSubjectRepository): SubjectRepository
 
     @Binds
     @Singleton
-    abstract fun bindsCalendarRepository(calendarRepositoryImpl: RemoteCalendarRepository): CalendarRepository
+    abstract fun bindCalendarRepository(calendarRepositoryImpl: RemoteCalendarRepository): CalendarRepository
 
     @Binds
     @Singleton
-    abstract fun bindsLoginRepository(loginRepositoryImpl: RemoteLoginRepository): LoginRepository
+    abstract fun bindLoginRepository(loginRepositoryImpl: RemoteLoginRepository): LoginRepository
 }

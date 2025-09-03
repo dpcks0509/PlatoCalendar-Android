@@ -23,15 +23,15 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun providesCookieManager(): CookieManager = CookieManager()
+    fun provideCookieManager(): CookieManager = CookieManager()
 
     @Singleton
     @Provides
-    fun providesCookieJar(cookieManager: CookieManager): CookieJar = JavaNetCookieJar(cookieManager)
+    fun provideCookieJar(cookieManager: CookieManager): CookieJar = JavaNetCookieJar(cookieManager)
 
     @Singleton
     @Provides
-    fun providesOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+    fun provideOkHttpClient(cookieJar: CookieJar): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
@@ -45,7 +45,7 @@ object NetworkModule {
     @Gson
     @Singleton
     @Provides
-    fun providesGsonRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideGsonRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit
             .Builder()
             .baseUrl(PLAT_BASE_URL)
@@ -57,7 +57,7 @@ object NetworkModule {
     @Scalars
     @Singleton
     @Provides
-    fun providesScalarsRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideScalarsRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit
             .Builder()
             .baseUrl(PLAT_BASE_URL)
