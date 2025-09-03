@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.data.repository.remote
 
 import pusan.university.plato_calendar.data.repository.remote.service.LoginService
+import pusan.university.plato_calendar.domain.model.LoginInfo
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import retrofit2.HttpException
 import java.net.CookieManager
@@ -11,7 +12,7 @@ class RemoteLoginRepository @Inject constructor(
     private val loginService: LoginService,
     private val cookieManager: CookieManager
 ) : LoginRepository {
-    override suspend fun login(userName: String, password: String): Result<String> {
+    override suspend fun login(userName: String, password: String): Result<LoginInfo> {
         val response = loginService.login(
             userName = userName,
             password = password
@@ -28,8 +29,14 @@ class RemoteLoginRepository @Inject constructor(
         val cookies = cookieManager.cookieStore.get(requestUri)
         val moodleSession = cookies.firstOrNull { it.name == "MoodleSession" }?.value
 
-        if (moodleSession != null) {
-            return Result.success(moodleSession)
+        // Extract sesskey from the HTML/JS response body (M.cfg.sesskey)
+        val bodyString = response.body()?.string().orEmpty()
+        val sessKey = Regex(
+            pattern = """M\.cfg\s*=\s*\{[\s\S]*?"sesskey"\s*:\s*"([^"]+)"""
+        ).find(bodyString)?.groupValues?.getOrNull(1)
+
+        if (moodleSession != null && !sessKey.isNullOrBlank()) {
+            return Result.success(LoginInfo(moodleSession = moodleSession, sessKey = sessKey))
         }
 
         return Result.failure(IllegalStateException(FAILED_LOGIN_ERROR))

@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.data.repository.remote.service
 
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -15,7 +16,7 @@ interface LoginService {
     suspend fun login(
         @Field("username") userName: String,
         @Field("password") password: String,
-    ): Response<Unit>
+    ): Response<ResponseBody>
 
     @GET(LOGIN_BASE_URL + "logout.php")
     suspend fun logout(@Query("sesskey") sessKey: String): Response<Unit>

@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.domain.model.LoginInfo
 import pusan.university.plato_calendar.domain.repository.CalendarRepository
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import pusan.university.plato_calendar.domain.repository.SubjectRepository
@@ -22,8 +23,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlatoCalendarActivity : ComponentActivity() {
-    private lateinit var moodleSession: String
-    private lateinit var sessKey: String
+    private lateinit var loginInfo: LoginInfo
 
     @Inject
     lateinit var loginRepository: LoginRepository
@@ -40,9 +40,9 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginRepository.login("202055643", "mxkuy0508!")
-                .onSuccess { session ->
-                    moodleSession = session
-                    println("Login Success. MoodleSession=$session")
+                .onSuccess { info ->
+                    loginInfo = info
+                    println("Login Success : $info")
                 }.onFailure {
                     println("Login Failed : $it")
                 }
