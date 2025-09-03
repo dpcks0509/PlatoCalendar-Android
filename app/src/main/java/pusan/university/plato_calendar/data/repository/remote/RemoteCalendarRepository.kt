@@ -2,7 +2,7 @@ package pusan.university.plato_calendar.data.repository.remote
 
 import pusan.university.plato_calendar.data.mapper.toDomain
 import pusan.university.plato_calendar.data.repository.remote.service.CalendarService
-import pusan.university.plato_calendar.domain.model.Schedule
+import pusan.university.plato_calendar.domain.entity.Schedule
 import pusan.university.plato_calendar.domain.repository.CalendarRepository
 import javax.inject.Inject
 

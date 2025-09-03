@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.di
+package pusan.university.plato_calendar.app.di
 
 import dagger.Binds
 import dagger.Module

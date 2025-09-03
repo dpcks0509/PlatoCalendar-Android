@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.domain.model
+package pusan.university.plato_calendar.domain.entity
 
 data class LoginInfo(
     val moodleSession: String,

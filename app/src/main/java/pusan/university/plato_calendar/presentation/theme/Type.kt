@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.ui.theme
+package pusan.university.plato_calendar.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

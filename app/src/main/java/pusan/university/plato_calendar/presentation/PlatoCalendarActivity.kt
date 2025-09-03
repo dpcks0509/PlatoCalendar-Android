@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar
+package pusan.university.plato_calendar.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -23,9 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.domain.model.LoginInfo
+import pusan.university.plato_calendar.domain.entity.LoginInfo
 import pusan.university.plato_calendar.domain.repository.LoginRepository
-import pusan.university.plato_calendar.ui.theme.PlatoCalendarAOSTheme
+import pusan.university.plato_calendar.presentation.theme.PlatoCalendarAOSTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint

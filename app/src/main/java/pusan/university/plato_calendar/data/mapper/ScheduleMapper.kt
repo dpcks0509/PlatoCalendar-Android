@@ -1,7 +1,7 @@
 package pusan.university.plato_calendar.data.mapper
 
 import pusan.university.plato_calendar.data.dto.ScheduleDto
-import pusan.university.plato_calendar.domain.model.Schedule
+import pusan.university.plato_calendar.domain.entity.Schedule
 
 fun List<ScheduleDto>.toDomain(): List<Schedule> {
     return map(ScheduleDto::toDomain)
