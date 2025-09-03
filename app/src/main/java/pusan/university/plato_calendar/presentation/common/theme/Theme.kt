@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.theme
+package pusan.university.plato_calendar.presentation.common.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

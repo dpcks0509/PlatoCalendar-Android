@@ -33,7 +33,8 @@ object NetworkModule {
     @Provides
     fun provideOkHttpClient(cookieJar: CookieJar): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            level =
+                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
 
         return OkHttpClient.Builder()
@@ -68,9 +69,7 @@ object NetworkModule {
 }
 
 @Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class Gson
 
 @Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class Scalars

@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.theme
+package pusan.university.plato_calendar.presentation.common.theme
 
 import androidx.compose.ui.graphics.Color
 
