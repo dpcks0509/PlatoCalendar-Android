@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.navigation
+package pusan.university.plato_calendar.presentation.common.navigation
 
 import kotlinx.serialization.Serializable
 

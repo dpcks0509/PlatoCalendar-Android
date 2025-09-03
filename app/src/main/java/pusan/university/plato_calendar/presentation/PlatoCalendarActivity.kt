@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import pusan.university.plato_calendar.presentation.navigation.PlatoCalendarNavHost
+import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarAOSTheme
 
 @AndroidEntryPoint
