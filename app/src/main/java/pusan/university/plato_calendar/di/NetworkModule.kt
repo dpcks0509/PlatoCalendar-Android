@@ -38,8 +38,6 @@ object NetworkModule {
 
         return OkHttpClient.Builder()
             .cookieJar(cookieJar)
-            .followRedirects(false)
-            .followSslRedirects(false)
             .addInterceptor(logging)
             .build()
     }

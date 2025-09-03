@@ -1,6 +1,5 @@
 package pusan.university.plato_calendar.data.repository.remote
 
-import androidx.core.net.toUri
 import pusan.university.plato_calendar.data.repository.remote.service.LoginService
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import retrofit2.HttpException
@@ -18,23 +17,19 @@ class RemoteLoginRepository @Inject constructor(
             password = password
         )
 
-        val location = response.headers()["Location"]
+        val requestUrl = response.raw().request.url
 
-        if (location != null) {
-            val uri = location.toUri()
+        if (requestUrl.encodedPath == "/login.php" && requestUrl.queryParameter("errorcode") == "3") {
+            return Result.failure(IllegalStateException(INVALID_CREDENTIALS_ERROR))
+        }
 
-            if (uri.getQueryParameter("errorcode") == "3") {
-                return Result.failure(IllegalStateException(INVALID_CREDENTIALS_ERROR))
-            }
+        val baseUrl = requestUrl.newBuilder().encodedPath("/").query(null).build()
+        val requestUri: URI = URI.create(baseUrl.toString())
+        val cookies = cookieManager.cookieStore.get(requestUri)
+        val moodleSession = cookies.firstOrNull { it.name == "MoodleSession" }?.value
 
-            val baseUrl = response.raw().request.url.newBuilder().encodedPath("/").build()
-            val requestUri: URI = URI.create(baseUrl.toString())
-            val cookies = cookieManager.cookieStore.get(requestUri)
-            val moodleSession = cookies.firstOrNull { it.name == "MoodleSession" }?.value
-
-            if (moodleSession != null) {
-                return Result.success(moodleSession)
-            }
+        if (moodleSession != null) {
+            return Result.success(moodleSession)
         }
 
         return Result.failure(IllegalStateException(FAILED_LOGIN_ERROR))
