@@ -17,19 +17,19 @@ fun PlatoCalendarNavHost(navController: NavHostController) {
         startDestination = CalendarScreen
     ) {
         composable<CalendarScreen> {
-            CalendarScreen()
+            CalendarScreen(navController = navController)
         }
 
         composable<ToDoScreen> {
-            ToDoScreen()
+            ToDoScreen(navController = navController)
         }
 
         composable<CafeteriaScreen> {
-            CafeteriaScreen()
+            CafeteriaScreen(navController = navController)
         }
 
         composable<SettingScreen> {
-            SettingScreen()
+            SettingScreen(navController = navController)
         }
     }
 }

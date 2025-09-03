@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarNavHost
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarAOSTheme
+import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 
 @AndroidEntryPoint
 class PlatoCalendarActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class PlatoCalendarActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            PlatoCalendarAOSTheme {
+            PlatoCalendarTheme {
                 PlatoCalendarNavHost(navController = navController)
             }
         }
