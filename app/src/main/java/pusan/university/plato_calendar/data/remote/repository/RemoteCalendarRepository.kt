@@ -23,7 +23,6 @@ class RemoteCalendarRepository @Inject constructor(
             }
 
             val schedules = parseIcsToSchedules(body)
-            println(schedules)
             return Result.success(schedules)
         }
 
