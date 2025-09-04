@@ -30,6 +30,12 @@ fun CalendarScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.loginManager.errorMessage.collect {
+
+        }
+    }
+
     CalendarContent(
         state = state,
         onEvent = viewModel::setEvent

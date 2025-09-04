@@ -14,13 +14,13 @@ import javax.inject.Singleton
 object ServiceModule {
     @Provides
     @Singleton
-    fun provideLoginService(@Gson retrofit: Retrofit): LoginService {
+    fun provideLoginService(retrofit: Retrofit): LoginService {
         return retrofit.create(LoginService::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideCalendarService(@Scalars retrofit: Retrofit): CalendarService {
+    fun provideCalendarService(retrofit: Retrofit): CalendarService {
         return retrofit.create(CalendarService::class.java)
     }
 }

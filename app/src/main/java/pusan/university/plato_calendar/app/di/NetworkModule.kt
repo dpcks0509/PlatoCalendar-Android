@@ -1,6 +1,5 @@
 package pusan.university.plato_calendar.app.di
 
-import pusan.university.plato_calendar.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,11 +8,10 @@ import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import pusan.university.plato_calendar.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.net.CookieManager
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -43,7 +41,6 @@ object NetworkModule {
             .build()
     }
 
-    @Gson
     @Singleton
     @Provides
     fun provideGsonRetrofit(okHttpClient: OkHttpClient): Retrofit {
@@ -54,22 +51,4 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
-    @Scalars
-    @Singleton
-    @Provides
-    fun provideScalarsRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit
-            .Builder()
-            .baseUrl(PLAT_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build()
-    }
 }
-
-@Qualifier
-annotation class Gson
-
-@Qualifier
-annotation class Scalars
