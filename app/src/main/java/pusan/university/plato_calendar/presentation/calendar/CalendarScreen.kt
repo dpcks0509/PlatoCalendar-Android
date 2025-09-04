@@ -7,7 +7,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
@@ -26,7 +25,6 @@ fun CalendarScreen(
     }
 
     CalendarContent(
-        navController = navController,
         state = state,
         onEvent = viewModel::setEvent
     )
@@ -34,7 +32,6 @@ fun CalendarScreen(
 
 @Composable
 fun CalendarContent(
-    navController: NavController,
     state: CalendarState,
     onEvent: (CalendarEvent) -> Unit
 ) {
@@ -46,7 +43,6 @@ fun CalendarContent(
 fun CalendarScreenPreview() {
     PlatoCalendarTheme {
         CalendarContent(
-            navController = rememberNavController(),
             state = CalendarState(),
             onEvent = {}
         )
