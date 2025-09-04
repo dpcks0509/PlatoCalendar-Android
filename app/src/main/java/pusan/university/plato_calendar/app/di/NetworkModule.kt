@@ -1,6 +1,6 @@
 package pusan.university.plato_calendar.app.di
 
-import com.example.plato_calendar.BuildConfig
+import pusan.university.plato_calendar.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

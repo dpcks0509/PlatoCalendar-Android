@@ -16,11 +16,11 @@ val localProperties = Properties()
 localProperties.load(FileInputStream(rootProject.file("local.properties")))
 
 android {
-    namespace = "com.example.plato_calendar"
+    namespace = "pusan.university.plato_calendar"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.platocalendar_aos"
+        applicationId = "pusan.university.plato_calendar"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
