@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.data.repository.remote.service
+package pusan.university.plato_calendar.data.remote.service
 
 import pusan.university.plato_calendar.data.dto.ScheduleDto
 import retrofit2.http.POST

@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.data.repository.remote.service
+package pusan.university.plato_calendar.data.remote.service
 
 import okhttp3.ResponseBody
 import retrofit2.Response

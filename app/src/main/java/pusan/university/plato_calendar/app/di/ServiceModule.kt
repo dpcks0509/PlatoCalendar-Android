@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pusan.university.plato_calendar.data.repository.remote.service.CalendarService
-import pusan.university.plato_calendar.data.repository.remote.service.LoginService
+import pusan.university.plato_calendar.data.remote.service.CalendarService
+import pusan.university.plato_calendar.data.remote.service.LoginService
 import retrofit2.Retrofit
 import javax.inject.Singleton
 

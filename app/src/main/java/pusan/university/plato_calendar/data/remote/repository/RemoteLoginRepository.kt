@@ -1,6 +1,6 @@
-package pusan.university.plato_calendar.data.repository.remote
+package pusan.university.plato_calendar.data.remote.repository
 
-import pusan.university.plato_calendar.data.repository.remote.service.LoginService
+import pusan.university.plato_calendar.data.remote.service.LoginService
 import pusan.university.plato_calendar.domain.entity.LoginInfo
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import java.net.CookieManager

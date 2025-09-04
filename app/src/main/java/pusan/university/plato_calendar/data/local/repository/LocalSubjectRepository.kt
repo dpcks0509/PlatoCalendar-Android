@@ -1,9 +1,6 @@
-package pusan.university.plato_calendar.data.repository.local
+package pusan.university.plato_calendar.data.local.repository
 
-import pusan.university.plato_calendar.domain.repository.SubjectRepository
-import javax.inject.Inject
-
-class LocalSubjectRepository @Inject constructor() : SubjectRepository {
+class LocalSubjectRepository @javax.inject.Inject constructor() : pusan.university.plato_calendar.domain.repository.SubjectRepository {
     private val subjects: Map<String, String> = mapOf(
         "EA1101050" to "디지털 스토리텔링과 게임",
         "EA1101053" to "혁신을위한모순해결",
