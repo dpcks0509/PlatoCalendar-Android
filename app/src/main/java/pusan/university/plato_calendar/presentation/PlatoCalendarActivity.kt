@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.presentation
 
 import android.content.SharedPreferences
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +30,7 @@ class PlatoCalendarActivity : ComponentActivity() {
             loginManager.autoLogin()
         }
 
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
