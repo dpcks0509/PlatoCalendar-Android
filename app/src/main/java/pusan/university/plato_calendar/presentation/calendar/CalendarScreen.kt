@@ -17,11 +17,16 @@ fun CalendarScreen(
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val loginStatus by viewModel.loginManager.loginStatus.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
 
         }
+    }
+
+    LaunchedEffect(loginStatus) {
+        viewModel.setEvent(CalendarEvent.FetchSchedules)
     }
 
     CalendarContent(

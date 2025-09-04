@@ -1,6 +1,5 @@
 package pusan.university.plato_calendar.presentation
 
-import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,9 +18,6 @@ import javax.inject.Inject
 class PlatoCalendarActivity : ComponentActivity() {
     @Inject
     lateinit var loginManager: LoginManager
-
-    @Inject
-    lateinit var prefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
