@@ -31,7 +31,6 @@ class RemoteCalendarRepository @Inject constructor(
     }
 
     private fun parseIcsToSchedules(icsText: String): List<Schedule> {
-        // Handle simple unfolded lines; for folded lines (starting with space), join with previous line
         val unfoldedLines = mutableListOf<String>()
         icsText.lines().forEach { rawLine ->
             if (rawLine.startsWith(" ") && unfoldedLines.isNotEmpty()) {
@@ -48,8 +47,6 @@ class RemoteCalendarRepository @Inject constructor(
 
         fun buildScheduleFromFields(fields: Map<String, String>): Schedule {
             val uid = fields["UID"].orEmpty()
-            val id = uid.substringBefore('@').toLongOrNull() ?: uid.hashCode().toLong()
-
             val summary = fields["SUMMARY"]
             val description = fields["DESCRIPTION"]
             val classification = fields["CLASS"]
@@ -57,9 +54,9 @@ class RemoteCalendarRepository @Inject constructor(
             val timestamp = parseLocalDateTime(fields["DTSTAMP"])
             val start = parseLocalDateTime(fields["DTSTART"])
             val end = parseLocalDateTime(fields["DTEND"])
+            val categories = fields["CATEGORIES"]
 
             return Schedule(
-                id = id,
                 uid = uid,
                 summary = summary,
                 description = description,
@@ -67,7 +64,8 @@ class RemoteCalendarRepository @Inject constructor(
                 lastModified = lastModified,
                 timestamp = timestamp,
                 start = start,
-                end = end
+                end = end,
+                categories = categories
             )
         }
 
@@ -103,15 +101,15 @@ class RemoteCalendarRepository @Inject constructor(
 
     private fun parseLocalDateTime(value: String?): LocalDateTime? {
         if (value.isNullOrBlank()) return null
-        // Try timestamp with offset (e.g., 20250904T070053Z)
+
         val offsetPattern = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX")
+
         try {
             val odt = OffsetDateTime.parse(value, offsetPattern)
             return odt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
         } catch (_: Exception) {
         }
 
-        // Fallback: date-only (e.g., 20250915)
         return try {
             val date = LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE)
             date.atStartOfDay()
@@ -120,34 +118,3 @@ class RemoteCalendarRepository @Inject constructor(
         }
     }
 }
-//BEGIN:VCALENDAR
-//METHOD:PUBLISH
-//PRODID:-//Moodle Pty Ltd//NONSGML Moodle Version 2018051709//EN
-//VERSION:2.0
-//
-//
-//BEGIN:VEVENT
-//UID:5237424@plato.pusan.ac.kr
-//SUMMARY:915
-//DESCRIPTION:
-//CLASS:PUBLIC
-//LAST-MODIFIED:20250901T081744Z
-//DTSTAMP:20250904T044902Z
-//DTSTART:20250915T081700Z
-//DTEND:20250915T081700Z
-//END:VEVENT
-//
-//
-//BEGIN:VEVENT
-//UID:5237426@plato.pusan.ac.kr
-//SUMMARY:1015
-//DESCRIPTION:
-//CLASS:PUBLIC
-//LAST-MODIFIED:20250901T081756Z
-//DTSTAMP:20250904T044902Z
-//DTSTART:20251010T081700Z
-//DTEND:20251010T081700Z
-//END:VEVENT
-//
-//
-//END:VCALENDAR
