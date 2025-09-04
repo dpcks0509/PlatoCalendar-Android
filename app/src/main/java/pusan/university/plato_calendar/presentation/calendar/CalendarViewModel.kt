@@ -1,6 +1,8 @@
 package pusan.university.plato_calendar.presentation.calendar
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import pusan.university.plato_calendar.domain.entity.LoginStatus.Login
+import pusan.university.plato_calendar.domain.repository.CalendarRepository
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
@@ -10,8 +12,33 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val userManager: LoginManager
-) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
+    private val userManager: LoginManager,
+    private val calendarRepository: CalendarRepository
+) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState(isLoading = true)) {
+
+    init {
+        val currentLoginState = userManager.loginStatus.value
+
+        if (currentLoginState is Login) {
+            calendarRepository.getSchedules(sessKey = currentLoginState.loginSession.sessKey).onSuccess { schedules ->
+                setState {
+                    copy(
+                        schedules = schedules,
+                        isLoading = false,
+                        errorMessage = null
+                    )
+                }
+            }.onFailure { throwable ->
+                setState {
+                    copy(
+                        schedules = emptyList(),
+                        isLoading = false,
+                        errorMessage = throwable.message
+                    )
+                }
+            }
+        }
+    }
 
     override suspend fun handleEvent(event: CalendarEvent) {
         when (event) {

@@ -9,9 +9,7 @@ import javax.inject.Inject
 class RemoteCalendarRepository @Inject constructor(
     private val calendarService: CalendarService
 ) : CalendarRepository {
-    override fun getSchedules(): Result<List<Schedule>> {
-        val sessKey = "" // todo get from local database
-
+    override fun getSchedules(sessKey: String): Result<List<Schedule>> {
         return calendarService.getSchedules(sessKey = sessKey).map { it.toDomain() }
     }
 }
