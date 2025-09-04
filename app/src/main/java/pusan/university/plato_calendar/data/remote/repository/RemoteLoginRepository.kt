@@ -21,7 +21,7 @@ class RemoteLoginRepository @Inject constructor(
             val requestUrl = response.raw().request.url
 
             if (requestUrl.encodedPath == "/login.php" && requestUrl.queryParameter("errorcode") == "3") {
-                return Result.failure(IllegalStateException(INVALID_CREDENTIALS_ERROR))
+                return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
             }
 
             val baseUrl = requestUrl.newBuilder().encodedPath("/").query(null).build()
@@ -35,11 +35,16 @@ class RemoteLoginRepository @Inject constructor(
             ).find(bodyString)?.groupValues?.getOrNull(1)
 
             if (moodleSession != null && !sessKey.isNullOrBlank()) {
-                return Result.success(LoginSession(moodleSession = moodleSession, sessKey = sessKey))
+                return Result.success(
+                    LoginSession(
+                        moodleSession = moodleSession,
+                        sessKey = sessKey
+                    )
+                )
             }
         }
 
-        return Result.failure(IllegalStateException(LOGIN_FAILED_ERROR))
+        return Result.failure(Exception(LOGIN_FAILED_ERROR))
     }
 
     override suspend fun logout(sessKey: String): Result<Unit> {
@@ -48,7 +53,7 @@ class RemoteLoginRepository @Inject constructor(
         return if (response.isSuccessful) {
             Result.success(Unit)
         } else {
-            Result.failure(IllegalStateException(LOGOUT_FAILED_ERROR))
+            Result.failure(Exception(LOGOUT_FAILED_ERROR))
         }
     }
 

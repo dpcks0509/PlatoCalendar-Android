@@ -3,11 +3,6 @@ package pusan.university.plato_calendar.data.remote.repository
 import pusan.university.plato_calendar.data.remote.service.CalendarService
 import pusan.university.plato_calendar.domain.entity.Schedule
 import pusan.university.plato_calendar.domain.repository.CalendarRepository
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class RemoteCalendarRepository @Inject constructor(
@@ -26,7 +21,7 @@ class RemoteCalendarRepository @Inject constructor(
             return Result.success(schedules)
         }
 
-        return Result.failure(Exception("Failed"))
+        return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
     }
 
     private fun parseIcsToSchedules(icsText: String): List<Schedule> {
@@ -45,26 +40,16 @@ class RemoteCalendarRepository @Inject constructor(
         val currentFields = mutableMapOf<String, String>()
 
         fun buildScheduleFromFields(fields: Map<String, String>): Schedule {
-            val uid = fields["UID"].orEmpty()
-            val summary = fields["SUMMARY"]
-            val description = fields["DESCRIPTION"]
-            val classification = fields["CLASS"]
-            val lastModified = parseLocalDateTime(fields["LAST-MODIFIED"])
-            val timestamp = parseLocalDateTime(fields["DTSTAMP"])
-            val start = parseLocalDateTime(fields["DTSTART"])
-            val end = parseLocalDateTime(fields["DTEND"])
-            val categories = fields["CATEGORIES"]
-
             return Schedule(
-                uid = uid,
-                summary = summary,
-                description = description,
-                classification = classification,
-                lastModified = lastModified,
-                timestamp = timestamp,
-                start = start,
-                end = end,
-                categories = categories
+                uid = fields["UID"].orEmpty(),
+                summary = fields["SUMMARY"],
+                description = fields["DESCRIPTION"],
+                classification = fields["CLASS"],
+                lastModified = fields["LAST-MODIFIED"],
+                timestamp = fields["DTSTAMP"],
+                start = fields["DTSTART"],
+                end = fields["DTEND"],
+                categories = fields["CATEGORIES"]
             )
         }
 
@@ -98,22 +83,7 @@ class RemoteCalendarRepository @Inject constructor(
         return schedules
     }
 
-    private fun parseLocalDateTime(value: String?): LocalDateTime? {
-        if (value.isNullOrBlank()) return null
-
-        val offsetPattern = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX")
-
-        try {
-            val odt = OffsetDateTime.parse(value, offsetPattern)
-            return odt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-        } catch (_: Exception) {
-        }
-
-        return try {
-            val date = LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE)
-            date.atStartOfDay()
-        } catch (_: Exception) {
-            null
-        }
+    companion object {
+        private const val GET_SCHEDULES_FAILED_ERROR = "일정을 가져오는데 실패했습니다."
     }
 }
