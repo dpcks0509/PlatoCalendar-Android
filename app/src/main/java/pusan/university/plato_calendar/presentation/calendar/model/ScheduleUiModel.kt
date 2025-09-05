@@ -2,20 +2,23 @@ package pusan.university.plato_calendar.presentation.calendar.model
 
 import androidx.compose.ui.graphics.Color
 import pusan.university.plato_calendar.domain.entity.Schedule
+import pusan.university.plato_calendar.presentation.common.function.parseIcsToLocalDateTime
 import java.time.LocalDateTime
 
 data class ScheduleUiModel(
-    val uid: String,
+    val id: String,
+    val isComplete: Boolean,
     val deadLine: LocalDateTime?,
     val courseName: String?,
-    val summary: String?,
+    val title: String?,
     val color: Color?
 ) {
     constructor(domain: Schedule, courseName: String?) : this(
-        uid = domain.uid,
-        deadLine = domain.end,
+        id = domain.uid,
+        isComplete = false,
+        deadLine = domain.end?.parseIcsToLocalDateTime(),
         courseName = courseName,
-        summary = domain.summary,
+        title = domain.summary,
         color = null
     )
 }
