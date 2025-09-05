@@ -30,15 +30,11 @@ fun String.parseIcsToSchedules(): List<Schedule> {
 
     fun buildScheduleFromFields(fields: Map<String, String>): Schedule {
         return Schedule(
-            uid = fields["UID"].orEmpty(),
-            summary = fields["SUMMARY"],
+            id = fields["UID"].orEmpty(),
+            title = fields["SUMMARY"].orEmpty(),
             description = fields["DESCRIPTION"],
-            classification = fields["CLASS"],
-            lastModified = fields["LAST-MODIFIED"],
-            timestamp = fields["DTSTAMP"],
-            start = fields["DTSTART"],
-            end = fields["DTEND"],
-            categories = fields["CATEGORIES"]
+            deadLine = fields["DTEND"].orEmpty().parseUctToLocalDateTime(),
+            courseCode = fields["CATEGORIES"]?.split("_")[2]
         )
     }
 

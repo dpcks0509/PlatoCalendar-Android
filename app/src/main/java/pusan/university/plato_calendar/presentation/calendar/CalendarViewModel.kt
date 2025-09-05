@@ -41,7 +41,7 @@ class CalendarViewModel @Inject constructor(
                                 schedules = schedules.map { domain ->
                                     ScheduleUiModel(
                                         domain = domain,
-                                        courseName = fetchCourseName(domain.categories)
+                                        courseName = courseRepository.getCourseName(domain.courseCode)
                                     )
                                 },
                                 isLoading = false,
@@ -67,11 +67,5 @@ class CalendarViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    private fun fetchCourseName(categories: String?): String {
-        val courseCode = categories?.split("_")[2]
-
-        return courseRepository.getCourseName(courseCode)
     }
 }
