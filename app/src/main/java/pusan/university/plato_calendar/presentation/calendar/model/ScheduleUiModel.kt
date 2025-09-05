@@ -2,7 +2,7 @@ package pusan.university.plato_calendar.presentation.calendar.model
 
 import androidx.compose.ui.graphics.Color
 import pusan.university.plato_calendar.domain.entity.Schedule
-import pusan.university.plato_calendar.presentation.common.function.parseIcsToLocalDateTime
+import pusan.university.plato_calendar.presentation.common.function.parseUctToLocalDateTime
 import java.time.LocalDateTime
 
 data class ScheduleUiModel(
@@ -16,21 +16,9 @@ data class ScheduleUiModel(
     constructor(domain: Schedule, courseName: String?) : this(
         id = domain.uid,
         isComplete = false,
-        deadLine = domain.end?.parseIcsToLocalDateTime(),
+        deadLine = domain.end?.parseUctToLocalDateTime(),
         courseName = courseName,
         title = domain.summary,
         color = null
     )
 }
-
-/*
-UID:515011@plato.pusan.ac.kr
-SUMMARY:마감 기한
-DESCRIPTION:좋은 질문으로 인정받은 질문들을 모은 하나의 파일 업로드
-CLASS:PUBLIC
-LAST-MODIFIED:20210619T144119Z
-DTSTAMP:20210625T175035Z
-DTSTART:20210621T150000Z
-DTEND:20210621T150000Z
-CATEGORIES:2021_10_CB16556_061
- */
