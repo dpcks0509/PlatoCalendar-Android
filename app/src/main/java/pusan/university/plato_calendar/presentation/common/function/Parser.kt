@@ -1,12 +1,13 @@
 package pusan.university.plato_calendar.presentation.common.function
 
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 fun String.parseIcsToLocalDateTime(): LocalDateTime {
-    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
-    val instant = Instant.from(formatter.parse(this))
-    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+    val year = substring(0, 4).toInt()
+    val month = substring(4, 6).toInt()
+    val day = substring(6, 8).toInt()
+    val hour = substring(9, 11).toInt()
+    val minute = substring(11, 13).toInt()
+
+    return LocalDateTime.of(year, month, day, hour, minute)
 }

@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.data.remote.repository
 
 import pusan.university.plato_calendar.data.remote.service.LoginService
+import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.LoginSession
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import java.net.CookieManager
@@ -11,10 +12,10 @@ class RemoteLoginRepository @Inject constructor(
     private val loginService: LoginService,
     private val cookieManager: CookieManager
 ) : LoginRepository {
-    override suspend fun login(userName: String, password: String): Result<LoginSession> {
+    override suspend fun login(credentials: LoginCredentials): Result<LoginSession> {
         val response = loginService.login(
-            userName = userName,
-            password = password
+            userName = credentials.userName,
+            password = credentials.password
         )
 
         if (response.isSuccessful) {

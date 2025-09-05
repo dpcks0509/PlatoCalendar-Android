@@ -71,7 +71,7 @@ dependencies {
     implementation(libs.bundles.serialization)
     implementation(libs.bundles.network)
     implementation(libs.bundles.coil)
-    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.datastore.preferences)
 
     kapt(libs.bundles.hilt.kapt)
 }
