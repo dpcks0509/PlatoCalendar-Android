@@ -1,11 +1,11 @@
 package pusan.university.plato_calendar.data.local.repository
 
-import pusan.university.plato_calendar.domain.repository.SubjectRepository
+import pusan.university.plato_calendar.domain.repository.CourseRepository
 import javax.inject.Inject
 
-class LocalSubjectRepository @Inject constructor() :
-    SubjectRepository {
-    private val subjects: Map<String, String> = mapOf(
+class LocalCourseRepository @Inject constructor() :
+    CourseRepository {
+    private val courses: Map<String, String> = mapOf(
         "EA1101050" to "디지털 스토리텔링과 게임",
         "EA1101053" to "혁신을위한모순해결",
         "EA1101054" to "비유와 우화로 보는 철학 산책",
@@ -2591,12 +2591,12 @@ class LocalSubjectRepository @Inject constructor() :
         "GF1501212" to "스토리콘텐츠제작(I)"
     )
 
-    override fun getSubjectName(subjectCode: String?): String =
-        subjects.entries.find {
-            (it.key.substring(0, 4) + it.key.substring(6, 9) == subjectCode)
-        }?.value ?: UNKNOWN_SUBJECT_NAME
+    override fun getCourseName(courseCode: String?): String =
+        courses.entries.find { course ->
+            (course.key.substring(0, 4) + course.key.substring(6, 9) == courseCode)
+        }?.value ?: UNKNOWN_COURSE_NAME
 
     companion object {
-        private const val UNKNOWN_SUBJECT_NAME = "알 수 없는 교과목"
+        private const val UNKNOWN_COURSE_NAME = "알 수 없는 강좌명"
     }
 }

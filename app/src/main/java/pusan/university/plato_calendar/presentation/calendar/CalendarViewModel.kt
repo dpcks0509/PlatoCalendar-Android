@@ -3,7 +3,7 @@ package pusan.university.plato_calendar.presentation.calendar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.repository.CalendarRepository
-import pusan.university.plato_calendar.domain.repository.SubjectRepository
+import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     val loginManager: LoginManager,
     private val calendarRepository: CalendarRepository,
-    private val subjectRepository: SubjectRepository
+    private val courseRepository: CourseRepository
 ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
     initialState = CalendarState(
         isLoading = true
@@ -41,7 +41,7 @@ class CalendarViewModel @Inject constructor(
                                 schedules = schedules.map { domain ->
                                     ScheduleUiModel(
                                         domain = domain,
-                                        subjectName = fetchSubjectName(domain.categories)
+                                        courseName = fetchCourseName(domain.categories)
                                     )
                                 },
                                 isLoading = false,
@@ -69,9 +69,9 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    private fun fetchSubjectName(categories: String?): String {
-        val subjectCode = categories?.split("_")[2]
+    private fun fetchCourseName(categories: String?): String {
+        val courseCode = categories?.split("_")[2]
 
-        return subjectRepository.getSubjectName(subjectCode)
+        return courseRepository.getCourseName(courseCode)
     }
 }

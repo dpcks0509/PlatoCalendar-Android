@@ -4,12 +4,12 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pusan.university.plato_calendar.data.local.repository.LocalSubjectRepository
+import pusan.university.plato_calendar.data.local.repository.LocalCourseRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteCalendarRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteLoginRepository
 import pusan.university.plato_calendar.domain.repository.CalendarRepository
 import pusan.university.plato_calendar.domain.repository.LoginRepository
-import pusan.university.plato_calendar.domain.repository.SubjectRepository
+import pusan.university.plato_calendar.domain.repository.CourseRepository
 import javax.inject.Singleton
 
 @Module
@@ -17,7 +17,7 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindSubjectRepository(subjectRepositoryImpl: LocalSubjectRepository): SubjectRepository
+    abstract fun bindCourseRepository(courseRepositoryImpl: LocalCourseRepository): CourseRepository
 
     @Binds
     @Singleton

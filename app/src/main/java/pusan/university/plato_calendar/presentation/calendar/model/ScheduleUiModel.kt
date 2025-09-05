@@ -1,30 +1,22 @@
 package pusan.university.plato_calendar.presentation.calendar.model
 
+import androidx.compose.ui.graphics.Color
 import pusan.university.plato_calendar.domain.entity.Schedule
+import java.time.LocalDateTime
 
 data class ScheduleUiModel(
     val uid: String,
+    val deadLine: LocalDateTime?,
+    val courseName: String?,
     val summary: String?,
-    val description: String?,
-    val classification: String?,
-    val lastModified: String?,
-    val timestamp: String?,
-    val start: String?,
-    val end: String?,
-    val categories: String?,
-    val subjectName: String?
+    val color: Color?
 ) {
-    constructor(domain: Schedule, subjectName: String?) : this(
+    constructor(domain: Schedule, courseName: String?) : this(
         uid = domain.uid,
+        deadLine = domain.end,
+        courseName = courseName,
         summary = domain.summary,
-        description = domain.description,
-        classification = domain.classification,
-        lastModified = domain.lastModified,
-        timestamp = domain.timestamp,
-        start = domain.start,
-        end = domain.end,
-        categories = domain.categories,
-        subjectName = subjectName
+        color = null
     )
 }
 
@@ -39,6 +31,7 @@ DTSTART:20210621T150000Z
 DTEND:20210621T150000Z
 CATEGORIES:2021_10_CB16556_061
 END:VEVENT
+
 BEGIN:VEVENT
 UID:382434@plato.pusan.ac.kr
 SUMMARY:마감 기한
