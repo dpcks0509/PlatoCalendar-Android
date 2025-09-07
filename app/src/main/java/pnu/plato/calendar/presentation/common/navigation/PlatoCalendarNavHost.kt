@@ -1,0 +1,38 @@
+package pnu.plato.calendar.presentation.common.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import pnu.plato.calendar.presentation.cafeteria.CafeteriaScreen
+import pnu.plato.calendar.presentation.calendar.CalendarScreen
+import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.CafeteriaScreen
+import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.CalendarScreen
+import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.SettingScreen
+import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.ToDoScreen
+import pnu.plato.calendar.presentation.setting.SettingScreen
+import pnu.plato.calendar.presentation.todo.ToDoScreen
+
+@Composable
+fun PlatoCalendarNavHost(navController: NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = CalendarScreen
+    ) {
+        composable<CalendarScreen> {
+            CalendarScreen(navController = navController)
+        }
+
+        composable<ToDoScreen> {
+            ToDoScreen(navController = navController)
+        }
+
+        composable<CafeteriaScreen> {
+            CafeteriaScreen(navController = navController)
+        }
+
+        composable<SettingScreen> {
+            SettingScreen(navController = navController)
+        }
+    }
+}
