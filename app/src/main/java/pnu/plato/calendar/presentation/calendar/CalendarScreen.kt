@@ -14,40 +14,26 @@ import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 @Composable
 fun CalendarScreen(
     navController: NavController,
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
-
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.loginManager.loginStatus.collect {
-            viewModel.setEvent(CalendarEvent.FetchSchedules)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.loginManager.errorMessage.collect {
-
         }
     }
 
     CalendarContent(
         state = state,
-        onEvent = viewModel::setEvent
+        onEvent = viewModel::setEvent,
     )
 }
 
 @Composable
 fun CalendarContent(
     state: CalendarState,
-    onEvent: (CalendarEvent) -> Unit
+    onEvent: (CalendarEvent) -> Unit,
 ) {
-
 }
 
 @Preview(showBackground = true)
@@ -56,7 +42,7 @@ fun CalendarScreenPreview() {
     PlatoCalendarTheme {
         CalendarContent(
             state = CalendarState(),
-            onEvent = {}
+            onEvent = {},
         )
     }
 }
