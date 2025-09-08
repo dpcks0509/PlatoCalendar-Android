@@ -28,15 +28,14 @@ fun String.parseIcsToStudentSchedules(): List<StudentSchedule> {
     var inEvent = false
     val currentFields = mutableMapOf<String, String>()
 
-    fun buildScheduleFromFields(fields: Map<String, String>): StudentSchedule {
-        return StudentSchedule(
-            id = fields["UID"].orEmpty(),
+    fun buildScheduleFromFields(fields: Map<String, String>): StudentSchedule =
+        StudentSchedule(
             title = fields["SUMMARY"].orEmpty(),
             description = fields["DESCRIPTION"],
-            deadLine = fields["DTEND"].orEmpty().parseUctToLocalDateTime(),
-            courseCode = fields["CATEGORIES"]?.split("_")[2]
+            startAt = fields["DTSTART"].orEmpty().parseUctToLocalDateTime(),
+            endAt = fields["DTEND"].orEmpty().parseUctToLocalDateTime(),
+            courseCode = fields["CATEGORIES"].orEmpty().split("_")[2],
         )
-    }
 
     unfoldedLines.forEach { line ->
         val trimmed = line.trim()

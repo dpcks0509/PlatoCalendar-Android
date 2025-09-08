@@ -6,19 +6,19 @@ import pnu.plato.calendar.presentation.common.theme.CalendarColors
 import java.time.LocalDateTime
 
 data class StudentScheduleUiModel(
-    val id: String,
     val title: String,
-    val deadLine: LocalDateTime,
-    val courseName: String?,
+    val startAt: LocalDateTime,
+    val endAt: LocalDateTime,
+    val courseName: String,
     val isComplete: Boolean,
-    val color: Color
+    val color: Color,
 ) {
-    constructor(domain: StudentSchedule, courseName: String?) : this(
-        id = domain.id,
+    constructor(domain: StudentSchedule, courseName: String) : this(
         title = domain.title,
-        deadLine = domain.deadLine,
+        startAt = domain.startAt,
+        endAt = domain.endAt,
         courseName = courseName,
         isComplete = false,
-        color = CalendarColors.random()
+        color = CalendarColors.random(),
     )
 }
