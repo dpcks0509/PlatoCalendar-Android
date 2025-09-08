@@ -9,16 +9,17 @@ import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import pnu.plato.calendar.BuildConfig
+import pnu.plato.calendar.BuildConfig.PLATO_BASE_URL
+import pnu.plato.calendar.BuildConfig.PNU_BASE_URL
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.CookieManager
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val PLAT_BASE_URL = BuildConfig.PLATO_BASE_URL
-
     @Singleton
     @Provides
     fun provideCookieManager(): CookieManager = CookieManager()
@@ -30,12 +31,14 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(cookieJar: CookieJar): OkHttpClient {
-        val logging = HttpLoggingInterceptor().apply {
-            level =
-                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
-        }
+        val logging =
+            HttpLoggingInterceptor().apply {
+                level =
+                    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            }
 
-        return OkHttpClient.Builder()
+        return OkHttpClient
+            .Builder()
             .cookieJar(cookieJar)
             .addInterceptor(logging)
             .build()
@@ -43,12 +46,29 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideGsonRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit
+    @Plato
+    fun providePlatoRetrofit(okHttpClient: OkHttpClient): Retrofit =
+        Retrofit
             .Builder()
-            .baseUrl(PLAT_BASE_URL)
+            .baseUrl(PLATO_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
+
+    @Singleton
+    @Provides
+    @Pnu
+    fun providePnuRetrofit(okHttpClient: OkHttpClient): Retrofit =
+        Retrofit
+            .Builder()
+            .baseUrl(PNU_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
 }
+
+@Qualifier
+annotation class Plato
+
+@Qualifier
+annotation class Pnu

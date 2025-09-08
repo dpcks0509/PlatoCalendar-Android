@@ -1,6 +1,6 @@
 package pnu.plato.calendar.presentation.common.function
 
-import pnu.plato.calendar.domain.entity.Schedule.StudentSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import java.time.LocalDateTime
 
 fun String.parseUctToLocalDateTime(): LocalDateTime {
@@ -13,7 +13,7 @@ fun String.parseUctToLocalDateTime(): LocalDateTime {
     return LocalDateTime.of(year, month, day, hour, minute)
 }
 
-fun String.parseIcsToStudentSchedules(): List<StudentSchedule> {
+fun String.parseIcsToPersonalSchedules(): List<PersonalSchedule> {
     val unfoldedLines = mutableListOf<String>()
     lines().forEach { rawLine ->
         if (rawLine.startsWith(" ") && unfoldedLines.isNotEmpty()) {
@@ -24,17 +24,17 @@ fun String.parseIcsToStudentSchedules(): List<StudentSchedule> {
         }
     }
 
-    val studentSchedules = mutableListOf<StudentSchedule>()
+    val personalSchedules = mutableListOf<PersonalSchedule>()
     var inEvent = false
     val currentFields = mutableMapOf<String, String>()
 
-    fun buildScheduleFromFields(fields: Map<String, String>): StudentSchedule =
-        StudentSchedule(
+    fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule =
+        PersonalSchedule(
             title = fields["SUMMARY"].orEmpty(),
             description = fields["DESCRIPTION"],
             startAt = fields["DTSTART"].orEmpty().parseUctToLocalDateTime(),
             endAt = fields["DTEND"].orEmpty().parseUctToLocalDateTime(),
-            courseCode = fields["CATEGORIES"].orEmpty().split("_")[2],
+            courseCode = fields["CATEGORIES"]?.split("_")[2],
         )
 
     unfoldedLines.forEach { line ->
@@ -47,7 +47,7 @@ fun String.parseIcsToStudentSchedules(): List<StudentSchedule> {
 
             trimmed.equals("END:VEVENT", ignoreCase = true) -> {
                 if (inEvent) {
-                    studentSchedules.add(buildScheduleFromFields(currentFields.toMap()))
+                    personalSchedules.add(buildScheduleFromFields(currentFields.toMap()))
                 }
                 inEvent = false
                 currentFields.clear()
@@ -64,5 +64,5 @@ fun String.parseIcsToStudentSchedules(): List<StudentSchedule> {
         }
     }
 
-    return studentSchedules
+    return personalSchedules
 }

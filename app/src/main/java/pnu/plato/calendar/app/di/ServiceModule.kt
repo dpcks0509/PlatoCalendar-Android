@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pnu.plato.calendar.data.remote.service.CalendarService
-import pnu.plato.calendar.data.remote.service.LoginService
+import pnu.plato.calendar.data.remote.service.PlatoService
+import pnu.plato.calendar.data.remote.service.PnuService
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
@@ -14,13 +14,13 @@ import javax.inject.Singleton
 object ServiceModule {
     @Provides
     @Singleton
-    fun provideLoginService(retrofit: Retrofit): LoginService {
-        return retrofit.create(LoginService::class.java)
-    }
+    fun providePlatoService(
+        @Plato retrofit: Retrofit,
+    ): PlatoService = retrofit.create(PlatoService::class.java)
 
     @Provides
     @Singleton
-    fun provideCalendarService(retrofit: Retrofit): CalendarService {
-        return retrofit.create(CalendarService::class.java)
-    }
+    fun providePnuService(
+        @Pnu retrofit: Retrofit,
+    ): PnuService = retrofit.create(PnuService::class.java)
 }

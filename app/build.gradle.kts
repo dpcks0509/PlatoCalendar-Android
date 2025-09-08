@@ -29,6 +29,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "PLATO_BASE_URL", localProperties.getProperty("plato.base.url"))
+        buildConfigField("String", "PNU_BASE_URL", localProperties.getProperty("pnu.base.url"))
     }
 
     buildTypes {
@@ -36,7 +37,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

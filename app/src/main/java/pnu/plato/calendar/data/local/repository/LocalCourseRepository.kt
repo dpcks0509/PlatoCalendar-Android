@@ -2593,7 +2593,7 @@ class LocalCourseRepository
                 "GF1501212" to "스토리콘텐츠제작(I)",
             )
 
-        override fun getCourseName(courseCode: String): String =
+        override fun getCourseName(courseCode: String?): String? =
             courses.entries
                 .find { course ->
                     (course.key.substring(0, 4) + course.key.substring(6, 9) == courseCode)
