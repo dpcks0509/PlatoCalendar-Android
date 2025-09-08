@@ -78,3 +78,4 @@ class CalendarViewModel
             }
         }
     }
+// 1. 캘린더(개인 일정 + 학사 일정) 2. 할일 3. 설정
