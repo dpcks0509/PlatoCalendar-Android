@@ -56,6 +56,7 @@ class CalendarViewModel
                                             ScheduleUiModel(
                                                 domain = domain,
                                                 courseName = courseRepository.getCourseName(domain.courseCode),
+                                                isComplete = false, // TODO
                                             )
                                         },
                                     isLoading = false,

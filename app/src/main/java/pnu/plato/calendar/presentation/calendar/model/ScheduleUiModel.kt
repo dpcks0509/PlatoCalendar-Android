@@ -2,6 +2,10 @@ package pnu.plato.calendar.presentation.calendar.model
 
 import androidx.compose.ui.graphics.Color
 import pnu.plato.calendar.domain.entity.Schedule
+import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
+import pnu.plato.calendar.domain.entity.Schedule.CustomSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
+import pnu.plato.calendar.presentation.common.theme.CalendarGraphite
 import pnu.plato.calendar.presentation.common.theme.CalendarLavender
 import pnu.plato.calendar.presentation.common.theme.CalendarSage
 import pnu.plato.calendar.presentation.common.theme.CalendarTomato
@@ -17,7 +21,7 @@ data class ScheduleUiModel(
     val isComplete: Boolean,
     val color: Color,
 ) {
-    constructor(domain: Schedule, courseName: String?) : this(
+    constructor(domain: Schedule, courseName: String?, isComplete: Boolean) : this(
         title = domain.title,
         description = domain.description,
         memo = domain.memo,
@@ -26,10 +30,14 @@ data class ScheduleUiModel(
         courseName = courseName,
         isComplete = false,
         color =
-            when (domain) {
-                is Schedule.PersonalSchedule -> CalendarSage
-                is Schedule.AcademicSchedule -> CalendarLavender
-                is Schedule.CustomSchedule -> CalendarTomato
+            if (isComplete) {
+                CalendarGraphite
+            } else {
+                when (domain) {
+                    is PersonalSchedule -> CalendarSage
+                    is AcademicSchedule -> CalendarLavender
+                    is CustomSchedule -> CalendarTomato
+                }
             },
     )
 }
