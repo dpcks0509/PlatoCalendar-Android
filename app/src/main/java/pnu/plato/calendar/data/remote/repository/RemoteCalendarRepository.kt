@@ -1,15 +1,15 @@
 package pnu.plato.calendar.data.remote.repository
 
 import pnu.plato.calendar.data.remote.service.CalendarService
-import pnu.plato.calendar.domain.entity.Schedule
+import pnu.plato.calendar.domain.entity.Schedule.StudentSchedule
 import pnu.plato.calendar.domain.repository.CalendarRepository
-import pnu.plato.calendar.presentation.common.function.parseIcsToSchedules
+import pnu.plato.calendar.presentation.common.function.parseIcsToStudentSchedules
 import javax.inject.Inject
 
 class RemoteCalendarRepository @Inject constructor(
     private val calendarService: CalendarService
 ) : CalendarRepository {
-    override suspend fun getSchedules(sessKey: String): Result<List<Schedule>> {
+    override suspend fun getStudentSchedules(sessKey: String): Result<List<StudentSchedule>> {
         val response = calendarService.getSchedules(sessKey = sessKey)
 
         if (response.isSuccessful) {
@@ -18,7 +18,7 @@ class RemoteCalendarRepository @Inject constructor(
                 return Result.success(emptyList())
             }
 
-            val schedules = body.parseIcsToSchedules()
+            val schedules = body.parseIcsToStudentSchedules()
             return Result.success(schedules)
         }
 

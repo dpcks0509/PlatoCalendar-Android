@@ -1,6 +1,6 @@
 package pnu.plato.calendar.presentation.common.function
 
-import pnu.plato.calendar.domain.entity.Schedule
+import pnu.plato.calendar.domain.entity.Schedule.StudentSchedule
 import java.time.LocalDateTime
 
 fun String.parseUctToLocalDateTime(): LocalDateTime {
@@ -13,7 +13,7 @@ fun String.parseUctToLocalDateTime(): LocalDateTime {
     return LocalDateTime.of(year, month, day, hour, minute)
 }
 
-fun String.parseIcsToSchedules(): List<Schedule> {
+fun String.parseIcsToStudentSchedules(): List<StudentSchedule> {
     val unfoldedLines = mutableListOf<String>()
     lines().forEach { rawLine ->
         if (rawLine.startsWith(" ") && unfoldedLines.isNotEmpty()) {
@@ -24,12 +24,12 @@ fun String.parseIcsToSchedules(): List<Schedule> {
         }
     }
 
-    val schedules = mutableListOf<Schedule>()
+    val studentSchedules = mutableListOf<StudentSchedule>()
     var inEvent = false
     val currentFields = mutableMapOf<String, String>()
 
-    fun buildScheduleFromFields(fields: Map<String, String>): Schedule {
-        return Schedule(
+    fun buildScheduleFromFields(fields: Map<String, String>): StudentSchedule {
+        return StudentSchedule(
             id = fields["UID"].orEmpty(),
             title = fields["SUMMARY"].orEmpty(),
             description = fields["DESCRIPTION"],
@@ -48,7 +48,7 @@ fun String.parseIcsToSchedules(): List<Schedule> {
 
             trimmed.equals("END:VEVENT", ignoreCase = true) -> {
                 if (inEvent) {
-                    schedules.add(buildScheduleFromFields(currentFields.toMap()))
+                    studentSchedules.add(buildScheduleFromFields(currentFields.toMap()))
                 }
                 inEvent = false
                 currentFields.clear()
@@ -65,5 +65,5 @@ fun String.parseIcsToSchedules(): List<Schedule> {
         }
     }
 
-    return schedules
+    return studentSchedules
 }

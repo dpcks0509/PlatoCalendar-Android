@@ -1,7 +1,7 @@
 package pnu.plato.calendar.domain.repository
 
-import pnu.plato.calendar.domain.entity.Schedule
+import pnu.plato.calendar.domain.entity.Schedule.StudentSchedule
 
 interface CalendarRepository {
-    suspend fun getSchedules(sessKey: String): Result<List<Schedule>>
+    suspend fun getStudentSchedules(sessKey: String): Result<List<StudentSchedule>>
 }
