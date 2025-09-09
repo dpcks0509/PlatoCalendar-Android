@@ -9,7 +9,8 @@ import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.AcademicScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
@@ -17,73 +18,105 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel
-    @Inject
-    constructor(
-        private val loginManager: LoginManager,
-        private val scheduleRepository: ScheduleRepository,
-        private val courseRepository: CourseRepository,
-    ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
-        init {
-            viewModelScope.launch {
-                loginManager.loginStatus.collect { loginStatus ->
-                    fetchSchedules()
-                }
+@Inject
+constructor(
+    private val loginManager: LoginManager,
+    private val scheduleRepository: ScheduleRepository,
+    private val courseRepository: CourseRepository,
+) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
+    init {
+        viewModelScope.launch {
+            loginManager.loginStatus.collect { loginStatus ->
+                fetchSchedules()
             }
-        }
-
-        override suspend fun handleEvent(event: CalendarEvent) {
-//            when (event) {
-//            }
-        }
-
-        private suspend fun fetchSchedules() {
-            fetchPersonalSchedules()
-            fetchAcademicSchedules()
-        }
-
-        private suspend fun fetchPersonalSchedules() {
-            when (val loginStatus = loginManager.loginStatus.value) {
-                is LoginStatus.Login -> {
-                    setState { copy(isLoading = true) }
-
-                    scheduleRepository
-                        .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
-                        .onSuccess { personalSchedules ->
-                            setState {
-                                copy(
-                                    personalSchedules =
-                                        personalSchedules.map { domain ->
-                                            ScheduleUiModel(
-                                                domain = domain,
-                                                courseName = courseRepository.getCourseName(domain.courseCode),
-                                            )
-                                        },
-                                    isLoading = false,
-                                )
-                            }
-                        }.onFailure { throwable ->
-                            setState {
-                                copy(
-                                    personalSchedules = emptyList(),
-                                    isLoading = false,
-                                )
-                            }
-
-                            ErrorEventBus.sendError(throwable.message)
-                        }
-                }
-
-                is LoginStatus.Logout ->
-                    setState {
-                        copy(
-                            personalSchedules = emptyList(),
-                            isLoading = false,
-                        )
-                    }
-            }
-        }
-
-        private suspend fun fetchAcademicSchedules() {
-            scheduleRepository.getAcademicSchedules()
         }
     }
+
+    override suspend fun handleEvent(event: CalendarEvent) {
+//            when (event) {
+//            }
+    }
+
+    private suspend fun fetchSchedules() {
+        fetchPersonalSchedules()
+        fetchAcademicSchedules()
+    }
+
+    private suspend fun fetchPersonalSchedules() {
+        when (val loginStatus = loginManager.loginStatus.value) {
+            is LoginStatus.Login -> {
+                setState { copy(isLoading = true) }
+
+                scheduleRepository
+                    .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
+                    .onSuccess { personalSchedules ->
+                        setState {
+                            copy(
+                                personalSchedules =
+                                    personalSchedules.map { domain ->
+                                        PersonalScheduleUiModel(
+                                            domain = domain,
+                                            courseName = courseRepository.getCourseName(domain.courseCode),
+                                        )
+                                    },
+                                isLoading = false,
+                            )
+                        }
+                    }.onFailure { throwable ->
+                        setState {
+                            copy(
+                                personalSchedules = emptyList(),
+                                isLoading = false,
+                            )
+                        }
+
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+            }
+
+            is LoginStatus.Logout ->
+                setState {
+                    copy(
+                        personalSchedules = emptyList(),
+                        isLoading = false,
+                    )
+                }
+        }
+    }
+
+    private suspend fun fetchAcademicSchedules() {
+        when (loginManager.loginStatus.value) {
+            is LoginStatus.Login -> {
+                setState { copy(isLoading = true) }
+
+                scheduleRepository
+                    .getAcademicSchedules()
+                    .onSuccess { academicSchedules ->
+                        setState {
+                            copy(
+                                academicSchedules = academicSchedules.map(::AcademicScheduleUiModel),
+                                isLoading = false,
+                            )
+                        }
+                    }.onFailure { throwable ->
+                        setState {
+                            copy(
+                                academicSchedules = emptyList(),
+                                isLoading = false,
+                            )
+                        }
+
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+            }
+
+            is LoginStatus.Logout ->
+                setState {
+                    copy(
+                        academicSchedules = emptyList(),
+                        isLoading = false,
+                    )
+                }
+        }
+    }
+}
