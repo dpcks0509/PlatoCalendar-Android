@@ -8,17 +8,17 @@ import java.time.LocalTime
 
 data class AcademicScheduleUiModel(
     val title: String,
-    val memo: String?,
     val startAt: LocalTime,
     val endAt: LocalTime,
+    val memo: String?,
     val isComplete: Boolean,
     val color: Color,
 ) {
     constructor(domain: AcademicSchedule) : this(
         title = domain.title,
-        memo = domain.memo,
         startAt = domain.startAt,
         endAt = domain.endAt,
+        memo = domain.memo,
         isComplete = domain.isComplete,
         color = if (!domain.isComplete) CalendarSage else CalendarGraphite
     )

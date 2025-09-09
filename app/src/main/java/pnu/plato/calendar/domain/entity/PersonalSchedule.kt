@@ -6,9 +6,9 @@ data class PersonalSchedule(
     val id: Long,
     val title: String,
     val description: String?,
-    val memo: String? = null,
     val startAt: LocalDateTime,
     val endAt: LocalDateTime,
-    val isComplete: Boolean = false,
     val courseCode: String?,
+    val memo: String? = null,
+    val isComplete: Boolean = false,
 )

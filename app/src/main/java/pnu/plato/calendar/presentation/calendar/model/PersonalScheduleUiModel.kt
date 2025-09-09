@@ -9,9 +9,9 @@ import java.time.LocalDateTime
 data class PersonalScheduleUiModel(
     val title: String,
     val description: String?,
-    val memo: String?,
     val startAt: LocalDateTime,
     val endAt: LocalDateTime,
+    val memo: String?,
     val isComplete: Boolean,
     val courseName: String?,
     val color: Color,
@@ -19,9 +19,9 @@ data class PersonalScheduleUiModel(
     constructor(domain: PersonalSchedule, courseName: String?) : this(
         title = domain.title,
         description = domain.description,
-        memo = domain.memo,
         startAt = domain.startAt,
         endAt = domain.endAt,
+        memo = domain.memo,
         isComplete = domain.isComplete,
         courseName = courseName,
         color = if (!domain.isComplete) CalendarSage else CalendarGraphite
