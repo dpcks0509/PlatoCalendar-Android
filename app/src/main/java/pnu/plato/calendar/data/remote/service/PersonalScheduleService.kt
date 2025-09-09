@@ -6,23 +6,10 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-interface PlatoService {
-    @FormUrlEncoded
-    @POST("/login/index.php")
-    suspend fun login(
-        @Field("username") userName: String,
-        @Field("password") password: String,
-    ): Response<ResponseBody>
-
-    @GET("/login/logout.php")
-    suspend fun logout(
-        @Query("sesskey") sessKey: String,
-    ): Response<Unit>
-
+interface PersonalScheduleService {
     @FormUrlEncoded
     @POST("/calendar/export.php")
     suspend fun getPersonalSchedules(
@@ -47,6 +34,7 @@ interface PlatoService {
         @Body() body: JsonObject,
     ): Response<ResponseBody>
 }
+
 /*
 UPDATE
 

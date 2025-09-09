@@ -1,6 +1,6 @@
 package pnu.plato.calendar.data.remote.repository
 
-import pnu.plato.calendar.data.remote.service.PlatoService
+import pnu.plato.calendar.data.remote.service.LoginService
 import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.LoginSession
 import pnu.plato.calendar.domain.repository.LoginRepository
@@ -11,12 +11,12 @@ import javax.inject.Inject
 class RemoteLoginRepository
     @Inject
     constructor(
-        private val platoService: PlatoService,
+        private val loginService: LoginService,
         private val cookieManager: CookieManager,
     ) : LoginRepository {
         override suspend fun login(credentials: LoginCredentials): Result<LoginSession> {
             val response =
-                platoService.login(
+                loginService.login(
                     userName = credentials.userName,
                     password = credentials.password,
                 )
@@ -58,7 +58,7 @@ class RemoteLoginRepository
         }
 
         override suspend fun logout(sessKey: String): Result<Unit> {
-            val response = platoService.logout(sessKey = sessKey)
+            val response = loginService.logout(sessKey = sessKey)
 
             return if (response.isSuccessful) {
                 Result.success(Unit)

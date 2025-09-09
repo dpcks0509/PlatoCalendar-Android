@@ -1,8 +1,8 @@
 package pnu.plato.calendar.data.remote.repository
 
 import androidx.core.net.toUri
-import pnu.plato.calendar.data.remote.service.PlatoService
-import pnu.plato.calendar.data.remote.service.PnuService
+import pnu.plato.calendar.data.remote.service.AcademicScheduleService
+import pnu.plato.calendar.data.remote.service.PersonalScheduleService
 import pnu.plato.calendar.domain.entity.AcademicSchedule
 import pnu.plato.calendar.domain.entity.PersonalSchedule
 import pnu.plato.calendar.domain.repository.ScheduleRepository
@@ -15,12 +15,12 @@ import javax.inject.Inject
 class RemoteScheduleRepository
     @Inject
     constructor(
-        private val platoService: PlatoService,
-        private val pnuService: PnuService,
+        private val personalScheduleService: PersonalScheduleService,
+        private val academicScheduleService: AcademicScheduleService,
         private val loginManager: LoginManager,
     ) : ScheduleRepository {
         override suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>> {
-            val response = pnuService.getAcademicSchedules()
+            val response = academicScheduleService.getAcademicSchedules()
 
             if (response.isSuccessful) {
                 val body = response.body()?.string()
@@ -36,7 +36,7 @@ class RemoteScheduleRepository
         }
 
         override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
-            val response = platoService.getPersonalSchedules(sessKey = sessKey)
+            val response = personalScheduleService.getPersonalSchedules(sessKey = sessKey)
 
             if (response.isSuccessful) {
                 val body = response.body()?.string()

@@ -6,7 +6,7 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
-interface PnuService {
+interface AcademicScheduleService {
     @FormUrlEncoded
     @POST("/kor/CMS/Haksailjung/view.do")
     suspend fun getAcademicSchedules(
