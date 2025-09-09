@@ -38,50 +38,8 @@ constructor(
     }
 
     private suspend fun fetchSchedules() {
-        fetchPersonalSchedules()
         fetchAcademicSchedules()
-    }
-
-    private suspend fun fetchPersonalSchedules() {
-        when (val loginStatus = loginManager.loginStatus.value) {
-            is LoginStatus.Login -> {
-                setState { copy(isLoading = true) }
-
-                scheduleRepository
-                    .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
-                    .onSuccess { personalSchedules ->
-                        setState {
-                            copy(
-                                personalSchedules =
-                                    personalSchedules.map { domain ->
-                                        PersonalScheduleUiModel(
-                                            domain = domain,
-                                            courseName = courseRepository.getCourseName(domain.courseCode),
-                                        )
-                                    },
-                                isLoading = false,
-                            )
-                        }
-                    }.onFailure { throwable ->
-                        setState {
-                            copy(
-                                personalSchedules = emptyList(),
-                                isLoading = false,
-                            )
-                        }
-
-                        ErrorEventBus.sendError(throwable.message)
-                    }
-            }
-
-            is LoginStatus.Logout ->
-                setState {
-                    copy(
-                        personalSchedules = emptyList(),
-                        isLoading = false,
-                    )
-                }
-        }
+        fetchPersonalSchedules()
     }
 
     private suspend fun fetchAcademicSchedules() {
@@ -114,6 +72,49 @@ constructor(
                 setState {
                     copy(
                         academicSchedules = emptyList(),
+                        isLoading = false,
+                    )
+                }
+        }
+    }
+
+    private suspend fun fetchPersonalSchedules() {
+        when (val loginStatus = loginManager.loginStatus.value) {
+            is LoginStatus.Login -> {
+                setState { copy(isLoading = true) }
+
+                scheduleRepository
+                    .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
+                    .onSuccess { personalSchedules ->
+                        setState {
+                            copy(
+                                personalSchedules =
+                                    personalSchedules.map { domain ->
+                                        PersonalScheduleUiModel(
+                                            domain = domain,
+                                            courseName = courseRepository.getCourseName(domain.courseCode),
+                                            isComplete = false // TODO ROOM DB 에서 가져오기
+                                        )
+                                    },
+                                isLoading = false,
+                            )
+                        }
+                    }.onFailure { throwable ->
+                        setState {
+                            copy(
+                                personalSchedules = emptyList(),
+                                isLoading = false,
+                            )
+                        }
+
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+            }
+
+            is LoginStatus.Logout ->
+                setState {
+                    copy(
+                        personalSchedules = emptyList(),
                         isLoading = false,
                     )
                 }

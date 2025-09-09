@@ -15,12 +15,12 @@ object ServiceModule {
     @Provides
     @Singleton
     fun providePlatoService(
-        @Plato retrofit: Retrofit,
+        @PLATO retrofit: Retrofit,
     ): PlatoService = retrofit.create(PlatoService::class.java)
 
     @Provides
     @Singleton
     fun providePnuService(
-        @Pnu retrofit: Retrofit,
+        @PNU retrofit: Retrofit,
     ): PnuService = retrofit.create(PnuService::class.java)
 }

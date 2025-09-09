@@ -6,6 +6,4 @@ data class AcademicSchedule(
     val title: String,
     val startAt: LocalTime,
     val endAt: LocalTime,
-    val memo: String? = null,
-    val isComplete: Boolean = false
 )

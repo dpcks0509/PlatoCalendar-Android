@@ -46,7 +46,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    @Plato
+    @PLATO
     fun providePlatoRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit
             .Builder()
@@ -57,7 +57,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    @Pnu
+    @PNU
     fun providePnuRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit
             .Builder()
@@ -68,7 +68,7 @@ object NetworkModule {
 }
 
 @Qualifier
-annotation class Plato
+annotation class PLATO
 
 @Qualifier
-annotation class Pnu
+annotation class PNU

@@ -9,6 +9,4 @@ data class PersonalSchedule(
     val startAt: LocalDateTime,
     val endAt: LocalDateTime,
     val courseCode: String?,
-    val memo: String? = null,
-    val isComplete: Boolean = false,
 )
