@@ -14,7 +14,6 @@ import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -100,13 +99,6 @@ class CalendarViewModel
                                     isLoading = false,
                                 )
                             }
-
-                            scheduleRepository.createPersonalSchedule(
-                                title = "test title",
-                                description = "test description",
-                                startAt = LocalDateTime.now(),
-                                endAt = LocalDateTime.now().plusDays(3),
-                            )
                         }.onFailure { throwable ->
                             setState {
                                 copy(

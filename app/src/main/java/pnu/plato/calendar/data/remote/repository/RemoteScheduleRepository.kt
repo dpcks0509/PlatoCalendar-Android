@@ -1,21 +1,23 @@
 package pnu.plato.calendar.data.remote.repository
 
 import androidx.core.net.toUri
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import pnu.plato.calendar.data.remote.request.CreateArgs
+import pnu.plato.calendar.data.remote.request.CreateRequest
+import pnu.plato.calendar.data.remote.request.DeleteArgs
+import pnu.plato.calendar.data.remote.request.DeleteEvent
+import pnu.plato.calendar.data.remote.request.DeleteRequest
+import pnu.plato.calendar.data.remote.request.UpdateArgs
+import pnu.plato.calendar.data.remote.request.UpdateRequest
 import pnu.plato.calendar.data.remote.service.AcademicScheduleService
 import pnu.plato.calendar.data.remote.service.PersonalScheduleService
 import pnu.plato.calendar.domain.entity.AcademicSchedule
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.entity.PersonalSchedule
 import pnu.plato.calendar.domain.repository.ScheduleRepository
-import pnu.plato.calendar.presentation.common.function.parseHtmlToAcademicSchedules
-import pnu.plato.calendar.presentation.common.function.parseIcsToPersonalSchedules
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import java.net.URLEncoder
 import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.inject.Inject
 
 class RemoteScheduleRepository
@@ -43,7 +45,6 @@ class RemoteScheduleRepository
 
         override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
             val response = personalScheduleService.getPersonalSchedules(sessKey = sessKey)
-            println(response)
 
             if (response.isSuccessful) {
                 val body = response.body()?.string()
@@ -91,8 +92,6 @@ class RemoteScheduleRepository
                         body = body,
                     )
 
-                println("body: $body")
-
                 if (response.isSuccessful) {
                     return Result.success(Unit)
                 }
@@ -116,7 +115,7 @@ class RemoteScheduleRepository
                         sessKey = loginStatus.loginSession.sessKey,
                         body =
                             buildUpdateScheduleBody(
-                                id = id.toString(),
+                                id = id,
                                 userId = loginStatus.loginSession.userId.orEmpty(),
                                 sessKey = loginStatus.loginSession.sessKey,
                                 name = title,
@@ -135,150 +134,263 @@ class RemoteScheduleRepository
         }
 
         override suspend fun deletePersonalSchedule(id: Long): Result<Unit> {
-            TODO("Not yet implemented")
-        }
+            val loginStatus = loginManager.loginStatus.value
 
-        private fun buildCreateScheduleBody(
-            userId: String,
-            sessKey: String,
-            name: String,
-            startDateTime: LocalDateTime,
-            endDateTime: LocalDateTime,
-            description: String,
-        ): JsonArray {
-            val encodedDescription = URLEncoder.encode("<p>$description</p>", "UTF-8")
+            if (loginStatus is LoginStatus.Login) {
+                val response =
+                    personalScheduleService.deletePersonalSchedule(
+                        sessKey = loginStatus.loginSession.sessKey,
+                        body = buildDeleteScheduleBody(eventId = id),
+                    )
 
-            val formData =
-                buildString {
-                    append("id=0&")
-                    append("userid=$userId&")
-                    append("modulename=&")
-                    append("instance=0&")
-                    append("visible=1&")
-                    append("eventtype=user&")
-                    append("sesskey=$sessKey&")
-                    append("_qf__core_calendar_local_event_forms_create=1&")
-                    append("mform_showmore_id_general=1&")
-                    append("name=$name&")
-                    append("timestart%5Byear%5D=${startDateTime.year}&")
-                    append("timestart%5Bmonth%5D=${startDateTime.monthValue}&")
-                    append("timestart%5Bday%5D=${startDateTime.dayOfMonth}&")
-                    append("timestart%5Bhour%5D=${startDateTime.hour}&")
-                    append("timestart%5Bminute%5D=${startDateTime.minute}&")
-                    append("description%5Btext%5D=$encodedDescription&")
-                    append("description%5Bformat%5D=1&")
-                    append("description%5Bitemid%5D=759600809&")
-                    append("duration=1&")
-                    append("timedurationuntil%5Byear%5D=${endDateTime.year}&")
-                    append("timedurationuntil%5Bmonth%5D=${endDateTime.monthValue}&")
-                    append("timedurationuntil%5Bday%5D=${endDateTime.dayOfMonth}&")
-                    append("timedurationuntil%5Bhour%5D=${endDateTime.hour}&")
-                    append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
+                if (response.isSuccessful) {
+                    return Result.success(Unit)
                 }
-
-            return buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("index", 0)
-                        put("methodname", "core_calendar_submit_create_update_form")
-                        put(
-                            "args",
-                            buildJsonObject {
-                                put("formdata", formData)
-                            },
-                        )
-                    },
-                )
             }
+
+            return Result.failure(Exception(UPDATE_SCHEDULES_FAILED_ERROR))
         }
-
-        private fun buildUpdateScheduleBody(
-            id: String,
-            userId: String,
-            sessKey: String,
-            name: String,
-            startDateTime: LocalDateTime,
-            endDateTime: LocalDateTime,
-            description: String,
-        ): JsonArray {
-            val encodedDescription = URLEncoder.encode("<p>$description</p>", "UTF-8")
-
-            val formData =
-                buildString {
-                    append("id=$id&")
-                    append("userid=$userId&")
-                    append("modulename=0&")
-                    append("instance=0&")
-                    append("visible=1&")
-                    append("eventtype=user&")
-                    append("repeatid=0&")
-                    append("sesskey=$sessKey&")
-                    append("_qf__core_calendar_local_event_forms_update=1&")
-                    append("mform_showmore_id_general=0&")
-                    append("name=$name&")
-                    append("timestart%5Byear%5D=${startDateTime.year}&")
-                    append("timestart%5Bmonth%5D=${startDateTime.monthValue}&")
-                    append("timestart%5Bday%5D=${startDateTime.dayOfMonth}&")
-                    append("timestart%5Bhour%5D=${startDateTime.hour}&")
-                    append("timestart%5Bminute%5D=${startDateTime.minute}&")
-                    append("description%5Btext%5D=$encodedDescription&")
-                    append("description%5Bformat%5D=1&")
-                    append("description%5Bitemid%5D=759600809&")
-                    append("duration=1&")
-                    append("timedurationuntil%5Byear%5D=${endDateTime.year}&")
-                    append("timedurationuntil%5Bmonth%5D=${endDateTime.monthValue}&")
-                    append("timedurationuntil%5Bday%5D=${endDateTime.dayOfMonth}&")
-                    append("timedurationuntil%5Bhour%5D=${endDateTime.hour}&")
-                    append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
-                }
-
-            return buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("index", 0)
-                        put("methodname", "core_calendar_submit_create_update_form")
-                        put(
-                            "args",
-                            buildJsonObject {
-                                put("formdata", formData)
-                            },
-                        )
-                    },
-                )
-            }
-        }
-
-        /**
-         * Create JSON body for deleting personal schedule
-         */
-        fun createDeleteScheduleBody(eventId: String): JsonArray =
-            buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("index", 0)
-                        put("methodname", "core_calendar_delete_calendar_events")
-                        put(
-                            "args",
-                            buildJsonObject {
-                                put(
-                                    "events",
-                                    buildJsonArray {
-                                        add(
-                                            buildJsonObject {
-                                                put("eventid", eventId)
-                                                put("repeat", false)
-                                            },
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                    },
-                )
-            }
 
         companion object {
             private const val GET_SCHEDULES_FAILED_ERROR = "일정을 가져오는데 실패했습니다."
             private const val UPDATE_SCHEDULES_FAILED_ERROR = "일정을 등록하는데 실패했습니다."
         }
     }
+
+fun String.parseIcsToPersonalSchedules(): List<PersonalSchedule> {
+    val unfoldedLines = mutableListOf<String>()
+    lines().forEach { rawLine ->
+        if (rawLine.startsWith(" ") && unfoldedLines.isNotEmpty()) {
+            val previous = unfoldedLines.removeAt(unfoldedLines.lastIndex)
+            unfoldedLines.add(previous + rawLine.trimStart())
+        } else {
+            unfoldedLines.add(rawLine)
+        }
+    }
+
+    val personalSchedules = mutableListOf<PersonalSchedule>()
+    var inEvent = false
+    val currentFields = mutableMapOf<String, String>()
+
+    unfoldedLines.forEach { line ->
+        val trimmed = line.trim()
+        when {
+            trimmed.equals("BEGIN:VEVENT", ignoreCase = true) -> {
+                inEvent = true
+                currentFields.clear()
+            }
+
+            trimmed.equals("END:VEVENT", ignoreCase = true) -> {
+                if (inEvent) {
+                    personalSchedules.add(buildScheduleFromFields(currentFields.toMap()))
+                }
+                inEvent = false
+                currentFields.clear()
+            }
+
+            inEvent -> {
+                val colonIndex = trimmed.indexOf(':')
+                if (colonIndex > 0) {
+                    val key = trimmed.substring(0, colonIndex).substringBefore(';').uppercase()
+                    val value = trimmed.substring(colonIndex + 1)
+                    currentFields[key] = value
+                }
+            }
+        }
+    }
+
+    return personalSchedules
+}
+
+private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule =
+    PersonalSchedule(
+        id = fields["UID"].orEmpty().split("@")[0].toLong(),
+        title = fields["SUMMARY"].orEmpty(),
+        description = fields["DESCRIPTION"],
+        startAt = fields["DTSTART"].orEmpty().parseUctToLocalDateTime(),
+        endAt = fields["DTEND"].orEmpty().parseUctToLocalDateTime(),
+        courseCode = fields["CATEGORIES"]?.split("_")[2],
+    )
+
+private fun String.parseUctToLocalDateTime(): LocalDateTime {
+    val year = substring(0, 4).toInt()
+    val month = substring(4, 6).toInt()
+    val day = substring(6, 8).toInt()
+    val hour = substring(9, 11).toInt()
+    val minute = substring(11, 13).toInt()
+
+    return LocalDateTime.of(year, month, day, hour, minute)
+}
+
+fun String.parseHtmlToAcademicSchedules(): List<AcademicSchedule> {
+    val academicSchedules = mutableListOf<AcademicSchedule>()
+
+    val tableRows = this.split("<tr>").drop(1)
+
+    tableRows.forEach { row ->
+        if (row.contains("class=\"term\"") && row.contains("class=\"text\"")) {
+            try {
+                val termMatch = Regex("class=\"term\"[^>]*>([^<]+)</").find(row)
+                val termText = termMatch?.groupValues?.get(1)?.trim()
+
+                val textMatch = Regex("class=\"text\"[^>]*>([^<]+)</").find(row)
+                val textContent = textMatch?.groupValues?.get(1)?.trim()
+
+                if (termText != null && textContent != null) {
+                    val (startAt, endAt) = termText.parseDateRange()
+
+                    academicSchedules.add(
+                        AcademicSchedule(
+                            title = textContent,
+                            startAt = startAt,
+                            endAt = endAt,
+                        ),
+                    )
+                }
+            } catch (e: Exception) {
+                return@forEach
+            }
+        }
+    }
+
+    return academicSchedules
+}
+
+private fun String.parseDateRange(): Pair<LocalTime, LocalTime> {
+    val dates = this.split(" - ").map { it.trim() }
+
+    if (dates.size != 2) {
+        throw IllegalArgumentException("Invalid date range format: $this")
+    }
+
+    val startDate = dates[0].parseKoreanDateToLocalTime()
+    val endDate = dates[1].parseKoreanDateToLocalTime()
+
+    return Pair(startDate, endDate)
+}
+
+private fun String.parseKoreanDateToLocalTime(): LocalTime {
+    val parts = this.split(".")
+
+    if (parts.size != 3) {
+        throw IllegalArgumentException("Invalid date format: $this")
+    }
+
+    val year = parts[0].toInt()
+    val month = parts[1].toInt()
+    val day = parts[2].toInt()
+
+    return LocalTime.of(year, month, day)
+}
+
+private fun buildCreateScheduleBody(
+    userId: String,
+    sessKey: String,
+    name: String,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    description: String,
+): List<CreateRequest> {
+    val encodedName = URLEncoder.encode(name, "UTF-8").replace("+", "%20")
+    val encodedDescription =
+        URLEncoder.encode("<p>$description</p>", "UTF-8").replace("+", "%20")
+
+    val formData =
+        buildString {
+            append("id=0&")
+            append("userid=$userId&")
+            append("modulename=&")
+            append("instance=0&")
+            append("visible=1&")
+            append("eventtype=user&")
+            append("sesskey=$sessKey&")
+            append("_qf__core_calendar_local_event_forms_create=1&")
+            append("mform_showmore_id_general=1&")
+            append("name=$encodedName&")
+            append("timestart%5Byear%5D=${startDateTime.year}&")
+            append("timestart%5Bmonth%5D=${startDateTime.monthValue}&")
+            append("timestart%5Bday%5D=${startDateTime.dayOfMonth}&")
+            append("timestart%5Bhour%5D=${startDateTime.hour}&")
+            append("timestart%5Bminute%5D=${startDateTime.minute}&")
+            append("description%5Btext%5D=$encodedDescription&")
+            append("description%5Bformat%5D=1&")
+            append("description%5Bitemid%5D=0&")
+            append("duration=1&")
+            append("timedurationuntil%5Byear%5D=${endDateTime.year}&")
+            append("timedurationuntil%5Bmonth%5D=${endDateTime.monthValue}&")
+            append("timedurationuntil%5Bday%5D=${endDateTime.dayOfMonth}&")
+            append("timedurationuntil%5Bhour%5D=${endDateTime.hour}&")
+            append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
+        }
+
+    return listOf(
+        CreateRequest(
+            args = CreateArgs(formData = formData),
+        ),
+    )
+}
+
+private fun buildUpdateScheduleBody(
+    id: Long,
+    userId: String,
+    sessKey: String,
+    name: String,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    description: String,
+): List<UpdateRequest> {
+    val encodedName = URLEncoder.encode(name, "UTF-8").replace("+", "%20")
+    val encodedDescription =
+        URLEncoder.encode("<p>$description</p>", "UTF-8").replace("+", "%20")
+
+    val formData =
+        buildString {
+            append("id=$id&")
+            append("userid=$userId&")
+            append("modulename=0&")
+            append("instance=0&")
+            append("visible=1&")
+            append("eventtype=user&")
+            append("repeatid=0&")
+            append("sesskey=$sessKey&")
+            append("_qf__core_calendar_local_event_forms_update=1&")
+            append("mform_showmore_id_general=0&")
+            append("name=$encodedName&")
+            append("timestart%5Byear%5D=${startDateTime.year}&")
+            append("timestart%5Bmonth%5D=${startDateTime.monthValue}&")
+            append("timestart%5Bday%5D=${startDateTime.dayOfMonth}&")
+            append("timestart%5Bhour%5D=${startDateTime.hour}&")
+            append("timestart%5Bminute%5D=${startDateTime.minute}&")
+            append("description%5Btext%5D=$encodedDescription&")
+            append("description%5Bformat%5D=1&")
+            append("description%5Bitemid%5D=$id&")
+            append("duration=1&")
+            append("timedurationuntil%5Byear%5D=${endDateTime.year}&")
+            append("timedurationuntil%5Bmonth%5D=${endDateTime.monthValue}&")
+            append("timedurationuntil%5Bday%5D=${endDateTime.dayOfMonth}&")
+            append("timedurationuntil%5Bhour%5D=${endDateTime.hour}&")
+            append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
+        }
+
+    return listOf(
+        UpdateRequest(
+            args = UpdateArgs(formData = formData),
+        ),
+    )
+}
+
+private fun buildDeleteScheduleBody(eventId: Long): List<DeleteRequest> =
+    listOf(
+        DeleteRequest(
+            args =
+                DeleteArgs(
+                    events =
+                        listOf(
+                            DeleteEvent(
+                                eventId = eventId,
+                                repeat = false,
+                            ),
+                        ),
+                ),
+        ),
+    )

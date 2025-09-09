@@ -1,7 +1,9 @@
 package pnu.plato.calendar.data.remote.service
 
-import kotlinx.serialization.json.JsonArray
 import okhttp3.ResponseBody
+import pnu.plato.calendar.data.remote.request.CreateRequest
+import pnu.plato.calendar.data.remote.request.DeleteRequest
+import pnu.plato.calendar.data.remote.request.UpdateRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -24,21 +26,21 @@ interface PersonalScheduleService {
     suspend fun createPersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_submit_create_update_form",
-        @Body() body: JsonArray,
+        @Body body: List<CreateRequest>,
     ): Response<ResponseBody>
 
     @POST("/lib/ajax/service.php")
     suspend fun updatePersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_submit_create_update_form",
-        @Body() body: JsonArray,
+        @Body body: List<UpdateRequest>,
     ): Response<ResponseBody>
 
     @POST("/lib/ajax/service.php")
     suspend fun deletePersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_delete_calendar_events",
-        @Body() body: JsonArray,
+        @Body body: List<DeleteRequest>,
     ): Response<ResponseBody>
 }
 
