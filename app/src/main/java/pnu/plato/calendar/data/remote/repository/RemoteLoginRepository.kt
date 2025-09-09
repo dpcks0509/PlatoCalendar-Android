@@ -24,8 +24,9 @@ class RemoteLoginRepository
             if (response.isSuccessful) {
                 val requestUrl = response.raw().request.url
 
-                if (requestUrl.encodedPath == "/login.php" && requestUrl.queryParameter("errorcode") == "3") {
-                    return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
+                when (requestUrl.queryParameter("errorcode")) {
+                    "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
+                    "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
                 }
 
                 val baseUrl =
@@ -69,6 +70,7 @@ class RemoteLoginRepository
 
         companion object {
             private const val INVALID_CREDENTIALS_ERROR = "아이디 또는 패스워드가 잘못 입력되었습니다."
+            private const val SESSION_EXPIRED_ERROR = "세션이 종료 되었습니다. 다시 로그인 하십시오."
             private const val LOGIN_FAILED_ERROR = "로그인에 실패했습니다."
             private const val LOGOUT_FAILED_ERROR = "로그아웃에 실패했습니다."
         }
