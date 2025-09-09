@@ -14,110 +14,118 @@ import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel
-@Inject
-constructor(
-    private val loginManager: LoginManager,
-    private val scheduleRepository: ScheduleRepository,
-    private val courseRepository: CourseRepository,
-) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
-    init {
-        viewModelScope.launch {
-            loginManager.loginStatus.collect { loginStatus ->
-                fetchSchedules()
+    @Inject
+    constructor(
+        private val loginManager: LoginManager,
+        private val scheduleRepository: ScheduleRepository,
+        private val courseRepository: CourseRepository,
+    ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
+        init {
+            viewModelScope.launch {
+                loginManager.loginStatus.collect { loginStatus ->
+                    fetchSchedules()
+                }
             }
         }
-    }
 
-    override suspend fun handleEvent(event: CalendarEvent) {
+        override suspend fun handleEvent(event: CalendarEvent) {
 //            when (event) {
 //            }
-    }
+        }
 
-    private suspend fun fetchSchedules() {
-        fetchAcademicSchedules()
-        fetchPersonalSchedules()
-    }
+        private suspend fun fetchSchedules() {
+            fetchAcademicSchedules()
+            fetchPersonalSchedules()
+        }
 
-    private suspend fun fetchAcademicSchedules() {
-        when (loginManager.loginStatus.value) {
-            is LoginStatus.Login -> {
-                setState { copy(isLoading = true) }
+        private suspend fun fetchAcademicSchedules() {
+            when (val loginStatus = loginManager.loginStatus.value) {
+                is LoginStatus.Login -> {
+                    setState { copy(isLoading = true) }
 
-                scheduleRepository
-                    .getAcademicSchedules()
-                    .onSuccess { academicSchedules ->
-                        setState {
-                            copy(
-                                academicSchedules = academicSchedules.map(::AcademicScheduleUiModel),
-                                isLoading = false,
-                            )
+                    scheduleRepository
+                        .getAcademicSchedules()
+                        .onSuccess { academicSchedules ->
+                            setState {
+                                copy(
+                                    academicSchedules = academicSchedules.map(::AcademicScheduleUiModel),
+                                    isLoading = false,
+                                )
+                            }
+                        }.onFailure { throwable ->
+                            setState {
+                                copy(
+                                    academicSchedules = emptyList(),
+                                    isLoading = false,
+                                )
+                            }
+
+                            ErrorEventBus.sendError(throwable.message)
                         }
-                    }.onFailure { throwable ->
-                        setState {
-                            copy(
-                                academicSchedules = emptyList(),
-                                isLoading = false,
-                            )
-                        }
+                }
 
-                        ErrorEventBus.sendError(throwable.message)
+                is LoginStatus.Logout ->
+                    setState {
+                        copy(
+                            academicSchedules = emptyList(),
+                            isLoading = false,
+                        )
                     }
             }
-
-            is LoginStatus.Logout ->
-                setState {
-                    copy(
-                        academicSchedules = emptyList(),
-                        isLoading = false,
-                    )
-                }
         }
-    }
 
-    private suspend fun fetchPersonalSchedules() {
-        when (val loginStatus = loginManager.loginStatus.value) {
-            is LoginStatus.Login -> {
-                setState { copy(isLoading = true) }
+        private suspend fun fetchPersonalSchedules() {
+            when (val loginStatus = loginManager.loginStatus.value) {
+                is LoginStatus.Login -> {
+                    setState { copy(isLoading = true) }
 
-                scheduleRepository
-                    .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
-                    .onSuccess { personalSchedules ->
-                        setState {
-                            copy(
-                                personalSchedules =
-                                    personalSchedules.map { domain ->
-                                        PersonalScheduleUiModel(
-                                            domain = domain,
-                                            courseName = courseRepository.getCourseName(domain.courseCode),
-                                            isComplete = false // TODO ROOM DB 에서 가져오기
-                                        )
-                                    },
-                                isLoading = false,
+                    scheduleRepository
+                        .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
+                        .onSuccess { personalSchedules ->
+                            setState {
+                                copy(
+                                    personalSchedules =
+                                        personalSchedules.map { domain ->
+                                            PersonalScheduleUiModel(
+                                                domain = domain,
+                                                courseName = courseRepository.getCourseName(domain.courseCode),
+                                                isComplete = false, // TODO ROOM DB 에서 가져오기
+                                            )
+                                        },
+                                    isLoading = false,
+                                )
+                            }
+
+                            scheduleRepository.createPersonalSchedule(
+                                title = "test title",
+                                description = "test description",
+                                startAt = LocalDateTime.now(),
+                                endAt = LocalDateTime.now().plusDays(3),
                             )
-                        }
-                    }.onFailure { throwable ->
-                        setState {
-                            copy(
-                                personalSchedules = emptyList(),
-                                isLoading = false,
-                            )
-                        }
+                        }.onFailure { throwable ->
+                            setState {
+                                copy(
+                                    personalSchedules = emptyList(),
+                                    isLoading = false,
+                                )
+                            }
 
-                        ErrorEventBus.sendError(throwable.message)
+                            ErrorEventBus.sendError(throwable.message)
+                        }
+                }
+
+                is LoginStatus.Logout ->
+                    setState {
+                        copy(
+                            personalSchedules = emptyList(),
+                            isLoading = false,
+                        )
                     }
             }
-
-            is LoginStatus.Logout ->
-                setState {
-                    copy(
-                        personalSchedules = emptyList(),
-                        isLoading = false,
-                    )
-                }
         }
     }
-}

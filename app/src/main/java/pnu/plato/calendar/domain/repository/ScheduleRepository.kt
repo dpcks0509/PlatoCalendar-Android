@@ -9,6 +9,13 @@ interface ScheduleRepository {
 
     suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>>
 
+    suspend fun createPersonalSchedule(
+        title: String,
+        description: String?,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+    ): Result<Unit>
+
     suspend fun updatePersonalSchedule(
         id: Long,
         title: String,
@@ -17,7 +24,5 @@ interface ScheduleRepository {
         endAt: LocalDateTime,
     ): Result<Unit>
 
-    suspend fun deletePersonalSchedule(
-        id: Long,
-    ): Result<Unit>
+    suspend fun deletePersonalSchedule(id: Long): Result<Unit>
 }

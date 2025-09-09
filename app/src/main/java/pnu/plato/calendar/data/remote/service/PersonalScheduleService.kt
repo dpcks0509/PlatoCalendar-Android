@@ -1,6 +1,6 @@
 package pnu.plato.calendar.data.remote.service
 
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonArray
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -21,23 +21,31 @@ interface PersonalScheduleService {
     ): Response<ResponseBody>
 
     @POST("/lib/ajax/service.php")
+    suspend fun createPersonalSchedule(
+        @Query("sesskey") sessKey: String,
+        @Query("info") info: String = "core_calendar_submit_create_update_form",
+        @Body() body: JsonArray,
+    ): Response<ResponseBody>
+
+    @POST("/lib/ajax/service.php")
     suspend fun updatePersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_submit_create_update_form",
-        @Body() body: JsonObject,
+        @Body() body: JsonArray,
     ): Response<ResponseBody>
 
     @POST("/lib/ajax/service.php")
     suspend fun deletePersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_delete_calendar_events",
-        @Body() body: JsonObject,
+        @Body() body: JsonArray,
     ): Response<ResponseBody>
 }
 
 /*
 UPDATE
 
+[Request Payload]
 [{
     "index":0,
     "methodname":"core_calendar_submit_create_update_form",
@@ -71,6 +79,7 @@ UPDATE
     }
 }]
 
+[필요한 정보들] = 뒤에는 예시값 (time은 localDateTime 하나에서 뽑아서 넣기)
 id=5240580
 userid=399165
 sesskey=mPtqrMHjp3
@@ -80,7 +89,7 @@ timestart%5Bday%5D=6
 timestart%5Bmonth%5D=9
 timestart%5Bhour%5D=22
 timestart%5Bminute%5D=51
-description%5Btext%5D=%3Cp%3E "21232133" %3C%2Fp%3E  -> ("21232133" 은 파라미터로 받아오는 값)
+description%5Btext%5D=%3Cp%3E"21232133"%3C%2Fp%3E  -> ("21232133" 은 파라미터로 받아오는 값)
 timedurationuntil%5Byear%5D=2025
 timedurationuntil%5Bmonth%5D=9
 timedurationuntil%5Bday%5D=11
