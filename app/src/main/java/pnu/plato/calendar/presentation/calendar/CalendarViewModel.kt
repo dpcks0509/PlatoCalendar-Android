@@ -48,15 +48,14 @@ class CalendarViewModel
 
                     scheduleRepository
                         .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
-                        .onSuccess { schedules ->
+                        .onSuccess { personalSchedules ->
                             setState {
                                 copy(
                                     personalSchedules =
-                                        schedules.map { domain ->
+                                        personalSchedules.map { domain ->
                                             ScheduleUiModel(
                                                 domain = domain,
                                                 courseName = courseRepository.getCourseName(domain.courseCode),
-                                                isComplete = false, // TODO
                                             )
                                         },
                                     isLoading = false,

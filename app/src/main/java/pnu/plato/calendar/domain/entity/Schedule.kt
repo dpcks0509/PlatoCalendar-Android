@@ -8,15 +8,19 @@ sealed class Schedule(
     open val memo: String?,
     open val startAt: LocalDateTime,
     open val endAt: LocalDateTime,
+    open val isComplete: Boolean
 ) {
+
     data class PersonalSchedule(
+        val id: Long,
         override val title: String,
         override val description: String?,
         override val memo: String? = null,
         override val startAt: LocalDateTime,
         override val endAt: LocalDateTime,
+        override val isComplete: Boolean = false,
         val courseCode: String?,
-    ) : Schedule(title, description, memo, startAt, endAt)
+    ) : Schedule(title, description, memo, startAt, endAt, isComplete)
 
     data class AcademicSchedule(
         override val title: String,
@@ -24,13 +28,7 @@ sealed class Schedule(
         override val memo: String? = null,
         override val startAt: LocalDateTime,
         override val endAt: LocalDateTime,
-    ) : Schedule(title, description, memo, startAt, endAt)
-
-    data class CustomSchedule(
-        override val title: String,
-        override val description: String?,
-        override val memo: String?,
-        override val startAt: LocalDateTime,
-        override val endAt: LocalDateTime,
-    ) : Schedule(title, description, memo, startAt, endAt)
+        override val isComplete: Boolean = false
+    ) : Schedule(title, description, memo, startAt, endAt, isComplete)
 }
+
