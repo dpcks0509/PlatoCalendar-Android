@@ -1,5 +1,6 @@
 package pnu.plato.calendar.data.remote.repository
 
+import androidx.core.net.toUri
 import pnu.plato.calendar.data.remote.service.PlatoService
 import pnu.plato.calendar.data.remote.service.PnuService
 import pnu.plato.calendar.domain.entity.AcademicSchedule
@@ -7,6 +8,7 @@ import pnu.plato.calendar.domain.entity.PersonalSchedule
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.common.function.parseHtmlToAcademicSchedules
 import pnu.plato.calendar.presentation.common.function.parseIcsToPersonalSchedules
+import pnu.plato.calendar.presentation.common.manager.LoginManager
 import javax.inject.Inject
 
 class RemoteScheduleRepository
@@ -14,6 +16,7 @@ class RemoteScheduleRepository
 constructor(
     private val platoService: PlatoService,
     private val pnuService: PnuService,
+    private val loginManager: LoginManager
 ) : ScheduleRepository {
     override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
         val response = platoService.getPersonalSchedules(sessKey = sessKey)
@@ -23,6 +26,10 @@ constructor(
             if (body.isNullOrBlank()) {
                 return Result.success(emptyList())
             }
+
+            val exportUrl = response.raw().request.url.toString()
+            val userId = exportUrl.toUri().getQueryParameter("userid")
+            loginManager.setUserId(userId)
 
             val personalSchedules = body.parseIcsToPersonalSchedules()
             return Result.success(personalSchedules)

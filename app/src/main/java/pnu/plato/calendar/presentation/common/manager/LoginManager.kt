@@ -15,42 +15,23 @@ import javax.inject.Singleton
 
 @Singleton
 class LoginManager
-    @Inject
-    constructor(
-        private val loginRepository: LoginRepository,
-        private val preferences: LoginCredentialsDataStore,
-    ) {
-        private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Logout)
-        val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
+@Inject
+constructor(
+    private val loginRepository: LoginRepository,
+    private val preferences: LoginCredentialsDataStore,
+) {
+    private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Logout)
+    val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
-        suspend fun autoLogin(): Boolean {
-            val loginCredentials = preferences.loginCredentials.firstOrNull()
+    suspend fun autoLogin(): Boolean {
+        val loginCredentials = preferences.loginCredentials.firstOrNull()
 
-            loginCredentials?.let { loginCredentials ->
-                if (loginStatus.value is LoginStatus.Logout) {
-                    loginRepository
-                        .login(loginCredentials)
-                        .onSuccess { loginSession ->
-                            _loginStatus.update { LoginStatus.Login(loginSession) }
-
-                            return true
-                        }.onFailure { throwable ->
-                            ErrorEventBus.sendError(throwable.message)
-                        }
-                }
-                return false
-            }
-
-            return false
-        }
-
-        suspend fun login(credentials: LoginCredentials): Boolean {
+        loginCredentials?.let { loginCredentials ->
             if (loginStatus.value is LoginStatus.Logout) {
                 loginRepository
-                    .login(credentials)
+                    .login(loginCredentials)
                     .onSuccess { loginSession ->
                         _loginStatus.update { LoginStatus.Login(loginSession) }
-                        preferences.saveLoginCredentials(credentials)
 
                         return true
                     }.onFailure { throwable ->
@@ -60,22 +41,49 @@ class LoginManager
             return false
         }
 
-        suspend fun logout(): Boolean {
-            val currentLoginStatus = loginStatus.value
+        return false
+    }
 
-            if (currentLoginStatus is LoginStatus.Login) {
-                loginRepository
-                    .logout(sessKey = currentLoginStatus.loginSession.sessKey)
-                    .onSuccess {
-                        _loginStatus.update { LoginStatus.Logout }
-                        preferences.deleteLoginCredentials()
+    suspend fun login(credentials: LoginCredentials): Boolean {
+        if (loginStatus.value is LoginStatus.Logout) {
+            loginRepository
+                .login(credentials)
+                .onSuccess { loginSession ->
+                    _loginStatus.update { LoginStatus.Login(loginSession) }
+                    preferences.saveLoginCredentials(credentials)
 
-                        return true
-                    }.onFailure { throwable ->
-                        ErrorEventBus.sendError(throwable.message)
-                    }
-            }
+                    return true
+                }.onFailure { throwable ->
+                    ErrorEventBus.sendError(throwable.message)
+                }
+        }
+        return false
+    }
 
-            return false
+    suspend fun logout(): Boolean {
+        val currentLoginStatus = loginStatus.value
+
+        if (currentLoginStatus is LoginStatus.Login) {
+            loginRepository
+                .logout(sessKey = currentLoginStatus.loginSession.sessKey)
+                .onSuccess {
+                    _loginStatus.update { LoginStatus.Logout }
+                    preferences.deleteLoginCredentials()
+
+                    return true
+                }.onFailure { throwable ->
+                    ErrorEventBus.sendError(throwable.message)
+                }
+        }
+
+        return false
+    }
+
+    fun setUserId(userId: String?) {
+        val currentLoginStatus = loginStatus.value
+
+        if (currentLoginStatus is LoginStatus.Login) {
+            _loginStatus.update { LoginStatus.Login(currentLoginStatus.loginSession.copy(userId = userId)) }
         }
     }
+}
