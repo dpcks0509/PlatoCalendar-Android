@@ -2,6 +2,7 @@ package pnu.plato.calendar.presentation.calendar
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.repository.CourseRepository
@@ -27,7 +28,10 @@ class CalendarViewModel
         init {
             viewModelScope.launch {
                 loginManager.loginStatus.collect { loginStatus ->
-                    fetchSchedules()
+                    coroutineScope {
+                        launch { fetchAcademicSchedules() }
+                        launch { fetchPersonalSchedules() }
+                    }
                 }
             }
         }
@@ -37,13 +41,8 @@ class CalendarViewModel
 //            }
         }
 
-        private suspend fun fetchSchedules() {
-            fetchAcademicSchedules()
-            fetchPersonalSchedules()
-        }
-
         private suspend fun fetchAcademicSchedules() {
-            when (val loginStatus = loginManager.loginStatus.value) {
+            when (loginManager.loginStatus.value) {
                 is LoginStatus.Login -> {
                     setState { copy(isLoading = true) }
 
@@ -89,13 +88,14 @@ class CalendarViewModel
                             setState {
                                 copy(
                                     personalSchedules =
-                                        personalSchedules.map { domain ->
-                                            PersonalScheduleUiModel(
-                                                domain = domain,
-                                                courseName = courseRepository.getCourseName(domain.courseCode),
-                                                isComplete = false, // TODO ROOM DB 에서 가져오기
-                                            )
-                                        },
+                                        personalSchedules
+                                            .map { domain ->
+                                                PersonalScheduleUiModel(
+                                                    domain = domain,
+                                                    courseName = courseRepository.getCourseName(domain.courseCode),
+                                                    isComplete = false, // TODO ROOM DB 에서 가져오기
+                                                )
+                                            },
                                     isLoading = false,
                                 )
                             }
