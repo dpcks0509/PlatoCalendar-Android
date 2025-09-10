@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PlatoCalendar-AOS"
+rootProject.name = "PlatoCalendar"
 include(":app")
  
