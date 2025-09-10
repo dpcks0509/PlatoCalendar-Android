@@ -363,7 +363,7 @@ private fun buildUpdateScheduleBody(
             append("timestart%5Bminute%5D=${startDateTime.minute}&")
             append("description%5Btext%5D=$encodedDescription&")
             append("description%5Bformat%5D=1&")
-            append("description%5Bitemid%5D=$id&")
+            append("description%5Bitemid%5D=0&")
             append("duration=1&")
             append("timedurationuntil%5Byear%5D=${endDateTime.year}&")
             append("timedurationuntil%5Bmonth%5D=${endDateTime.monthValue}&")
