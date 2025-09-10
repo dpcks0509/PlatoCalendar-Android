@@ -40,13 +40,13 @@ data class DeleteRequest(
 )
 
 @Serializable
+data class DeleteArgs(
+    val events: List<DeleteEvent>,
+)
+
+@Serializable
 data class DeleteEvent(
     @SerializedName("eventid")
     val eventId: Long,
     val repeat: Boolean,
-)
-
-@Serializable
-data class DeleteArgs(
-    val events: List<DeleteEvent>,
 )
