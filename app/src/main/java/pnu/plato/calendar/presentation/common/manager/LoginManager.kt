@@ -27,17 +27,16 @@ class LoginManager
             val loginCredentials = preferences.loginCredentials.firstOrNull()
 
             loginCredentials?.let { loginCredentials ->
-                if (loginStatus.value is LoginStatus.Logout) {
-                    loginRepository
-                        .login(loginCredentials)
-                        .onSuccess { loginSession ->
-                            _loginStatus.update { LoginStatus.Login(loginSession) }
+                loginRepository
+                    .login(loginCredentials)
+                    .onSuccess { loginSession ->
+                        _loginStatus.update { LoginStatus.Login(loginSession) }
 
-                            return true
-                        }.onFailure { throwable ->
-                            ErrorEventBus.sendError(throwable.message)
-                        }
-                }
+                        return true
+                    }.onFailure { throwable ->
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+
                 return false
             }
 
