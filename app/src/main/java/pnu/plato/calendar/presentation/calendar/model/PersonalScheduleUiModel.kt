@@ -13,17 +13,29 @@ data class PersonalScheduleUiModel(
     val startAt: LocalDateTime,
     val endAt: LocalDateTime,
     val courseName: String?,
-    val isComplete: Boolean,
-    val color: Color,
 ) {
-    constructor(domain: PersonalSchedule, courseName: String?, isComplete: Boolean) : this(
+    constructor(domain: PersonalSchedule, courseName: String?) : this(
         id = domain.id,
-        title = domain.title,
+        title = if (startsWithComplete(domain.title)) {
+            domain.title.removePrefix(COMPLETE)
+        } else {
+            domain.title
+        },
         description = domain.description,
         startAt = domain.startAt,
         endAt = domain.endAt,
         courseName = courseName,
-        isComplete = isComplete,
-        color = if (!isComplete) CalendarSage else CalendarGraphite,
     )
+
+    val isComplete: Boolean get() = startsWithComplete(title)
+
+    val color: Color get() = if (!isComplete) CalendarSage else CalendarGraphite
+
+    companion object {
+        const val COMPLETE = "(완료) "
+
+        private fun startsWithComplete(title: String): Boolean {
+            return title.startsWith(COMPLETE)
+        }
+    }
 }

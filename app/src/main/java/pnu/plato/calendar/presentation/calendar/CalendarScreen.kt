@@ -23,6 +23,10 @@ fun CalendarScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.setEvent(CalendarEvent.FetchSchedules)
+    }
+
     CalendarContent(
         state = state,
         onEvent = viewModel::setEvent,

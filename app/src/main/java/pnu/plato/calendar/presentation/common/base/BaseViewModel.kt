@@ -22,6 +22,8 @@ abstract class BaseViewModel<State : UiState, Event : UiEvent, SideEffect : UiSi
             initialValue = initialState,
         )
 
+    protected val currentState: State = state.value
+
     private val _event: MutableSharedFlow<Event> = MutableSharedFlow()
     val event = _event.asSharedFlow()
 
@@ -43,7 +45,7 @@ abstract class BaseViewModel<State : UiState, Event : UiEvent, SideEffect : UiSi
     }
 
     protected fun setState(reduce: State.() -> State) {
-        _state.update { state.value.reduce() }
+        _state.update { currentState.reduce() }
     }
 
     fun setEvent(event: Event) {

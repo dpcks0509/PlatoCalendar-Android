@@ -18,13 +18,13 @@ class LoginManager
     @Inject
     constructor(
         private val loginRepository: LoginRepository,
-        private val preferences: LoginCredentialsDataStore,
+        private val loginCredentialsDataStore: LoginCredentialsDataStore,
     ) {
         private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Logout)
         val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
         suspend fun autoLogin(): Boolean {
-            val loginCredentials = preferences.loginCredentials.firstOrNull()
+            val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
             loginCredentials?.let { loginCredentials ->
                 loginRepository
@@ -49,7 +49,7 @@ class LoginManager
                     .login(credentials)
                     .onSuccess { loginSession ->
                         _loginStatus.update { LoginStatus.Login(loginSession) }
-                        preferences.saveLoginCredentials(credentials)
+                        loginCredentialsDataStore.saveLoginCredentials(credentials)
 
                         return true
                     }.onFailure { throwable ->
@@ -67,7 +67,7 @@ class LoginManager
                     .logout(sessKey = loginStatus.loginSession.sessKey)
                     .onSuccess {
                         _loginStatus.update { LoginStatus.Logout }
-                        preferences.deleteLoginCredentials()
+                        loginCredentialsDataStore.deleteLoginCredentials()
 
                         return true
                     }.onFailure { throwable ->
