@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import pnu.plato.calendar.data.local.database.LoginCredentialsDataStore
+import pnu.plato.calendar.data.local.database.ScheduleCompleteDataStore
 import javax.inject.Singleton
 
 @Module
@@ -14,9 +15,13 @@ import javax.inject.Singleton
 object DatabaseModule {
     @Provides
     @Singleton
-    fun providePreferencesDataStore(
-        @ApplicationContext context: Context
-    ): LoginCredentialsDataStore {
-        return LoginCredentialsDataStore(context)
-    }
+    fun provideLoginCredentialsDataStore(
+        @ApplicationContext context: Context,
+    ): LoginCredentialsDataStore = LoginCredentialsDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideScheduleCompleteDataStore(
+        @ApplicationContext context: Context,
+    ): ScheduleCompleteDataStore = ScheduleCompleteDataStore(context)
 }

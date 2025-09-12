@@ -7,7 +7,7 @@ import pnu.plato.calendar.presentation.common.theme.CalendarSage
 import java.time.LocalDateTime
 
 data class PersonalScheduleUiModel(
-    val id: Long,
+    val id: String,
     val title: String,
     val description: String?,
     val startAt: LocalDateTime,
@@ -24,6 +24,6 @@ data class PersonalScheduleUiModel(
         endAt = domain.endAt,
         courseName = courseName,
         isComplete = isComplete,
-        color = if (!isComplete) CalendarSage else CalendarGraphite
+        color = if (!isComplete) CalendarSage else CalendarGraphite,
     )
 }
