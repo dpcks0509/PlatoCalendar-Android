@@ -210,7 +210,7 @@ private fun String.parseIcsToPersonalSchedules(): List<PersonalSchedule> {
 
 private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule =
     PersonalSchedule(
-        id = fields["UID"].orEmpty().split("@")[0],
+        id = fields["UID"].orEmpty().split("@")[0].toLong(),
         title = fields["SUMMARY"].orEmpty(),
         description = fields["DESCRIPTION"],
         startAt = fields["DTSTART"].orEmpty().parseUctToLocalDateTime(),

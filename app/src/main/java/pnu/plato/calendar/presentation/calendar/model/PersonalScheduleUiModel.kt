@@ -7,7 +7,7 @@ import pnu.plato.calendar.presentation.common.theme.CalendarSage
 import java.time.LocalDateTime
 
 data class PersonalScheduleUiModel(
-    val id: String,
+    val id: Long,
     val title: String,
     val description: String?,
     val startAt: LocalDateTime,
