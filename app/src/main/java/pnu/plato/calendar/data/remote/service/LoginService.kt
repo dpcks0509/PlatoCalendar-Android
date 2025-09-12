@@ -14,7 +14,10 @@ interface LoginService {
     suspend fun login(
         @Field("username") userName: String,
         @Field("password") password: String,
-    ): Response<ResponseBody>
+    ): Response<Unit>
+
+    @GET("/")
+    suspend fun loginRedirect(): Response<ResponseBody>
 
     @GET("/login/logout.php")
     suspend fun logout(

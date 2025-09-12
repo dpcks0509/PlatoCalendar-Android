@@ -1,7 +1,6 @@
 package pnu.plato.calendar.domain.entity
 
 data class LoginSession(
-    val moodleSession: String,
-    val sessKey: String,
-    val userId: String? = null
+    val userId: String,
+    val sessKey: String
 )
