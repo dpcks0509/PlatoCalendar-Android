@@ -16,18 +16,18 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideLoginService(
-        @PLATO retrofit: Retrofit,
+        @PlatoNonDirect retrofit: Retrofit,
     ): LoginService = retrofit.create(LoginService::class.java)
 
     @Provides
     @Singleton
     fun providePersonalScheduleService(
-        @PLATO retrofit: Retrofit,
+        @Plato retrofit: Retrofit,
     ): PersonalScheduleService = retrofit.create(PersonalScheduleService::class.java)
 
     @Provides
     @Singleton
     fun provideAcademicScheduleService(
-        @PNU retrofit: Retrofit,
+        @Pnu retrofit: Retrofit,
     ): AcademicScheduleService = retrofit.create(AcademicScheduleService::class.java)
 }

@@ -30,7 +30,8 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+    @Redirect
+    fun provideReDirectOkHttpClient(cookieJar: CookieJar): OkHttpClient {
         val logging =
             HttpLoggingInterceptor().apply {
                 level =
@@ -46,8 +47,27 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    @PLATO
-    fun providePlatoRetrofit(okHttpClient: OkHttpClient): Retrofit =
+    @NonDirect
+    fun provideNonDirectOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+        val logging =
+            HttpLoggingInterceptor().apply {
+                level =
+                    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            }
+
+        return OkHttpClient
+            .Builder()
+            .cookieJar(cookieJar)
+            .addInterceptor(logging)
+            .followRedirects(false)
+            .build()
+    }
+
+
+    @Singleton
+    @Provides
+    @Plato
+    fun providePlatoRetrofit(@Redirect okHttpClient: OkHttpClient): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(PLATO_BASE_URL)
@@ -57,8 +77,19 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    @PNU
-    fun providePnuRetrofit(okHttpClient: OkHttpClient): Retrofit =
+    @PlatoNonDirect
+    fun providePlatoNonDirectRetrofit(@NonDirect okHttpClient: OkHttpClient): Retrofit =
+        Retrofit
+            .Builder()
+            .baseUrl(PLATO_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    @Singleton
+    @Provides
+    @Pnu
+    fun providePnuRetrofit(@Redirect okHttpClient: OkHttpClient): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(PNU_BASE_URL)
@@ -68,7 +99,16 @@ object NetworkModule {
 }
 
 @Qualifier
-annotation class PLATO
+annotation class Plato
 
 @Qualifier
-annotation class PNU
+annotation class PlatoNonDirect
+
+@Qualifier
+annotation class Pnu
+
+@Qualifier
+annotation class NonDirect
+
+@Qualifier
+annotation class Redirect
