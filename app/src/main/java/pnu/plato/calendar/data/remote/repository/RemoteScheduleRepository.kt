@@ -90,7 +90,7 @@ constructor(
             }
         }
 
-        return Result.failure(Exception(UPDATE_SCHEDULES_FAILED_ERROR))
+        return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
     }
 
     override suspend fun updatePersonalSchedule(
@@ -125,7 +125,7 @@ constructor(
             }
         }
 
-        return Result.failure(Exception(UPDATE_SCHEDULES_FAILED_ERROR))
+        return Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
     }
 
     override suspend fun deletePersonalSchedule(id: Long): Result<Unit> {
@@ -145,12 +145,14 @@ constructor(
             }
         }
 
-        return Result.failure(Exception(UPDATE_SCHEDULES_FAILED_ERROR))
+        return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
     }
 
     companion object {
         private const val GET_SCHEDULES_FAILED_ERROR = "일정을 가져오는데 실패했습니다."
-        private const val UPDATE_SCHEDULES_FAILED_ERROR = "일정을 등록하는데 실패했습니다."
+        private const val CREATE_SCHEDULE_FAILED_ERROR = "일정을 등록하는데 실패했습니다."
+        private const val UPDATE_SCHEDULE_FAILED_ERROR = "일정을 수정하는데 실패했습니다."
+        private const val DELETE_SCHEDULE_FAILED_ERROR = "일정을 삭제하는데 실패했습니다."
     }
 }
 

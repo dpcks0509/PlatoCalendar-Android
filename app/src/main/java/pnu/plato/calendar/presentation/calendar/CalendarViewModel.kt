@@ -8,14 +8,16 @@ import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.FetchSchedules
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.FetchPersonalSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel.Companion.COMPLETE
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +31,10 @@ constructor(
     init {
         viewModelScope.launch {
             loginManager.loginStatus.collect { loginStatus ->
-                fetchSchedules()
+                coroutineScope {
+                    launch { fetchAcademicSchedules() }
+                    launch { fetchPersonalSchedules() }
+                }
             }
         }
     }
@@ -37,58 +42,29 @@ constructor(
 
     override suspend fun handleEvent(event: CalendarEvent) {
         when (event) {
-            FetchSchedules -> fetchSchedules()
-        }
-    }
-
-    private suspend fun fetchSchedules() {
-        coroutineScope {
-            launch { fetchAcademicSchedules() }
-            launch { fetchPersonalSchedules() }
+            FetchPersonalSchedules -> fetchPersonalSchedules()
         }
     }
 
     private suspend fun fetchAcademicSchedules() {
-        when (loginManager.loginStatus.value) {
-            is LoginStatus.Login -> {
-                setState { copy(isLoading = true) }
-
-                scheduleRepository
-                    .getAcademicSchedules()
-                    .onSuccess { academicSchedules ->
-                        setState {
-                            copy(
-                                academicSchedules = academicSchedules.map(::AcademicScheduleUiModel),
-                                isLoading = false,
-                            )
-                        }
-                    }.onFailure { throwable ->
-                        setState {
-                            copy(
-                                academicSchedules = emptyList(),
-                                isLoading = false,
-                            )
-                        }
-
-                        ErrorEventBus.sendError(throwable.message)
-                    }
-            }
-
-            is LoginStatus.Logout ->
+        scheduleRepository
+            .getAcademicSchedules()
+            .onSuccess { academicSchedules ->
                 setState {
-                    copy(
-                        academicSchedules = emptyList(),
-                        isLoading = false,
-                    )
+                    copy(academicSchedules = academicSchedules.map(::AcademicScheduleUiModel))
                 }
-        }
+            }.onFailure { throwable ->
+                setState {
+                    copy(academicSchedules = emptyList())
+                }
+
+                ErrorEventBus.sendError(throwable.message)
+            }
     }
 
     private suspend fun fetchPersonalSchedules() {
         when (val loginStatus = loginManager.loginStatus.value) {
             is LoginStatus.Login -> {
-                setState { copy(isLoading = true) }
-
                 scheduleRepository
                     .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
                     .onSuccess { personalSchedules ->
@@ -103,16 +79,12 @@ constructor(
                                                     domain.courseCode
                                                 ),
                                             )
-                                        },
-                                isLoading = false,
+                                        }
                             )
                         }
                     }.onFailure { throwable ->
                         setState {
-                            copy(
-                                personalSchedules = emptyList(),
-                                isLoading = false,
-                            )
+                            copy(personalSchedules = emptyList())
                         }
 
                         ErrorEventBus.sendError(throwable.message)
@@ -121,11 +93,142 @@ constructor(
 
             is LoginStatus.Logout ->
                 setState {
-                    copy(
-                        personalSchedules = emptyList(),
-                        isLoading = false,
-                    )
+                    copy(personalSchedules = emptyList())
                 }
         }
+    }
+
+    private suspend fun makePersonalSchedule(
+        title: String,
+        description: String?,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+    ) {
+        scheduleRepository.createPersonalSchedule(
+            title = title,
+            description = description,
+            startAt = startAt,
+            endAt = endAt
+        ).onSuccess {
+            val newSchedule = PersonalScheduleUiModel(
+                id = System.currentTimeMillis(),
+                title = title,
+                description = description,
+                startAt = startAt,
+                endAt = endAt,
+                courseName = null
+            )
+            setState {
+                copy(personalSchedules = personalSchedules + newSchedule)
+            }
+        }.onFailure { throwable ->
+            ErrorEventBus.sendError(throwable.message)
+        }
+    }
+
+    private suspend fun editPersonalSchedule(
+        id: Long,
+        title: String,
+        description: String?,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+    ) {
+        scheduleRepository.updatePersonalSchedule(
+            id = id,
+            title = title,
+            description = description,
+            startAt = startAt,
+            endAt = endAt
+        ).onSuccess {
+            setState {
+                copy(
+                    personalSchedules = personalSchedules.map { schedule ->
+                        if (schedule.id == id) {
+                            schedule.copy(
+                                title = title,
+                                description = description,
+                                startAt = startAt,
+                                endAt = endAt
+                            )
+                        } else {
+                            schedule
+                        }
+                    }
+                )
+            }
+        }.onFailure { throwable ->
+            ErrorEventBus.sendError(throwable.message)
+        }
+    }
+
+    private suspend fun completePersonalSchedule(
+        id: Long,
+        title: String,
+        description: String?,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+    ) {
+        scheduleRepository.updatePersonalSchedule(
+            id = id,
+            title = COMPLETE + title,
+            description = description,
+            startAt = startAt,
+            endAt = endAt
+        ).onSuccess {
+            setState {
+                copy(
+                    personalSchedules = personalSchedules.map { schedule ->
+                        if (schedule.id == id) {
+                            schedule.copy(title = COMPLETE + title)
+                        } else {
+                            schedule
+                        }
+                    }
+                )
+            }
+        }.onFailure { throwable ->
+            ErrorEventBus.sendError(throwable.message)
+        }
+    }
+
+    private suspend fun unCompletePersonalSchedule(
+        id: Long,
+        title: String,
+        description: String?,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+    ) {
+        scheduleRepository.updatePersonalSchedule(
+            id = id,
+            title = title.removePrefix(COMPLETE),
+            description = description,
+            startAt = startAt,
+            endAt = endAt
+        ).onSuccess {
+            setState {
+                copy(
+                    personalSchedules = personalSchedules.map { schedule ->
+                        if (schedule.id == id) {
+                            schedule.copy(title = title.removePrefix(COMPLETE))
+                        } else {
+                            schedule
+                        }
+                    }
+                )
+            }
+        }.onFailure { throwable ->
+            ErrorEventBus.sendError(throwable.message)
+        }
+    }
+
+    private suspend fun deletePersonalSchedule(id: Long) {
+        scheduleRepository.deletePersonalSchedule(id)
+            .onSuccess {
+                setState {
+                    copy(personalSchedules = personalSchedules.filter { it.id != id })
+                }
+            }.onFailure { throwable ->
+                ErrorEventBus.sendError(throwable.message)
+            }
     }
 }

@@ -7,5 +7,4 @@ import pnu.plato.calendar.presentation.common.base.UiState
 data class CalendarState(
     val academicSchedules: List<AcademicScheduleUiModel> = emptyList(),
     val personalSchedules: List<PersonalScheduleUiModel> = emptyList(),
-    val isLoading: Boolean = false,
 ) : UiState

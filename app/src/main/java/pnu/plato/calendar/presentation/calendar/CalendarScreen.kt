@@ -5,6 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
@@ -23,8 +25,8 @@ fun CalendarScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.setEvent(CalendarEvent.FetchSchedules)
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+        viewModel.setEvent(CalendarEvent.FetchPersonalSchedules)
     }
 
     CalendarContent(
