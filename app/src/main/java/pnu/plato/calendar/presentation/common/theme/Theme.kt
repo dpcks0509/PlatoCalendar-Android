@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimaryColor,
-    onPrimary = DarkOnPrimaryColor,
-    background = DarkBackgroundColor,
+    primary = PrimaryColor,
+    onPrimary = OnPrimaryColor,
+    background = BackgroundDarkColor,
 )
 
 private val LightColorScheme = lightColorScheme(
