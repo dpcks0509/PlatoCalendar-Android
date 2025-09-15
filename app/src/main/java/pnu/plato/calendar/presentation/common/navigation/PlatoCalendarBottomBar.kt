@@ -29,18 +29,21 @@ fun PlatoCalendarBottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val noRippleConfiguration = RippleConfiguration(
-        color = Color.Transparent, rippleAlpha = RippleAlpha(
-            0f,
-            0f,
-            0f,
-            0f
+    val noRippleConfiguration =
+        RippleConfiguration(
+            color = Color.Transparent,
+            rippleAlpha =
+                RippleAlpha(
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                ),
         )
-    )
 
     CompositionLocalProvider(LocalRippleConfiguration provides noRippleConfiguration) {
         NavigationBar(
-            modifier = Modifier.clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            modifier = Modifier.clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
         ) {
             BottomBarItem.entries.forEach { item ->
                 val isSelected = currentRoute == item.route::class.qualifiedName
@@ -49,7 +52,7 @@ fun PlatoCalendarBottomBar(navController: NavController) {
                     icon = {
                         Icon(
                             imageVector = item.icon,
-                            contentDescription = stringResource(item.titleRes)
+                            contentDescription = stringResource(item.titleRes),
                         )
                     },
                     label = { Text(stringResource(item.titleRes)) },
@@ -65,13 +68,14 @@ fun PlatoCalendarBottomBar(navController: NavController) {
                             }
                         }
                     },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = PrimaryColor,
-                        selectedTextColor = PrimaryColor,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray,
-                        indicatorColor = LightBlue
-                    )
+                    colors =
+                        NavigationBarItemDefaults.colors(
+                            selectedIconColor = PrimaryColor,
+                            selectedTextColor = PrimaryColor,
+                            unselectedIconColor = Color.Gray,
+                            unselectedTextColor = Color.Gray,
+                            indicatorColor = LightBlue,
+                        ),
                 )
             }
         }
