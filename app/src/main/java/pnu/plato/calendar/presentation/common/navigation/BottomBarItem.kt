@@ -11,21 +11,21 @@ import pnu.plato.calendar.R
 enum class BottomBarItem(
     val route: PlatoCalendarScreen,
     val icon: ImageVector,
-    @StringRes val titleRes: Int
+    @StringRes val titleRes: Int,
 ) {
     CALENDAR(
         route = PlatoCalendarScreen.CalendarScreen,
-        icon = Icons.Filled.DateRange,
-        titleRes = R.string.calendar
+        icon = Icons.Default.DateRange,
+        titleRes = R.string.calendar,
     ),
     TODO(
         route = PlatoCalendarScreen.ToDoScreen,
-        icon = Icons.Filled.List,
-        titleRes = R.string.to_do
+        icon = Icons.Default.List,
+        titleRes = R.string.to_do,
     ),
     SETTING(
         route = PlatoCalendarScreen.SettingScreen,
-        icon = Icons.Filled.Settings,
-        titleRes = R.string.setting
-    )
+        icon = Icons.Default.Settings,
+        titleRes = R.string.setting,
+    ),
 }
