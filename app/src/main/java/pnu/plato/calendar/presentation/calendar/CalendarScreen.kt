@@ -19,6 +19,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
+import pnu.plato.calendar.presentation.calendar.component.DayOfWeekHeader
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -66,6 +67,10 @@ fun CalendarContent(
                 .fillMaxWidth()
                 .height(50.dp)
         )
+
+        DayOfWeekHeader(modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth())
     }
 }
 
