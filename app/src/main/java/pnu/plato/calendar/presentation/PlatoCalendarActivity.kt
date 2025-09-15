@@ -1,10 +1,13 @@
 package pnu.plato.calendar.presentation
 
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -34,7 +37,18 @@ class PlatoCalendarActivity : ComponentActivity() {
         }
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle =
+                SystemBarStyle.light(
+                    scrim = Color.TRANSPARENT,
+                    darkScrim = Color.TRANSPARENT,
+                ),
+            navigationBarStyle =
+                SystemBarStyle.light(
+                    scrim = Color.TRANSPARENT,
+                    darkScrim = Color.TRANSPARENT,
+                ),
+        )
 
         setContent {
             val navController = rememberNavController()
@@ -49,13 +63,15 @@ class PlatoCalendarActivity : ComponentActivity() {
                 Scaffold(
                     bottomBar = {
                         PlatoCalendarBottomBar(navController = navController)
-                    }
+                    },
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                    modifier = Modifier.fillMaxSize(),
                 ) { paddingValues ->
                     PlatoCalendarNavHost(
                         navController = navController,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(paddingValues)
+                            .padding(paddingValues),
                     )
                 }
             }
