@@ -1,34 +1,36 @@
 package pnu.plato.calendar.presentation.common.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import pnu.plato.calendar.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+private val pretendardFontFamily =
+    FontFamily(
+        Font(R.font.pretendard_regular, weight = FontWeight.Normal),
+        Font(R.font.pretendard_medium, weight = FontWeight.Medium),
+        Font(R.font.pretendard_semibold, weight = FontWeight.SemiBold),
+        Font(R.font.pretendard_bold, weight = FontWeight.Bold),
     )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
-)
+
+val Typography =
+    with(receiver = Typography()) {
+        Typography(
+            displayLarge = displayLarge.copy(fontFamily = pretendardFontFamily),
+            displayMedium = displayMedium.copy(fontFamily = pretendardFontFamily),
+            displaySmall = displaySmall.copy(fontFamily = pretendardFontFamily),
+            headlineLarge = headlineLarge.copy(fontFamily = pretendardFontFamily),
+            headlineMedium = headlineMedium.copy(fontFamily = pretendardFontFamily),
+            headlineSmall = headlineSmall.copy(fontFamily = pretendardFontFamily),
+            titleLarge = titleLarge.copy(fontFamily = pretendardFontFamily),
+            titleMedium = titleMedium.copy(fontFamily = pretendardFontFamily),
+            titleSmall = titleSmall.copy(fontFamily = pretendardFontFamily),
+            bodyLarge = bodyLarge.copy(fontFamily = pretendardFontFamily),
+            bodyMedium = bodyMedium.copy(fontFamily = pretendardFontFamily),
+            bodySmall = bodySmall.copy(fontFamily = pretendardFontFamily),
+            labelLarge = labelLarge.copy(fontFamily = pretendardFontFamily),
+            labelMedium = labelMedium.copy(fontFamily = pretendardFontFamily),
+            labelSmall = labelSmall.copy(fontFamily = pretendardFontFamily),
+        )
+    }
