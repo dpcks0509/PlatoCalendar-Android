@@ -37,15 +37,10 @@ fun CalendarTopBar(
     state: CalendarState,
     onEvent: (CalendarEvent) -> Unit,
     showMakePersonalScheduleBottomSheet: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier =
-            Modifier
-                .background(PrimaryColor)
-                .statusBarsPadding()
-                .padding(all = 16.dp)
-                .fillMaxWidth()
-                .height(50.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -100,6 +95,12 @@ fun CalendarTopBarPreview() {
             state = CalendarState(),
             onEvent = {},
             showMakePersonalScheduleBottomSheet = {},
+            modifier = Modifier
+                .background(PrimaryColor)
+                .statusBarsPadding()
+                .padding(all = 16.dp)
+                .fillMaxWidth()
+                .height(50.dp)
         )
     }
 }

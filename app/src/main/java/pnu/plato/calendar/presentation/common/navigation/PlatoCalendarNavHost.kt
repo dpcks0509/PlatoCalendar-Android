@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.common.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -23,15 +24,24 @@ fun PlatoCalendarNavHost(
         modifier = modifier
     ) {
         composable<CalendarScreen> {
-            CalendarScreen(navController = navController)
+            CalendarScreen(
+                navController = navController,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         composable<ToDoScreen> {
-            ToDoScreen(navController = navController)
+            ToDoScreen(
+                navController = navController,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         composable<SettingScreen> {
-            SettingScreen(navController = navController)
+            SettingScreen(
+                navController = navController,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
