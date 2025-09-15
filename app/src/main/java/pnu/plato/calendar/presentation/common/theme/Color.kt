@@ -2,10 +2,13 @@ package pnu.plato.calendar.presentation.common.theme
 
 import androidx.compose.ui.graphics.Color
 
-val PrimaryColor = Color(0xFF0E4B86)
+val PrimaryDarkColor = Color(0xFF0E4B86)
+val OnPrimaryDarkColor = Color(0xFFF5F5F5)
+val BackgroundDarkColor = Color.Black
+
+val PrimaryColor = Color(0xFF3B6EC7)
 val OnPrimaryColor = Color.White
 val BackgroundColor = Color.White
-val BackgroundDarkColor = Color.Black
 
 val LightBlue = Color(0xFFAAD0F5)
 
