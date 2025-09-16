@@ -4,6 +4,7 @@ import okhttp3.ResponseBody
 import pnu.plato.calendar.data.request.CreatePersonalScheduleRequest
 import pnu.plato.calendar.data.request.DeletePersonalScheduleRequest
 import pnu.plato.calendar.data.request.UpdatePersonalScheduleRequest
+import pnu.plato.calendar.data.response.PersonalScheduleResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -27,19 +28,19 @@ interface PersonalScheduleService {
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_submit_create_update_form",
         @Body request: List<CreatePersonalScheduleRequest>,
-    ): Response<ResponseBody>
+    ): Response<List<PersonalScheduleResponse>>
 
     @POST("/lib/ajax/service.php")
     suspend fun updatePersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_submit_create_update_form",
         @Body request: List<UpdatePersonalScheduleRequest>,
-    ): Response<ResponseBody>
+    ): Response<List<PersonalScheduleResponse>>
 
     @POST("/lib/ajax/service.php")
     suspend fun deletePersonalSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_delete_calendar_events",
         @Body request: List<DeletePersonalScheduleRequest>,
-    ): Response<ResponseBody>
+    ): Response<List<PersonalScheduleResponse>>
 }

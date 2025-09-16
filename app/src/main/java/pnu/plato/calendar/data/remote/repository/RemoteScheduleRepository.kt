@@ -58,7 +58,7 @@ class RemoteScheduleRepository
             return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
         }
 
-        override suspend fun createPersonalSchedule(
+        override suspend fun makePersonalSchedule(
             title: String,
             description: String?,
             startAt: LocalDateTime,
@@ -86,8 +86,11 @@ class RemoteScheduleRepository
                     )
 
                 if (response.isSuccessful) {
-                    val responseBody = response.body()?.string() ?: return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
-                    val id = 0L // TODO
+                    val responseBody = response.body()?.firstOrNull() ?: return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
+                    if (responseBody.error) {
+                        return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
+                    }
+                    val id = responseBody.data.event.id
 
                     return Result.success(id)
                 }
@@ -96,7 +99,7 @@ class RemoteScheduleRepository
             return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
         }
 
-        override suspend fun updatePersonalSchedule(
+        override suspend fun editPersonalSchedule(
             id: Long,
             title: String,
             description: String?,
@@ -124,6 +127,11 @@ class RemoteScheduleRepository
                     )
 
                 if (response.isSuccessful) {
+                    val responseBody = response.body()?.firstOrNull() ?: return Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
+                    if (responseBody.error) {
+                        return Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
+                    }
+
                     return Result.success(Unit)
                 }
             }
@@ -144,6 +152,11 @@ class RemoteScheduleRepository
                     )
 
                 if (response.isSuccessful) {
+                    val responseBody = response.body()?.firstOrNull() ?: return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+                    if (responseBody.error) {
+                        return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+                    }
+
                     return Result.success(Unit)
                 }
             }

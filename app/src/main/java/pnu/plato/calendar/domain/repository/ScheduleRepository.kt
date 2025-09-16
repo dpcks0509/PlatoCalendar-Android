@@ -9,14 +9,14 @@ interface ScheduleRepository {
 
     suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>>
 
-    suspend fun createPersonalSchedule(
+    suspend fun makePersonalSchedule(
         title: String,
         description: String?,
         startAt: LocalDateTime,
         endAt: LocalDateTime,
     ): Result<Long>
 
-    suspend fun updatePersonalSchedule(
+    suspend fun editPersonalSchedule(
         id: Long,
         title: String,
         description: String?,

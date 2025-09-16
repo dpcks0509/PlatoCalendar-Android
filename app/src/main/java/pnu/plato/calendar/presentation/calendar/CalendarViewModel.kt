@@ -123,7 +123,7 @@ class CalendarViewModel
             endAt: LocalDateTime,
         ) {
             scheduleRepository
-                .createPersonalSchedule(
+                .makePersonalSchedule(
                     title = title,
                     description = description,
                     startAt = startAt,
@@ -154,7 +154,7 @@ class CalendarViewModel
             endAt: LocalDateTime,
         ) {
             scheduleRepository
-                .updatePersonalSchedule(
+                .editPersonalSchedule(
                     id = id,
                     title = title,
                     description = description,
@@ -191,7 +191,7 @@ class CalendarViewModel
             endAt: LocalDateTime,
         ) {
             scheduleRepository
-                .updatePersonalSchedule(
+                .editPersonalSchedule(
                     id = id,
                     title = COMPLETE + title,
                     description = description,
@@ -223,7 +223,7 @@ class CalendarViewModel
             endAt: LocalDateTime,
         ) {
             scheduleRepository
-                .updatePersonalSchedule(
+                .editPersonalSchedule(
                     id = id,
                     title = title.removePrefix(COMPLETE),
                     description = description,
