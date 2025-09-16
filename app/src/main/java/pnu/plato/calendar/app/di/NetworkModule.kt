@@ -63,38 +63,50 @@ object NetworkModule {
             .build()
     }
 
+    @Singleton
+    @Provides
+    fun provideGsonConverterFactory(): GsonConverterFactory = GsonConverterFactory.create()
 
     @Singleton
     @Provides
     @Plato
-    fun providePlatoRetrofit(@Redirect okHttpClient: OkHttpClient): Retrofit =
+    fun providePlatoRetrofit(
+        @Redirect okHttpClient: OkHttpClient,
+        gsonConverterFactory: GsonConverterFactory,
+    ): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(PLATO_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(gsonConverterFactory)
             .build()
 
     @Singleton
     @Provides
     @PlatoNonDirect
-    fun providePlatoNonDirectRetrofit(@NonDirect okHttpClient: OkHttpClient): Retrofit =
+    fun providePlatoNonDirectRetrofit(
+        @NonDirect okHttpClient: OkHttpClient,
+        gsonConverterFactory: GsonConverterFactory,
+    ): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(PLATO_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(gsonConverterFactory)
             .build()
 
     @Singleton
     @Provides
     @Pnu
-    fun providePnuRetrofit(@Redirect okHttpClient: OkHttpClient): Retrofit =
+    fun providePnuRetrofit(
+        @Redirect okHttpClient: OkHttpClient,
+        gsonConverterFactory: GsonConverterFactory,
+    ): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(PNU_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(gsonConverterFactory)
             .build()
 }
 
