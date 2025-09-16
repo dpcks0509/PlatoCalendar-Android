@@ -46,6 +46,11 @@ fun DayItem(
             modifier
                 .fillMaxWidth()
                 .aspectRatio(3f / 4f)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = { onClick(day.date) },
+                )
                 .then(
                     if (day.isSelected) {
                         Modifier
@@ -55,10 +60,6 @@ fun DayItem(
                     } else {
                         Modifier.background(Color.White)
                     },
-                ).clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = { onClick(day.date) },
                 ).padding(top = 6.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
