@@ -64,28 +64,27 @@ fun DayItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        if (day.isToday) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(PrimaryColor),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = day.date.dayOfMonth.toString(),
-                    color = if (day.isWeekend) Color.Red else Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-        } else {
+        Box(
+            modifier =
+                Modifier
+                    .then(
+                        if (day.isToday) {
+                            Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryColor)
+                        } else {
+                            Modifier
+                        },
+                    ),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                color = if (day.isWeekend) Color.Red else Color.Black,
+                color = (if (day.isWeekend) Color.Red else if (day.isToday) Color.White else Color.Black)
+                    .let { color -> if (day.isInMonth) color else color.copy(alpha = 0.8f) },
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = if (day.isInMonth) FontWeight.Bold else FontWeight.Normal,
             )
         }
 
@@ -124,6 +123,7 @@ fun DayItemPreview() {
                     date = LocalDate.now(),
                     isToday = true,
                     isSelected = true,
+                    isInMonth = true,
                     schedules =
                         listOf(
                             AcademicScheduleUiModel(

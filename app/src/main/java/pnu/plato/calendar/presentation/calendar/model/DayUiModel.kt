@@ -7,6 +7,7 @@ data class DayUiModel(
     val date: LocalDate,
     val isToday: Boolean,
     val isSelected: Boolean,
+    val isInMonth: Boolean,
     val schedules: List<ScheduleUiModel>,
 ) {
     val isWeekend: Boolean = date.dayOfWeek.isWeekend()
