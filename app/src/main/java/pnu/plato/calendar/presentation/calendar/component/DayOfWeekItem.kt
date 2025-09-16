@@ -28,21 +28,10 @@ fun DayOfWeekItem(
 
 @Preview(showBackground = true)
 @Composable
-fun DayOfWeekItemWeekendPreview() {
+fun DayOfWeekItemPreview() {
     PlatoCalendarTheme {
         DayOfWeekItem(
             DayOfWeekUiModel.from(DayOfWeek.SATURDAY),
-            modifier = Modifier.padding(horizontal = 12.dp),
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DayOfWeekItemWeekDayPreview() {
-    PlatoCalendarTheme {
-        DayOfWeekItem(
-            DayOfWeekUiModel.from(DayOfWeek.MONDAY),
             modifier = Modifier.padding(horizontal = 12.dp),
         )
     }
