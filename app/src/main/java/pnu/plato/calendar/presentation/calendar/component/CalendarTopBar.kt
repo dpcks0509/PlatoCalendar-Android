@@ -31,13 +31,14 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import java.time.LocalDate
 
 @Composable
 fun CalendarTopBar(
     state: CalendarState,
     onEvent: (CalendarEvent) -> Unit,
     showMakePersonalScheduleBottomSheet: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
@@ -52,7 +53,7 @@ fun CalendarTopBar(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (state.today == state.selectedDate) {
+        if (state.today != state.selectedDate) {
             OutlinedButton(
                 onClick = {
                     onEvent(CalendarEvent.MoveToToday)
@@ -92,15 +93,16 @@ fun CalendarTopBar(
 fun CalendarTopBarPreview() {
     PlatoCalendarTheme {
         CalendarTopBar(
-            state = CalendarState(),
+            state = CalendarState(today = LocalDate.now(), selectedDate = LocalDate.now().plusDays(1)),
             onEvent = {},
             showMakePersonalScheduleBottomSheet = {},
-            modifier = Modifier
-                .background(PrimaryColor)
-                .statusBarsPadding()
-                .padding(all = 16.dp)
-                .fillMaxWidth()
-                .height(50.dp)
+            modifier =
+                Modifier
+                    .background(PrimaryColor)
+                    .statusBarsPadding()
+                    .padding(all = 16.dp)
+                    .fillMaxWidth()
+                    .height(50.dp),
         )
     }
 }
