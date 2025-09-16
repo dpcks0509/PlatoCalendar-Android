@@ -18,7 +18,7 @@ fun DayOfWeekItem(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = dayOfWeek.name,
+        text = dayOfWeek.title,
         color = dayOfWeek.color,
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,

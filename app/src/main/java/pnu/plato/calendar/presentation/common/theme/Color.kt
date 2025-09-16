@@ -11,6 +11,7 @@ val OnPrimaryColor = Color.White
 val BackgroundColor = Color.White
 
 val LightBlue = Color(0xFFAAD0F5)
+val LightGrey = Color(0xFFD6DCDE)
 
 val CalendarSage = Color(0xFF33B679)
 val CalendarLavender = Color(0xFF7986CB)

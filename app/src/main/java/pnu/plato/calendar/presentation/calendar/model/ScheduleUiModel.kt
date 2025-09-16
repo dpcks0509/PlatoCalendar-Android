@@ -16,13 +16,13 @@ sealed class ScheduleUiModel {
         override val title: String,
         val startAt: LocalDate,
         val endAt: LocalDate,
-        override val color: Color,
     ) : ScheduleUiModel() {
+        override val color: Color = CalendarLavender
+
         constructor(domain: Schedule.AcademicSchedule) : this(
             title = domain.title,
             startAt = domain.startAt,
             endAt = domain.endAt,
-            color = CalendarLavender,
         )
     }
 

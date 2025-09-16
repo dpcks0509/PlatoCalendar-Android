@@ -4,13 +4,13 @@ import androidx.compose.ui.graphics.Color
 import pnu.plato.calendar.domain.entity.DayOfWeek
 
 data class DayOfWeekUiModel(
-    val name: String,
+    val title: String,
     val color: Color
 ) {
     companion object {
         fun from(dayOfWeek: DayOfWeek): DayOfWeekUiModel {
             return DayOfWeekUiModel(
-                name = dayOfWeek.title(),
+                title = dayOfWeek.title(),
                 color = if (dayOfWeek.isWeekend) Color.Red else Color.Black
             )
         }
