@@ -27,7 +27,7 @@ class RemoteScheduleRepository
         private val loginManager: LoginManager,
     ) : ScheduleRepository {
         override suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>> {
-            val response = academicScheduleService.getAcademicSchedules()
+            val response = academicScheduleService.readAcademicSchedules()
 
             if (response.isSuccessful) {
                 val responseBody = response.body()?.string()
@@ -43,7 +43,7 @@ class RemoteScheduleRepository
         }
 
         override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
-            val response = personalScheduleService.getPersonalSchedules(sessKey = sessKey)
+            val response = personalScheduleService.readPersonalSchedules(sessKey = sessKey)
 
             if (response.isSuccessful) {
                 val responseBody = response.body()?.string()

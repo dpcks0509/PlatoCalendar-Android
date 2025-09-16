@@ -9,7 +9,7 @@ import retrofit2.http.POST
 interface AcademicScheduleService {
     @FormUrlEncoded
     @POST("/kor/CMS/Haksailjung/view.do")
-    suspend fun getAcademicSchedules(
+    suspend fun readAcademicSchedules(
         @Field("mCode") mCode: String = "MN076",
     ): Response<ResponseBody>
 }

@@ -4,7 +4,7 @@ import pnu.plato.calendar.presentation.common.base.UiEvent
 import java.time.LocalDateTime
 
 sealed interface CalendarEvent : UiEvent {
-    data object FetchPersonalSchedules : CalendarEvent
+    data object GetPersonalSchedules : CalendarEvent
 
     data object MoveToToday : CalendarEvent
 

@@ -14,7 +14,7 @@ import retrofit2.http.Query
 interface PersonalScheduleService {
     @FormUrlEncoded
     @POST("/calendar/export.php")
-    suspend fun getPersonalSchedules(
+    suspend fun readPersonalSchedules(
         @Field("sesskey") sessKey: String,
         @Field("_qf__core_calendar_export_form") form: String = "1",
         @Field("events[exportevents]") exportEvents: String = "all",

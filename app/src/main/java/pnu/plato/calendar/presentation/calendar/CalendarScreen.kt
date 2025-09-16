@@ -39,7 +39,7 @@ fun CalendarScreen(
     }
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
-        viewModel.setEvent(CalendarEvent.FetchPersonalSchedules)
+        viewModel.setEvent(CalendarEvent.GetPersonalSchedules)
     }
 
     CalendarContent(

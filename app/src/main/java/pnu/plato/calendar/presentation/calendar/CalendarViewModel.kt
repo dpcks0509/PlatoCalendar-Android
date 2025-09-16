@@ -8,7 +8,7 @@ import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.FetchPersonalSchedules
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.GetPersonalSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
@@ -35,8 +35,8 @@ class CalendarViewModel
             viewModelScope.launch {
                 loginManager.loginStatus.collect { loginStatus ->
                     coroutineScope {
-                        launch { fetchAcademicSchedules() }
-                        launch { fetchPersonalSchedules() }
+                        launch { getAcademicSchedules() }
+                        launch { getPersonalSchedules() }
                     }
                 }
             }
@@ -44,7 +44,7 @@ class CalendarViewModel
 
         override suspend fun handleEvent(event: CalendarEvent) {
             when (event) {
-                FetchPersonalSchedules -> fetchPersonalSchedules()
+                GetPersonalSchedules -> getPersonalSchedules()
 
                 MoveToToday -> {
                     val today = LocalDate.now()
@@ -65,7 +65,7 @@ class CalendarViewModel
             }
         }
 
-        private suspend fun fetchAcademicSchedules() {
+        private suspend fun getAcademicSchedules() {
             val personalSchedules = state.value.schedules.filterIsInstance<PersonalScheduleUiModel>()
 
             scheduleRepository
@@ -81,7 +81,7 @@ class CalendarViewModel
                 }
         }
 
-        private suspend fun fetchPersonalSchedules() {
+        private suspend fun getPersonalSchedules() {
             val academicSchedules = state.value.schedules.filterIsInstance<AcademicScheduleUiModel>()
 
             when (val loginStatus = loginManager.loginStatus.value) {
