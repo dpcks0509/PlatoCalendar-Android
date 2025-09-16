@@ -13,9 +13,9 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersona
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
-import pnu.plato.calendar.presentation.calendar.model.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.PersonalScheduleUiModel.Companion.COMPLETE
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.Companion.COMPLETE
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
@@ -66,55 +66,53 @@ class CalendarViewModel
         }
 
         private suspend fun fetchAcademicSchedules() {
+            val personalSchedules = state.value.schedules.filterIsInstance<PersonalScheduleUiModel>()
+
             scheduleRepository
                 .getAcademicSchedules()
-                .onSuccess { academicSchedules ->
+                .onSuccess {
+                    val academicSchedules = it.map(::AcademicScheduleUiModel)
+
                     setState {
-                        copy(academicSchedules = academicSchedules.map(::AcademicScheduleUiModel))
+                        copy(schedules = academicSchedules + personalSchedules)
                     }
                 }.onFailure { throwable ->
-                    setState {
-                        copy(academicSchedules = emptyList())
-                    }
-
                     ErrorEventBus.sendError(throwable.message)
                 }
         }
 
         private suspend fun fetchPersonalSchedules() {
+            val academicSchedules = state.value.schedules.filterIsInstance<AcademicScheduleUiModel>()
+
             when (val loginStatus = loginManager.loginStatus.value) {
                 is LoginStatus.Login -> {
                     scheduleRepository
                         .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
-                        .onSuccess { personalSchedules ->
+                        .onSuccess {
+                            val personalSchedules =
+                                it.map { domain ->
+                                    PersonalScheduleUiModel(
+                                        domain = domain,
+                                        courseName =
+                                            courseRepository.getCourseName(
+                                                domain.courseCode,
+                                            ),
+                                    )
+                                }
+
                             setState {
-                                copy(
-                                    personalSchedules =
-                                        personalSchedules
-                                            .map { domain ->
-                                                PersonalScheduleUiModel(
-                                                    domain = domain,
-                                                    courseName =
-                                                        courseRepository.getCourseName(
-                                                            domain.courseCode,
-                                                        ),
-                                                )
-                                            },
-                                )
+                                copy(schedules = academicSchedules + personalSchedules)
                             }
                         }.onFailure { throwable ->
-                            setState {
-                                copy(personalSchedules = emptyList())
-                            }
-
                             ErrorEventBus.sendError(throwable.message)
                         }
                 }
 
-                is LoginStatus.Logout ->
+                is LoginStatus.Logout -> {
                     setState {
-                        copy(personalSchedules = emptyList())
+                        copy(schedules = academicSchedules)
                     }
+                }
             }
         }
 
@@ -141,7 +139,7 @@ class CalendarViewModel
                             courseName = null,
                         )
                     setState {
-                        copy(personalSchedules = personalSchedules + newSchedule)
+                        copy(schedules = schedules + newSchedule)
                     }
                 }.onFailure { throwable ->
                     ErrorEventBus.sendError(throwable.message)
@@ -165,9 +163,9 @@ class CalendarViewModel
                 ).onSuccess {
                     setState {
                         copy(
-                            personalSchedules =
-                                personalSchedules.map { schedule ->
-                                    if (schedule.id == id) {
+                            schedules =
+                                schedules.map { schedule ->
+                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
                                         schedule.copy(
                                             title = title,
                                             description = description,
@@ -202,9 +200,9 @@ class CalendarViewModel
                 ).onSuccess {
                     setState {
                         copy(
-                            personalSchedules =
-                                personalSchedules.map { schedule ->
-                                    if (schedule.id == id) {
+                            schedules =
+                                schedules.map { schedule ->
+                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
                                         schedule.copy(title = COMPLETE + title)
                                     } else {
                                         schedule
@@ -234,9 +232,9 @@ class CalendarViewModel
                 ).onSuccess {
                     setState {
                         copy(
-                            personalSchedules =
-                                personalSchedules.map { schedule ->
-                                    if (schedule.id == id) {
+                            schedules =
+                                schedules.map { schedule ->
+                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
                                         schedule.copy(title = title.removePrefix(COMPLETE))
                                     } else {
                                         schedule
@@ -254,7 +252,12 @@ class CalendarViewModel
                 .deletePersonalSchedule(id)
                 .onSuccess {
                     setState {
-                        copy(personalSchedules = personalSchedules.filter { it.id != id })
+                        copy(
+                            schedules =
+                                schedules.filter { schedule ->
+                                    !(schedule is PersonalScheduleUiModel && schedule.id == id)
+                                },
+                        )
                     }
                 }.onFailure { throwable ->
                     ErrorEventBus.sendError(throwable.message)

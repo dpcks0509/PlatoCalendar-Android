@@ -1,7 +1,7 @@
 package pnu.plato.calendar.domain.repository
 
-import pnu.plato.calendar.domain.entity.AcademicSchedule
-import pnu.plato.calendar.domain.entity.PersonalSchedule
+import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import java.time.LocalDateTime
 
 interface ScheduleRepository {
@@ -14,7 +14,7 @@ interface ScheduleRepository {
         description: String?,
         startAt: LocalDateTime,
         endAt: LocalDateTime,
-    ): Result<Unit>
+    ): Result<Long>
 
     suspend fun updatePersonalSchedule(
         id: Long,
