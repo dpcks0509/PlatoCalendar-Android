@@ -26,11 +26,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.calendar.model.DayUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
 import java.time.LocalDateTime
+
+private const val MAX_SCHEDULES_SIZE = 5
 
 @Composable
 fun DayItem(
@@ -88,9 +91,13 @@ fun DayItem(
 
         val schedules =
             day.schedules.filter { schedule ->
-                schedule is ScheduleUiModel.AcademicScheduleUiModel ||
-                        (schedule is ScheduleUiModel.PersonalScheduleUiModel && !schedule.isComplete)
-            }.take(5)
+                !(schedule is PersonalScheduleUiModel && schedule.isComplete)
+            }.sortedBy { schedule ->
+                when (schedule) {
+                    is AcademicScheduleUiModel -> 0
+                    is PersonalScheduleUiModel -> 1
+                }
+            }.take(MAX_SCHEDULES_SIZE)
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -119,17 +126,17 @@ fun DayItemPreview() {
                     isSelected = true,
                     schedules =
                         listOf(
-                            ScheduleUiModel.AcademicScheduleUiModel(
+                            AcademicScheduleUiModel(
                                 "",
                                 LocalDate.now(),
                                 LocalDate.now()
                             ),
-                            ScheduleUiModel.AcademicScheduleUiModel(
+                            AcademicScheduleUiModel(
                                 "",
                                 LocalDate.now(),
                                 LocalDate.now()
                             ),
-                            ScheduleUiModel.PersonalScheduleUiModel(
+                            PersonalScheduleUiModel(
                                 0L,
                                 "",
                                 "",
@@ -137,7 +144,7 @@ fun DayItemPreview() {
                                 LocalDateTime.now(),
                                 ""
                             ),
-                            ScheduleUiModel.PersonalScheduleUiModel(
+                            PersonalScheduleUiModel(
                                 0L,
                                 "",
                                 "",
@@ -145,7 +152,7 @@ fun DayItemPreview() {
                                 LocalDateTime.now(),
                                 ""
                             ),
-                            ScheduleUiModel.PersonalScheduleUiModel(
+                            PersonalScheduleUiModel(
                                 0L,
                                 "",
                                 "",
@@ -153,7 +160,7 @@ fun DayItemPreview() {
                                 LocalDateTime.now(),
                                 ""
                             ),
-                            ScheduleUiModel.PersonalScheduleUiModel(
+                            PersonalScheduleUiModel(
                                 0L,
                                 "",
                                 "",
@@ -161,7 +168,7 @@ fun DayItemPreview() {
                                 LocalDateTime.now(),
                                 ""
                             ),
-                            ScheduleUiModel.PersonalScheduleUiModel(
+                            PersonalScheduleUiModel(
                                 0L,
                                 "",
                                 "",

@@ -8,9 +8,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.domain.entity.DayOfWeek
 import pnu.plato.calendar.presentation.calendar.model.DayOfWeekUiModel
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
+import java.time.DayOfWeek
 
 @Composable
 fun DayOfWeekItem(
