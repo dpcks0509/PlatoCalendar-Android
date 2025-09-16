@@ -6,14 +6,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -44,8 +41,6 @@ fun DayItem(
     Column(
         modifier =
             modifier
-                .fillMaxWidth()
-                .aspectRatio(3f / 4f)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
@@ -56,11 +51,13 @@ fun DayItem(
                         Modifier
                             .clip(
                                 RoundedCornerShape(12.dp),
-                            ).background(LightGray)
+                            )
+                            .background(LightGray)
                     } else {
                         Modifier.background(Color.White)
                     },
-                ).padding(top = 6.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
+                )
+                .padding(top = 6.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -75,7 +72,7 @@ fun DayItem(
             ) {
                 Text(
                     text = day.date.dayOfMonth.toString(),
-                    color = Color.White,
+                    color = if (day.isWeekend) Color.Red else Color.White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                 )
@@ -83,22 +80,27 @@ fun DayItem(
         } else {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                color = Color.Black,
+                color = if (day.isWeekend) Color.Red else Color.Black,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
             )
         }
 
-        LazyRow(
+        val schedules =
+            day.schedules.filter { schedule ->
+                schedule is ScheduleUiModel.AcademicScheduleUiModel ||
+                        (schedule is ScheduleUiModel.PersonalScheduleUiModel && !schedule.isComplete)
+            }.take(5)
+
+        Row(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            items(day.schedules) { schedule ->
+            schedules.forEach { schedule ->
                 Box(
-                    modifier =
-                        Modifier
-                            .size(6.dp)
-                            .clip(CircleShape)
-                            .background(schedule.color),
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(schedule.color),
                 )
             }
         }
@@ -117,11 +119,56 @@ fun DayItemPreview() {
                     isSelected = true,
                     schedules =
                         listOf(
-                            ScheduleUiModel.AcademicScheduleUiModel("", LocalDate.now(), LocalDate.now()),
-                            ScheduleUiModel.AcademicScheduleUiModel("", LocalDate.now(), LocalDate.now()),
-                            ScheduleUiModel.PersonalScheduleUiModel(0L, "", "", LocalDateTime.now(), LocalDateTime.now(), ""),
-                            ScheduleUiModel.PersonalScheduleUiModel(0L, "", "", LocalDateTime.now(), LocalDateTime.now(), ""),
-                            ScheduleUiModel.PersonalScheduleUiModel(0L, "", "", LocalDateTime.now(), LocalDateTime.now(), ""),
+                            ScheduleUiModel.AcademicScheduleUiModel(
+                                "",
+                                LocalDate.now(),
+                                LocalDate.now()
+                            ),
+                            ScheduleUiModel.AcademicScheduleUiModel(
+                                "",
+                                LocalDate.now(),
+                                LocalDate.now()
+                            ),
+                            ScheduleUiModel.PersonalScheduleUiModel(
+                                0L,
+                                "",
+                                "",
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                ""
+                            ),
+                            ScheduleUiModel.PersonalScheduleUiModel(
+                                0L,
+                                "",
+                                "",
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                ""
+                            ),
+                            ScheduleUiModel.PersonalScheduleUiModel(
+                                0L,
+                                "",
+                                "",
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                ""
+                            ),
+                            ScheduleUiModel.PersonalScheduleUiModel(
+                                0L,
+                                "",
+                                "",
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                ""
+                            ),
+                            ScheduleUiModel.PersonalScheduleUiModel(
+                                0L,
+                                "",
+                                "",
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                ""
+                            ),
                         ),
                 ),
             onClick = { },
