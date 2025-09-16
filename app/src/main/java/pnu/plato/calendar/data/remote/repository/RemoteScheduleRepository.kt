@@ -1,17 +1,17 @@
 package pnu.plato.calendar.data.remote.repository
 
-import pnu.plato.calendar.data.remote.request.CreateArgs
-import pnu.plato.calendar.data.remote.request.CreateRequest
-import pnu.plato.calendar.data.remote.request.DeleteArgs
-import pnu.plato.calendar.data.remote.request.DeleteEvent
-import pnu.plato.calendar.data.remote.request.DeleteRequest
-import pnu.plato.calendar.data.remote.request.UpdateArgs
-import pnu.plato.calendar.data.remote.request.UpdateRequest
 import pnu.plato.calendar.data.remote.service.AcademicScheduleService
 import pnu.plato.calendar.data.remote.service.PersonalScheduleService
-import pnu.plato.calendar.domain.entity.AcademicSchedule
+import pnu.plato.calendar.data.request.CreatePersonalScheduleArgs
+import pnu.plato.calendar.data.request.CreatePersonalScheduleRequest
+import pnu.plato.calendar.data.request.DeletePersonalScheduleArgs
+import pnu.plato.calendar.data.request.DeletePersonalScheduleEvent
+import pnu.plato.calendar.data.request.DeletePersonalScheduleRequest
+import pnu.plato.calendar.data.request.UpdatePersonalScheduleArgs
+import pnu.plato.calendar.data.request.UpdatePersonalScheduleRequest
 import pnu.plato.calendar.domain.entity.LoginStatus
-import pnu.plato.calendar.domain.entity.PersonalSchedule
+import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import java.net.URLEncoder
@@ -20,141 +20,144 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 class RemoteScheduleRepository
-@Inject
-constructor(
-    private val personalScheduleService: PersonalScheduleService,
-    private val academicScheduleService: AcademicScheduleService,
-    private val loginManager: LoginManager,
-) : ScheduleRepository {
-    override suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>> {
-        val response = academicScheduleService.getAcademicSchedules()
-
-        if (response.isSuccessful) {
-            val body = response.body()?.string()
-            if (body.isNullOrBlank()) {
-                return Result.success(emptyList())
-            }
-
-            val academicSchedules = body.parseHtmlToAcademicSchedules()
-            return Result.success(academicSchedules)
-        }
-
-        return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
-    }
-
-    override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
-        val response = personalScheduleService.getPersonalSchedules(sessKey = sessKey)
-
-        if (response.isSuccessful) {
-            val body = response.body()?.string()
-            if (body.isNullOrBlank()) {
-                return Result.success(emptyList())
-            }
-
-            val personalSchedules = body.parseIcsToPersonalSchedules()
-            return Result.success(personalSchedules)
-        }
-
-        return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
-    }
-
-    override suspend fun createPersonalSchedule(
-        title: String,
-        description: String?,
-        startAt: LocalDateTime,
-        endAt: LocalDateTime,
-    ): Result<Unit> {
-        val loginStatus = loginManager.loginStatus.value
-
-        if (loginStatus is LoginStatus.Login) {
-            val sessKey = loginStatus.loginSession.sessKey
-
-            val body =
-                buildCreateScheduleBody(
-                    userId = loginStatus.loginSession.userId,
-                    sessKey = sessKey,
-                    name = title,
-                    startDateTime = startAt,
-                    endDateTime = endAt,
-                    description = description.orEmpty(),
-                )
-
-            val response =
-                personalScheduleService.createPersonalSchedule(
-                    sessKey = sessKey,
-                    body = body,
-                )
+    @Inject
+    constructor(
+        private val personalScheduleService: PersonalScheduleService,
+        private val academicScheduleService: AcademicScheduleService,
+        private val loginManager: LoginManager,
+    ) : ScheduleRepository {
+        override suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>> {
+            val response = academicScheduleService.getAcademicSchedules()
 
             if (response.isSuccessful) {
-                return Result.success(Unit)
+                val responseBody = response.body()?.string()
+                if (responseBody.isNullOrBlank()) {
+                    return Result.success(emptyList())
+                }
+
+                val academicSchedules = responseBody.parseHtmlToAcademicSchedules()
+                return Result.success(academicSchedules)
             }
+
+            return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
         }
 
-        return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
-    }
-
-    override suspend fun updatePersonalSchedule(
-        id: Long,
-        title: String,
-        description: String?,
-        startAt: LocalDateTime,
-        endAt: LocalDateTime,
-    ): Result<Unit> {
-        val loginStatus = loginManager.loginStatus.value
-
-        if (loginStatus is LoginStatus.Login) {
-            val sessKey = loginStatus.loginSession.sessKey
-
-            val response =
-                personalScheduleService.updatePersonalSchedule(
-                    sessKey = sessKey,
-                    body =
-                        buildUpdateScheduleBody(
-                            id = id,
-                            userId = loginStatus.loginSession.userId,
-                            sessKey = sessKey,
-                            name = title,
-                            startDateTime = startAt,
-                            endDateTime = endAt,
-                            description = description.orEmpty(),
-                        ),
-                )
+        override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
+            val response = personalScheduleService.getPersonalSchedules(sessKey = sessKey)
 
             if (response.isSuccessful) {
-                return Result.success(Unit)
+                val responseBody = response.body()?.string()
+                if (responseBody.isNullOrBlank()) {
+                    return Result.success(emptyList())
+                }
+
+                val personalSchedules = responseBody.parseIcsToPersonalSchedules()
+                return Result.success(personalSchedules)
             }
+
+            return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
         }
 
-        return Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
-    }
+        override suspend fun createPersonalSchedule(
+            title: String,
+            description: String?,
+            startAt: LocalDateTime,
+            endAt: LocalDateTime,
+        ): Result<Long> {
+            val loginStatus = loginManager.loginStatus.value
 
-    override suspend fun deletePersonalSchedule(id: Long): Result<Unit> {
-        val loginStatus = loginManager.loginStatus.value
+            if (loginStatus is LoginStatus.Login) {
+                val sessKey = loginStatus.loginSession.sessKey
 
-        if (loginStatus is LoginStatus.Login) {
-            val sessKey = loginStatus.loginSession.sessKey
+                val body =
+                    buildCreatePersonalScheduleRequest(
+                        userId = loginStatus.loginSession.userId,
+                        sessKey = sessKey,
+                        name = title,
+                        startDateTime = startAt,
+                        endDateTime = endAt,
+                        description = description.orEmpty(),
+                    )
 
-            val response =
-                personalScheduleService.deletePersonalSchedule(
-                    sessKey = sessKey,
-                    body = buildDeleteScheduleBody(eventId = id),
-                )
+                val response =
+                    personalScheduleService.createPersonalSchedule(
+                        sessKey = sessKey,
+                        request = body,
+                    )
 
-            if (response.isSuccessful) {
-                return Result.success(Unit)
+                if (response.isSuccessful) {
+                    val responseBody = response.body()?.string() ?: return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
+                    val id = 0L // TODO
+
+                    return Result.success(id)
+                }
             }
+
+            return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
         }
 
-        return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
-    }
+        override suspend fun updatePersonalSchedule(
+            id: Long,
+            title: String,
+            description: String?,
+            startAt: LocalDateTime,
+            endAt: LocalDateTime,
+        ): Result<Unit> {
+            val loginStatus = loginManager.loginStatus.value
 
-    companion object {
-        private const val GET_SCHEDULES_FAILED_ERROR = "일정을 가져오는데 실패했습니다."
-        private const val CREATE_SCHEDULE_FAILED_ERROR = "일정을 등록하는데 실패했습니다."
-        private const val UPDATE_SCHEDULE_FAILED_ERROR = "일정을 수정하는데 실패했습니다."
-        private const val DELETE_SCHEDULE_FAILED_ERROR = "일정을 삭제하는데 실패했습니다."
+            if (loginStatus is LoginStatus.Login) {
+                val sessKey = loginStatus.loginSession.sessKey
+
+                val response =
+                    personalScheduleService.updatePersonalSchedule(
+                        sessKey = sessKey,
+                        request =
+                            buildUpdatePersonalScheduleRequest(
+                                id = id,
+                                userId = loginStatus.loginSession.userId,
+                                sessKey = sessKey,
+                                name = title,
+                                startDateTime = startAt,
+                                endDateTime = endAt,
+                                description = description.orEmpty(),
+                            ),
+                    )
+
+                if (response.isSuccessful) {
+                    return Result.success(Unit)
+                }
+            }
+
+            return Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
+        }
+
+        override suspend fun deletePersonalSchedule(id: Long): Result<Unit> {
+            val loginStatus = loginManager.loginStatus.value
+
+            if (loginStatus is LoginStatus.Login) {
+                val sessKey = loginStatus.loginSession.sessKey
+
+                val response =
+                    personalScheduleService.deletePersonalSchedule(
+                        sessKey = sessKey,
+                        request = buildDeletePersonalScheduleRequest(eventId = id),
+                    )
+
+                if (response.isSuccessful) {
+                    return Result.success(Unit)
+                }
+            }
+
+            return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+        }
+
+        companion object {
+            private const val GET_SCHEDULES_FAILED_ERROR = "일정을 가져오는데 실패했습니다."
+            private const val CREATE_SCHEDULE_FAILED_ERROR = "일정을 등록하는데 실패했습니다."
+            private const val UPDATE_SCHEDULE_FAILED_ERROR = "일정을 수정하는데 실패했습니다."
+            private const val DELETE_SCHEDULE_FAILED_ERROR = "일정을 삭제하는데 실패했습니다."
+        }
     }
-}
 
 private fun String.parseIcsToPersonalSchedules(): List<PersonalSchedule> {
     val unfoldedLines = mutableListOf<String>()
@@ -279,14 +282,14 @@ private fun String.parseKoreanDateToLocalDate(): LocalDate? {
     }
 }
 
-private fun buildCreateScheduleBody(
+private fun buildCreatePersonalScheduleRequest(
     userId: String,
     sessKey: String,
     name: String,
     startDateTime: LocalDateTime,
     endDateTime: LocalDateTime,
     description: String,
-): List<CreateRequest> {
+): List<CreatePersonalScheduleRequest> {
     val encodedName = URLEncoder.encode(name, "UTF-8").replace("+", "%20")
     val encodedDescription =
         URLEncoder.encode("<p>$description</p>", "UTF-8").replace("+", "%20")
@@ -319,14 +322,10 @@ private fun buildCreateScheduleBody(
             append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
         }
 
-    return listOf(
-        CreateRequest(
-            args = CreateArgs(formData = formData),
-        ),
-    )
+    return listOf(CreatePersonalScheduleRequest(args = CreatePersonalScheduleArgs(formData = formData)))
 }
 
-private fun buildUpdateScheduleBody(
+private fun buildUpdatePersonalScheduleRequest(
     id: Long,
     userId: String,
     sessKey: String,
@@ -334,7 +333,7 @@ private fun buildUpdateScheduleBody(
     startDateTime: LocalDateTime,
     endDateTime: LocalDateTime,
     description: String,
-): List<UpdateRequest> {
+): List<UpdatePersonalScheduleRequest> {
     val encodedName = URLEncoder.encode(name, "UTF-8").replace("+", "%20")
     val encodedDescription =
         URLEncoder.encode("<p>$description</p>", "UTF-8").replace("+", "%20")
@@ -368,25 +367,12 @@ private fun buildUpdateScheduleBody(
             append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
         }
 
-    return listOf(
-        UpdateRequest(
-            args = UpdateArgs(formData = formData),
-        ),
-    )
+    return listOf(UpdatePersonalScheduleRequest(args = UpdatePersonalScheduleArgs(formData = formData)))
 }
 
-private fun buildDeleteScheduleBody(eventId: Long): List<DeleteRequest> =
+private fun buildDeletePersonalScheduleRequest(eventId: Long): List<DeletePersonalScheduleRequest> =
     listOf(
-        DeleteRequest(
-            args =
-                DeleteArgs(
-                    events =
-                        listOf(
-                            DeleteEvent(
-                                eventId = eventId,
-                                repeat = false,
-                            ),
-                        ),
-                ),
+        DeletePersonalScheduleRequest(
+            args = DeletePersonalScheduleArgs(events = listOf(DeletePersonalScheduleEvent(eventId = eventId, repeat = false))),
         ),
     )
