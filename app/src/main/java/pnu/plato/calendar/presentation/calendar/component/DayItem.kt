@@ -82,7 +82,7 @@ fun DayItem(
             Text(
                 text = day.date.dayOfMonth.toString(),
                 color = (if (day.isWeekend) Color.Red else if (day.isToday) Color.White else Color.Black)
-                    .let { color -> if (day.isInMonth) color else color.copy(alpha = 0.8f) },
+                    .let { color -> if (day.isInMonth) color else color.copy(alpha = 0.6f) },
                 fontSize = 14.sp,
                 fontWeight = if (day.isInMonth) FontWeight.Bold else FontWeight.Normal,
             )
