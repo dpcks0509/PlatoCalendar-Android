@@ -1,5 +1,7 @@
 package pnu.plato.calendar.data.remote.repository
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import pnu.plato.calendar.data.remote.service.AcademicScheduleService
 import pnu.plato.calendar.data.remote.service.PersonalScheduleService
 import pnu.plato.calendar.data.request.CreatePersonalScheduleArgs
@@ -42,21 +44,45 @@ class RemoteScheduleRepository
             return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
         }
 
-        override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> {
-            val response = personalScheduleService.readPersonalSchedules(sessKey = sessKey)
+        override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> =
+            coroutineScope {
+                val monthNowDeferred =
+                    async {
+                        val monthNowResponse = personalScheduleService.readMonthNowPersonalSchedules(sessKey = sessKey)
+                        if (monthNowResponse.isSuccessful) {
+                            val monthNowResponseBody = monthNowResponse.body()?.string()
+                            if (monthNowResponseBody.isNullOrBlank()) {
+                                emptyList()
+                            } else {
+                                monthNowResponseBody.parseIcsToPersonalSchedules()
+                            }
+                        } else {
+                            emptyList()
+                        }
+                    }
 
-            if (response.isSuccessful) {
-                val responseBody = response.body()?.string()
-                if (responseBody.isNullOrBlank()) {
-                    return Result.success(emptyList())
-                }
+                val recentCustomDeferred =
+                    async {
+                        val recentCustomResponse = personalScheduleService.readCustomPersonalSchedules(sessKey = sessKey)
+                        if (recentCustomResponse.isSuccessful) {
+                            val recentCustomResponseBody = recentCustomResponse.body()?.string()
+                            if (recentCustomResponseBody.isNullOrBlank()) {
+                                emptyList()
+                            } else {
+                                recentCustomResponseBody.parseIcsToPersonalSchedules()
+                            }
+                        } else {
+                            emptyList()
+                        }
+                    }
 
-                val personalSchedules = responseBody.parseIcsToPersonalSchedules()
-                return Result.success(personalSchedules)
+                val monthNowSchedules = monthNowDeferred.await()
+                val recentCustomSchedules = recentCustomDeferred.await()
+
+                val personalSchedules = (monthNowSchedules + recentCustomSchedules).distinctBy { schedule -> schedule.id }
+
+                Result.success(personalSchedules)
             }
-
-            return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
-        }
 
         override suspend fun makePersonalSchedule(
             title: String,

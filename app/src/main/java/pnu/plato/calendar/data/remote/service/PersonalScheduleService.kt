@@ -15,11 +15,21 @@ import retrofit2.http.Query
 interface PersonalScheduleService {
     @FormUrlEncoded
     @POST("/calendar/export.php")
-    suspend fun readPersonalSchedules(
+    suspend fun readMonthNowPersonalSchedules(
         @Field("sesskey") sessKey: String,
         @Field("_qf__core_calendar_export_form") form: String = "1",
         @Field("events[exportevents]") exportEvents: String = "all",
-        @Field("period[timeperiod]") timePeriod: String = "recentupcoming",
+        @Field("period[timeperiod]") timePeriod: String = "monthnow",
+        @Field("export") export: String = "내보내기",
+    ): Response<ResponseBody>
+
+    @FormUrlEncoded
+    @POST("/calendar/export.php")
+    suspend fun readCustomPersonalSchedules(
+        @Field("sesskey") sessKey: String,
+        @Field("_qf__core_calendar_export_form") form: String = "1",
+        @Field("events[exportevents]") exportEvents: String = "all",
+        @Field("period[timeperiod]") timePeriod: String = "custom",
         @Field("export") export: String = "내보내기",
     ): Response<ResponseBody>
 
