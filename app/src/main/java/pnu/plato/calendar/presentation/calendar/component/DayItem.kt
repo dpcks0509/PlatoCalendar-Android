@@ -38,7 +38,7 @@ private const val MAX_SCHEDULES_SIZE = 5
 @Composable
 fun DayItem(
     day: DayUiModel,
-    onClick: (LocalDate) -> Unit,
+    onClickDay: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -47,7 +47,7 @@ fun DayItem(
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    onClick = { onClick(day.date) },
+                    onClick = { onClickDay(day.date) },
                 )
                 .then(
                     if (day.isSelected) {
@@ -178,7 +178,7 @@ fun DayItemPreview() {
                             ),
                         ),
                 ),
-            onClick = { },
+            onClickDay = { },
             modifier =
                 Modifier
                     .width(60.dp)
