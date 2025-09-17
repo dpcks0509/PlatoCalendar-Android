@@ -38,7 +38,7 @@ private const val MAX_SCHEDULES_SIZE = 5
 @Composable
 fun DayItem(
     day: DayUiModel,
-    onClickDay: (LocalDate) -> Unit,
+    onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -47,20 +47,17 @@ fun DayItem(
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    onClick = { onClickDay(day.date) },
-                )
-                .then(
+                    onClick = { onClickDate(day.date) },
+                ).then(
                     if (day.isSelected) {
                         Modifier
                             .clip(
                                 RoundedCornerShape(12.dp),
-                            )
-                            .background(LightGray)
+                            ).background(LightGray)
                     } else {
-                        Modifier.background(Color.White)
+                        Modifier
                     },
-                )
-                .padding(top = 6.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
+                ).padding(top = 6.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -81,32 +78,42 @@ fun DayItem(
         ) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                color = (if (day.isWeekend) Color.Red else if (day.isToday) Color.White else Color.Black)
-                    .let { color -> if (day.isInMonth) color else color.copy(alpha = 0.6f) },
+                color =
+                    (
+                        if (day.isWeekend) {
+                            Color.Red
+                        } else if (day.isToday) {
+                            Color.White
+                        } else {
+                            Color.Black
+                        }
+                    ).let { color -> if (day.isInMonth) color else color.copy(alpha = 0.6f) },
                 fontSize = 14.sp,
                 fontWeight = if (day.isInMonth) FontWeight.Bold else FontWeight.Normal,
             )
         }
 
         val schedules =
-            day.schedules.filter { schedule ->
-                !(schedule is PersonalScheduleUiModel && schedule.isComplete)
-            }.sortedBy { schedule ->
-                when (schedule) {
-                    is AcademicScheduleUiModel -> 0
-                    is PersonalScheduleUiModel -> 1
-                }
-            }.take(MAX_SCHEDULES_SIZE)
+            day.schedules
+                .filter { schedule ->
+                    !(schedule is PersonalScheduleUiModel && schedule.isComplete)
+                }.sortedBy { schedule ->
+                    when (schedule) {
+                        is AcademicScheduleUiModel -> 0
+                        is PersonalScheduleUiModel -> 1
+                    }
+                }.take(MAX_SCHEDULES_SIZE)
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             schedules.forEach { schedule ->
                 Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(schedule.color),
+                    modifier =
+                        Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(schedule.color),
                 )
             }
         }
@@ -129,12 +136,12 @@ fun DayItemPreview() {
                             AcademicScheduleUiModel(
                                 "",
                                 LocalDate.now(),
-                                LocalDate.now()
+                                LocalDate.now(),
                             ),
                             AcademicScheduleUiModel(
                                 "",
                                 LocalDate.now(),
-                                LocalDate.now()
+                                LocalDate.now(),
                             ),
                             PersonalScheduleUiModel(
                                 0L,
@@ -142,7 +149,7 @@ fun DayItemPreview() {
                                 "",
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
-                                ""
+                                "",
                             ),
                             PersonalScheduleUiModel(
                                 0L,
@@ -150,7 +157,7 @@ fun DayItemPreview() {
                                 "",
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
-                                ""
+                                "",
                             ),
                             PersonalScheduleUiModel(
                                 0L,
@@ -158,7 +165,7 @@ fun DayItemPreview() {
                                 "",
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
-                                ""
+                                "",
                             ),
                             PersonalScheduleUiModel(
                                 0L,
@@ -166,7 +173,7 @@ fun DayItemPreview() {
                                 "",
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
-                                ""
+                                "",
                             ),
                             PersonalScheduleUiModel(
                                 0L,
@@ -174,11 +181,11 @@ fun DayItemPreview() {
                                 "",
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
-                                ""
+                                "",
                             ),
                         ),
                 ),
-            onClickDay = { },
+            onClickDate = { },
             modifier =
                 Modifier
                     .width(60.dp)

@@ -37,7 +37,7 @@ fun DayOfWeekHeaderPreview() {
         DayOfWeekHeader(
             modifier =
                 Modifier
-                    .padding(vertical = 4.dp)
+                    .padding(top = 4.dp)
                     .fillMaxWidth(),
         )
     }

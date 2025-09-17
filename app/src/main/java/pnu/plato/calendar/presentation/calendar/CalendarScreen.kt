@@ -1,15 +1,18 @@
 package pnu.plato.calendar.presentation.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,9 +21,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
-import pnu.plato.calendar.presentation.calendar.component.DayOfWeekHeader
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
@@ -59,7 +65,8 @@ fun CalendarContent(
         CalendarTopBar(
             today = state.today,
             selectedDate = state.selectedDate,
-            moveToToday = { onEvent(CalendarEvent.MoveToToday) },
+            currentYearMonth = state.currentYearMonth,
+            moveToToday = { onEvent(MoveToToday) },
             showMakePersonalScheduleBottomSheet = {},
             modifier =
                 Modifier
@@ -69,6 +76,22 @@ fun CalendarContent(
                     .fillMaxWidth()
                     .height(50.dp),
         )
+
+        Calendar(
+            today = state.today,
+            selectedDate = state.selectedDate,
+            currentYearMonth = state.currentYearMonth,
+            schedules = state.schedules,
+            onClickDate = { date -> onEvent(ChangeSelectedDate(date)) },
+            onSwipeMonth = { yearMonth -> onEvent(ChangeCurrentYearMonth(yearMonth)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+
+    if (state.isLoading) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
     }
 }
 

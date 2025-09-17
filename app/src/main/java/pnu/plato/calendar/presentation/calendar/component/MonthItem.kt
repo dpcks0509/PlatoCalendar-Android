@@ -15,14 +15,14 @@ import java.time.LocalDateTime
 @Composable
 fun MonthItem(
     month: List<List<DayUiModel>>,
-    onClickDay: (LocalDate) -> Unit,
+    onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         month.forEach { week ->
             WeekItem(
                 week = week,
-                onClickDay = onClickDay,
+                onClickDate = onClickDate,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -36,7 +36,6 @@ fun MonthItemPreview() {
         MonthItem(
             month =
                 listOf(
-                    // 첫 번째 주 (12월 31일 - 1월 6일)
                     listOf(
                         DayUiModel(
                             date = LocalDate.of(2023, 12, 31),
@@ -105,7 +104,6 @@ fun MonthItemPreview() {
                             schedules = emptyList(),
                         ),
                     ),
-                    // 두 번째 주 (1월 7일 - 13일)
                     listOf(
                         DayUiModel(
                             date = LocalDate.of(2024, 1, 7),
@@ -229,7 +227,6 @@ fun MonthItemPreview() {
                                 ),
                         ),
                     ),
-                    // 세 번째 주 (1월 14일 - 20일)
                     listOf(
                         DayUiModel(
                             date = LocalDate.of(2024, 1, 14),
@@ -318,7 +315,6 @@ fun MonthItemPreview() {
                             schedules = emptyList(),
                         ),
                     ),
-                    // 네 번째 주 (1월 21일 - 27일)
                     listOf(
                         DayUiModel(
                             date = LocalDate.of(2024, 1, 21),
@@ -430,7 +426,6 @@ fun MonthItemPreview() {
                             schedules = emptyList(),
                         ),
                     ),
-                    // 다섯 번째 주 (1월 28일 - 2월 3일)
                     listOf(
                         DayUiModel(
                             date = LocalDate.of(2024, 1, 28),
@@ -589,8 +584,8 @@ fun MonthItemPreview() {
                         ),
                     ),
                 ),
-            onClickDay = {},
-            modifier = Modifier.fillMaxWidth()
+            onClickDate = {},
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
