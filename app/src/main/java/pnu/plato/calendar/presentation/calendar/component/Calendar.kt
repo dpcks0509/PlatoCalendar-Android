@@ -42,23 +42,12 @@ fun Calendar(
 
     var previousPage by remember { mutableIntStateOf(0) }
 
-    // TODO 고치기
     LaunchedEffect(pagerState.currentPage) {
         val diff = pagerState.currentPage - previousPage
 
         if (diff != 0) {
-            var newYear = currentYearMonth.year
-            var newMonth = currentYearMonth.month + diff
-
-            if (newMonth > 12) {
-                newMonth = 1
-                newYear += 1
-            } else if (newMonth < 1) {
-                newMonth = 12
-                newYear -= 1
-            }
-
-            onSwipeMonth(YearMonth(newYear, newMonth))
+            val yearMonth = calculateYearMonth(currentYearMonth, pagerState.currentPage, previousPage)
+            onSwipeMonth(yearMonth)
             previousPage = pagerState.currentPage
         }
     }
@@ -68,27 +57,11 @@ fun Calendar(
         beyondViewportPageCount = 1,
         modifier = modifier,
     ) { page ->
-        val diff = page - previousPage
-
-        if (diff != 0) {
-            var newYear = currentYearMonth.year
-            var newMonth = currentYearMonth.month + diff
-
-            if (newMonth > 12) {
-                newMonth = 1
-                newYear += 1
-            } else if (newMonth < 1) {
-                newMonth = 12
-                newYear -= 1
-            }
-
-            onSwipeMonth(YearMonth(newYear, newMonth))
-            previousPage = page
-        }
+        val yearMonth = calculateYearMonth(currentYearMonth, page, previousPage)
 
         val month =
             createMonth(
-                currentYearMonth = currentYearMonth,
+                yearMonth = yearMonth,
                 today = today,
                 selectedDate = selectedDate,
                 schedules = schedules,
@@ -107,12 +80,12 @@ fun Calendar(
 }
 
 private fun createMonth(
-    currentYearMonth: YearMonth,
+    yearMonth: YearMonth,
     today: LocalDate,
     selectedDate: LocalDate,
     schedules: List<ScheduleUiModel>,
 ): List<List<DayUiModel>> {
-    val currentDate = LocalDate.of(currentYearMonth.year, currentYearMonth.month, 1)
+    val currentDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
 
     val dayOfWeekValue = if (currentDate.dayOfWeek.value == 7) 0 else currentDate.dayOfWeek.value
     val firstWeekStart = currentDate.minusDays(dayOfWeekValue.toLong())
@@ -124,7 +97,7 @@ private fun createMonth(
 
         repeat(MAX_DAY_SIZE) { dayIndex ->
             val currentDate = firstWeekStart.plusDays((weekIndex * MAX_DAY_SIZE + dayIndex).toLong())
-            val isInMonth = currentDate.monthValue == currentYearMonth.month && currentDate.year == currentYearMonth.year
+            val isInMonth = currentDate.monthValue == yearMonth.month && currentDate.year == yearMonth.year
             val daySchedules =
                 schedules.filter { schedule ->
                     when (schedule) {
@@ -152,6 +125,28 @@ private fun createMonth(
     }
 
     return weeks
+}
+
+private fun calculateYearMonth(
+    baseYearMonth: YearMonth,
+    page: Int,
+    previousPage: Int,
+): YearMonth {
+    val diff = page - previousPage
+    var newYear = baseYearMonth.year
+    var newMonth = baseYearMonth.month + diff
+
+    while (newMonth > 12) {
+        newMonth -= 12
+        newYear += 1
+    }
+
+    while (newMonth < 1) {
+        newMonth += 12
+        newYear -= 1
+    }
+
+    return YearMonth(newYear, newMonth)
 }
 
 @Preview(showBackground = true)
