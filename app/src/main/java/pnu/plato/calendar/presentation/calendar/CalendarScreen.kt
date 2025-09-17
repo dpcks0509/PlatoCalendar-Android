@@ -45,7 +45,7 @@ fun CalendarScreen(
     CalendarContent(
         state = state,
         onEvent = viewModel::setEvent,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -53,24 +53,22 @@ fun CalendarScreen(
 fun CalendarContent(
     state: CalendarState,
     onEvent: (CalendarEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         CalendarTopBar(
-            state = state,
-            onEvent = onEvent,
+            today = state.today,
+            selectedDate = state.selectedDate,
+            moveToToday = { onEvent(CalendarEvent.MoveToToday) },
             showMakePersonalScheduleBottomSheet = {},
-            modifier = Modifier
-                .background(PrimaryColor)
-                .statusBarsPadding()
-                .padding(all = 16.dp)
-                .fillMaxWidth()
-                .height(50.dp)
+            modifier =
+                Modifier
+                    .background(PrimaryColor)
+                    .statusBarsPadding()
+                    .padding(all = 16.dp)
+                    .fillMaxWidth()
+                    .height(50.dp),
         )
-
-        DayOfWeekHeader(modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth())
     }
 }
 
@@ -81,7 +79,7 @@ fun CalendarScreenPreview() {
         CalendarContent(
             state = CalendarState(),
             onEvent = {},
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }

@@ -27,16 +27,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
-import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
 
 @Composable
 fun CalendarTopBar(
-    state: CalendarState,
-    onEvent: (CalendarEvent) -> Unit,
+    today: LocalDate,
+    selectedDate: LocalDate,
+    moveToToday: () -> Unit,
     showMakePersonalScheduleBottomSheet: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -45,7 +44,7 @@ fun CalendarTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "${state.selectedDate.year}년 ${state.selectedDate.monthValue}월",
+            text = "${selectedDate.year}년 ${selectedDate.monthValue}월",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -53,11 +52,9 @@ fun CalendarTopBar(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (state.today != state.selectedDate) {
+        if (today != selectedDate) {
             OutlinedButton(
-                onClick = {
-                    onEvent(CalendarEvent.MoveToToday)
-                },
+                onClick = moveToToday,
                 border = BorderStroke(2.dp, Color.White),
                 shape = RoundedCornerShape(40.dp),
             ) {
@@ -93,8 +90,9 @@ fun CalendarTopBar(
 fun CalendarTopBarPreview() {
     PlatoCalendarTheme {
         CalendarTopBar(
-            state = CalendarState(today = LocalDate.now(), selectedDate = LocalDate.now().plusDays(1)),
-            onEvent = {},
+            today = LocalDate.now(),
+            selectedDate = LocalDate.now().plusDays(1),
+            moveToToday = {},
             showMakePersonalScheduleBottomSheet = {},
             modifier =
                 Modifier
