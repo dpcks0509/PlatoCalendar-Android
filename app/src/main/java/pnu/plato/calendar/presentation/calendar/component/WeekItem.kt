@@ -30,7 +30,7 @@ fun WeekItem(
                 onClickDate = { onClickDate(day.date) },
                 modifier = Modifier
                     .weight(1f)
-                    .aspectRatio(3f / 4f)
+                    .aspectRatio(3f / 3.6f)
             )
         }
     }
