@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pnu.plato.calendar.presentation.calendar.model.DayUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -45,7 +44,6 @@ fun Calendar(
         }
 
         val diff = pagerState.currentPage - previousPage
-
         if (diff != 0) {
             val yearMonth = calculateYearMonth(currentYearMonth, pagerState.currentPage, previousPage)
             onSwipeMonth(yearMonth)
@@ -59,23 +57,17 @@ fun Calendar(
         modifier = modifier,
     ) { page ->
         val yearMonth = calculateYearMonth(currentYearMonth, page, previousPage)
-
-        val month by remember {
-            mutableStateOf(
-                createMonth(
-                    yearMonth = yearMonth,
-                    today = today,
-                    selectedDate = selectedDate,
-                    schedules = schedules,
-                ),
-            )
-        }
+        val monthDates by remember { mutableStateOf(calculateMonthDates(yearMonth)) }
 
         Column {
             DayOfWeekHeader(modifier = Modifier.padding(top = 4.dp))
 
             MonthItem(
-                month = month,
+                monthDates = monthDates,
+                today = today,
+                selectedDate = selectedDate,
+                currentYearMonth = yearMonth,
+                schedules = schedules,
                 onClickDate = onClickDate,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -83,52 +75,25 @@ fun Calendar(
     }
 }
 
-private fun createMonth(
-    yearMonth: YearMonth,
-    today: LocalDate,
-    selectedDate: LocalDate,
-    schedules: List<ScheduleUiModel>,
-): List<List<DayUiModel>> {
+private fun calculateMonthDates(yearMonth: YearMonth): List<List<LocalDate>> {
     val currentDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
 
     val dayOfWeekValue = if (currentDate.dayOfWeek.value == 7) 0 else currentDate.dayOfWeek.value
     val firstWeekStart = currentDate.minusDays(dayOfWeekValue.toLong())
 
-    val weeks = mutableListOf<List<DayUiModel>>()
+    val monthDates = mutableListOf<List<LocalDate>>()
 
     repeat(MAX_WEEK_SIZE) { weekIndex ->
-        val week = mutableListOf<DayUiModel>()
+        val week = mutableListOf<LocalDate>()
 
         repeat(MAX_DAY_SIZE) { dayIndex ->
-            val currentDate = firstWeekStart.plusDays((weekIndex * MAX_DAY_SIZE + dayIndex).toLong())
-            val isInMonth = currentDate.monthValue == yearMonth.month && currentDate.year == yearMonth.year
-            val daySchedules =
-                schedules.filter { schedule ->
-                    when (schedule) {
-                        is ScheduleUiModel.AcademicScheduleUiModel -> {
-                            currentDate == schedule.endAt
-                        }
-
-                        is ScheduleUiModel.PersonalScheduleUiModel -> {
-                            currentDate == schedule.endAt.toLocalDate()
-                        }
-                    }
-                }
-
-            week.add(
-                DayUiModel(
-                    date = currentDate,
-                    isToday = currentDate == today,
-                    isSelected = currentDate == selectedDate,
-                    isInMonth = isInMonth,
-                    schedules = daySchedules,
-                ),
-            )
+            val date = firstWeekStart.plusDays((weekIndex * MAX_DAY_SIZE + dayIndex).toLong())
+            week.add(date)
         }
-        weeks.add(week)
+        monthDates.add(week)
     }
 
-    return weeks
+    return monthDates
 }
 
 private fun calculateYearMonth(

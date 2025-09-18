@@ -27,8 +27,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.calendar.model.DayUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
@@ -38,10 +40,23 @@ private const val MAX_SCHEDULES_SIZE = 5
 
 @Composable
 fun DayItem(
-    day: DayUiModel,
+    date: LocalDate,
+    today: LocalDate,
+    selectedDate: LocalDate,
+    currentYearMonth: YearMonth,
+    schedules: List<ScheduleUiModel>,
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val day =
+        createDay(
+            date = date,
+            today = today,
+            selectedDate = selectedDate,
+            currentYearMonth = currentYearMonth,
+            schedules = schedules,
+        )
+
     Column(
         modifier =
             modifier
@@ -94,7 +109,7 @@ fun DayItem(
             )
         }
 
-        val schedules =
+        val filteredSchedules =
             day.schedules
                 .filter { schedule ->
                     !(schedule is PersonalScheduleUiModel && schedule.isComplete)
@@ -110,7 +125,7 @@ fun DayItem(
             horizontalArrangement = Arrangement.spacedBy(1.5.dp, Alignment.CenterHorizontally),
             userScrollEnabled = false,
         ) {
-            items(items = schedules) { schedule ->
+            items(items = filteredSchedules) { schedule ->
                 Box(
                     modifier =
                         Modifier
@@ -123,70 +138,99 @@ fun DayItem(
     }
 }
 
+private fun createDay(
+    date: LocalDate,
+    today: LocalDate,
+    selectedDate: LocalDate,
+    currentYearMonth: YearMonth,
+    schedules: List<ScheduleUiModel>,
+): DayUiModel {
+    val isToday = date == today
+    val isSelected = date == selectedDate
+    val isInMonth = date.monthValue == currentYearMonth.month && date.year == currentYearMonth.year
+    val daySchedules =
+        schedules.filter { schedule ->
+            when (schedule) {
+                is AcademicScheduleUiModel -> {
+                    date == schedule.endAt
+                }
+
+                is PersonalScheduleUiModel -> {
+                    date == schedule.endAt.toLocalDate()
+                }
+            }
+        }
+
+    return DayUiModel(
+        date = date,
+        isToday = isToday,
+        isSelected = isSelected,
+        isInMonth = isInMonth,
+        schedules = daySchedules,
+    )
+}
+
 @Preview(showBackground = false)
 @Composable
 fun DayItemPreview() {
     PlatoCalendarTheme {
         DayItem(
-            day =
-                DayUiModel(
-                    date = LocalDate.now(),
-                    isToday = true,
-                    isSelected = true,
-                    isInMonth = true,
-                    schedules =
-                        listOf(
-                            AcademicScheduleUiModel(
-                                "",
-                                LocalDate.now(),
-                                LocalDate.now(),
-                            ),
-                            AcademicScheduleUiModel(
-                                "",
-                                LocalDate.now(),
-                                LocalDate.now(),
-                            ),
-                            PersonalScheduleUiModel(
-                                0L,
-                                "",
-                                "",
-                                LocalDateTime.now(),
-                                LocalDateTime.now(),
-                                "",
-                            ),
-                            PersonalScheduleUiModel(
-                                0L,
-                                "",
-                                "",
-                                LocalDateTime.now(),
-                                LocalDateTime.now(),
-                                "",
-                            ),
-                            PersonalScheduleUiModel(
-                                0L,
-                                "",
-                                "",
-                                LocalDateTime.now(),
-                                LocalDateTime.now(),
-                                "",
-                            ),
-                            PersonalScheduleUiModel(
-                                0L,
-                                "",
-                                "",
-                                LocalDateTime.now(),
-                                LocalDateTime.now(),
-                                "",
-                            ),
-                            PersonalScheduleUiModel(
-                                0L,
-                                "",
-                                "",
-                                LocalDateTime.now(),
-                                LocalDateTime.now(),
-                                "",
-                            ),
-                        ),
+            date = LocalDate.now(),
+            today = LocalDate.now(),
+            selectedDate = LocalDate.now(),
+            currentYearMonth = YearMonth(LocalDate.now().year, LocalDate.now().monthValue),
+            schedules =
+                listOf(
+                    AcademicScheduleUiModel(
+                        "",
+                        LocalDate.now(),
+                        LocalDate.now(),
+                    ),
+                    AcademicScheduleUiModel(
+                        "",
+                        LocalDate.now(),
+                        LocalDate.now(),
+                    ),
+                    PersonalScheduleUiModel(
+                        0L,
+                        "",
+                        "",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        "",
+                    ),
+                    PersonalScheduleUiModel(
+                        0L,
+                        "",
+                        "",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        "",
+                    ),
+                    PersonalScheduleUiModel(
+                        0L,
+                        "",
+                        "",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        "",
+                    ),
+                    PersonalScheduleUiModel(
+                        0L,
+                        "",
+                        "",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        "",
+                    ),
+                    PersonalScheduleUiModel(
+                        0L,
+                        "",
+                        "",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        "",
+                    ),
                 ),
             onClickDate = { },
             modifier =
