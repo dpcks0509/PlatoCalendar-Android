@@ -46,39 +46,8 @@ class RemoteScheduleRepository
 
         override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> =
             coroutineScope {
-                val monthNowDeferred =
-                    async {
-                        val monthNowResponse = personalScheduleService.readMonthNowPersonalSchedules(sessKey = sessKey)
-                        if (monthNowResponse.isSuccessful) {
-                            val monthNowResponseBody = monthNowResponse.body()?.string()
-                            if (monthNowResponseBody.isNullOrBlank()) {
-                                emptyList()
-                            } else {
-                                monthNowResponseBody.parseIcsToPersonalSchedules()
-                            }
-                        } else {
-                            emptyList()
-                        }
-                    }
-
-                val recentCustomDeferred =
-                    async {
-                        val recentCustomResponse = personalScheduleService.readCustomPersonalSchedules(sessKey = sessKey)
-                        if (recentCustomResponse.isSuccessful) {
-                            val recentCustomResponseBody = recentCustomResponse.body()?.string()
-                            if (recentCustomResponseBody.isNullOrBlank()) {
-                                emptyList()
-                            } else {
-                                recentCustomResponseBody.parseIcsToPersonalSchedules()
-                            }
-                        } else {
-                            emptyList()
-                        }
-                    }
-
-                val monthNowSchedules = monthNowDeferred.await()
-                val recentCustomSchedules = recentCustomDeferred.await()
-
+                val monthNowSchedules = async { getMonthNowPersonalSchedules(sessKey) }.await()
+                val recentCustomSchedules = async { getRecentCustomPersonalSchedules(sessKey) }.await()
                 val personalSchedules = (monthNowSchedules + recentCustomSchedules).distinctBy { schedule -> schedule.id }
 
                 Result.success(personalSchedules)
@@ -188,6 +157,34 @@ class RemoteScheduleRepository
             }
 
             return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+        }
+
+        private suspend fun getMonthNowPersonalSchedules(sessKey: String): List<PersonalSchedule> {
+            val monthNowResponse = personalScheduleService.readMonthNowPersonalSchedules(sessKey = sessKey)
+            return if (monthNowResponse.isSuccessful) {
+                val monthNowResponseBody = monthNowResponse.body()?.string()
+                if (monthNowResponseBody.isNullOrBlank()) {
+                    emptyList()
+                } else {
+                    monthNowResponseBody.parseIcsToPersonalSchedules()
+                }
+            } else {
+                emptyList()
+            }
+        }
+
+        private suspend fun getRecentCustomPersonalSchedules(sessKey: String): List<PersonalSchedule> {
+            val recentCustomResponse = personalScheduleService.readCustomPersonalSchedules(sessKey = sessKey)
+            return if (recentCustomResponse.isSuccessful) {
+                val recentCustomResponseBody = recentCustomResponse.body()?.string()
+                if (recentCustomResponseBody.isNullOrBlank()) {
+                    emptyList()
+                } else {
+                    recentCustomResponseBody.parseIcsToPersonalSchedules()
+                }
+            } else {
+                emptyList()
+            }
         }
 
         companion object {
