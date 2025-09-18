@@ -52,9 +52,15 @@ class CalendarViewModel
                 MoveToToday -> {
                     val today = LocalDate.now()
                     if (today != state.value.today) {
-                        setState { copy(today = today, selectedDate = today, currentYearMonth = YearMonth(today.year, today.monthValue)) }
+                        setState {
+                            copy(
+                                today = today,
+                                selectedDate = today,
+                                currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
+                            )
+                        }
                     } else {
-                        setState { copy(selectedDate = today, currentYearMonth = YearMonth(today.year, today.monthValue)) }
+                        setState { copy(selectedDate = today, currentYearMonth = YearMonth(year = today.year, month = today.monthValue)) }
                     }
                 }
 
