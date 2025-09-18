@@ -42,10 +42,10 @@ fun Calendar(
 
     var previousPage by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(pagerState.currentPage) {
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
         val diff = pagerState.currentPage - previousPage
 
-        if (diff != 0) {
+        if (diff != 0 && !pagerState.isScrollInProgress) {
             val yearMonth = calculateYearMonth(currentYearMonth, pagerState.currentPage, previousPage)
             onSwipeMonth(yearMonth)
             previousPage = pagerState.currentPage
