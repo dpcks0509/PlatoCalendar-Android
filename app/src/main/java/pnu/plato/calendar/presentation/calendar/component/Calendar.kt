@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -22,8 +21,8 @@ import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
 
 const val MAX_MONTH_SIZE = 12
-private const val MAX_WEEK_SIZE = 6
-private const val MAX_DAY_SIZE = 7
+const val MAX_WEEK_SIZE = 6
+const val MAX_DAY_SIZE = 7
 
 @Composable
 fun Calendar(
@@ -32,6 +31,7 @@ fun Calendar(
     selectedDate: LocalDate,
     currentYearMonth: YearMonth,
     schedules: List<ScheduleUiModel>,
+    monthlyDates: Map<YearMonth, List<List<LocalDate>>>,
     onClickDate: (LocalDate) -> Unit,
     onSwipeMonth: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
@@ -45,7 +45,8 @@ fun Calendar(
 
         val diff = pagerState.currentPage - previousPage
         if (diff != 0) {
-            val yearMonth = calculateYearMonth(currentYearMonth, pagerState.currentPage, previousPage)
+            val yearMonth =
+                calculateYearMonth(currentYearMonth, pagerState.currentPage, previousPage)
             onSwipeMonth(yearMonth)
             previousPage = pagerState.currentPage
         }
@@ -57,9 +58,7 @@ fun Calendar(
         modifier = modifier,
     ) { page ->
         val yearMonth = calculateYearMonth(currentYearMonth, page, previousPage)
-
-        // TODO produceState 사용 고려 및 item list 생성해서 state에 저장해서 재사용 고려
-        val monthDates by remember(yearMonth) { mutableStateOf(calculateMonthDates(yearMonth)) }
+        val monthDates = monthlyDates[yearMonth] ?: emptyList()
 
         Column {
             DayOfWeekHeader(modifier = Modifier.padding(top = 4.dp))
@@ -75,27 +74,6 @@ fun Calendar(
             )
         }
     }
-}
-
-private fun calculateMonthDates(yearMonth: YearMonth): List<List<LocalDate>> {
-    val currentDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
-
-    val dayOfWeekValue = if (currentDate.dayOfWeek.value == 7) 0 else currentDate.dayOfWeek.value
-    val firstWeekStart = currentDate.minusDays(dayOfWeekValue.toLong())
-
-    val monthDates = mutableListOf<List<LocalDate>>()
-
-    repeat(MAX_WEEK_SIZE) { weekIndex ->
-        val week = mutableListOf<LocalDate>()
-
-        repeat(MAX_DAY_SIZE) { dayIndex ->
-            val date = firstWeekStart.plusDays((weekIndex * MAX_DAY_SIZE + dayIndex).toLong())
-            week.add(date)
-        }
-        monthDates.add(week)
-    }
-
-    return monthDates
 }
 
 private fun calculateYearMonth(
@@ -131,6 +109,7 @@ fun CalendarPreview() {
             selectedDate = today,
             currentYearMonth = YearMonth(today.year, today.monthValue),
             schedules = listOf(),
+            monthlyDates = mapOf(),
             onClickDate = {},
             onSwipeMonth = {},
             modifier = Modifier.fillMaxWidth(),

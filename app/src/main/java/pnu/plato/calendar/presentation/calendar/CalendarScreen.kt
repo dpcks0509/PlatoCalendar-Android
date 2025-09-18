@@ -99,6 +99,7 @@ fun CalendarContent(
             selectedDate = state.selectedDate,
             currentYearMonth = state.currentYearMonth,
             schedules = state.schedules,
+            monthlyDates = state.monthlyDates,
             onClickDate = { date -> onEvent(ChangeSelectedDate(date)) },
             onSwipeMonth = { yearMonth -> onEvent(ChangeCurrentYearMonth(yearMonth)) },
             modifier = Modifier.fillMaxWidth(),
