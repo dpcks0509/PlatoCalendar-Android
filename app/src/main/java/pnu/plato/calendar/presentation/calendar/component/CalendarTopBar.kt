@@ -54,7 +54,7 @@ fun CalendarTopBar(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (today != selectedDate) {
+        if (today != selectedDate || today.monthValue != currentYearMonth.month) {
             OutlinedButton(
                 onClick = moveToToday,
                 border = BorderStroke(2.dp, Color.White),
