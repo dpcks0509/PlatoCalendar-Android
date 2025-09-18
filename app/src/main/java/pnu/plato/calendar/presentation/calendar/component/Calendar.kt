@@ -57,7 +57,9 @@ fun Calendar(
         modifier = modifier,
     ) { page ->
         val yearMonth = calculateYearMonth(currentYearMonth, page, previousPage)
-        val monthDates by remember { mutableStateOf(calculateMonthDates(yearMonth)) }
+
+        // TODO produceState 사용 고려 및 item list 생성해서 state에 저장해서 재사용 고려
+        val monthDates by remember(yearMonth) { mutableStateOf(calculateMonthDates(yearMonth)) }
 
         Column {
             DayOfWeekHeader(modifier = Modifier.padding(top = 4.dp))

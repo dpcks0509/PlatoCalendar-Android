@@ -6,12 +6,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -49,7 +48,7 @@ fun DayItem(
     modifier: Modifier = Modifier,
 ) {
     val day =
-        remember {
+        remember(date, today, selectedDate, currentYearMonth, schedules) {
             createDay(
                 date = date,
                 today = today,
@@ -111,7 +110,7 @@ fun DayItem(
             )
         }
 
-        val filteredSchedules =
+        val daySchedules =
             day.schedules
                 .filter { schedule ->
                     !(schedule is PersonalScheduleUiModel && schedule.isComplete)
@@ -122,12 +121,11 @@ fun DayItem(
                     }
                 }.take(MAX_SCHEDULES_SIZE)
 
-        LazyRow(
+        Row(
             modifier = Modifier.padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(1.5.dp, Alignment.CenterHorizontally),
-            userScrollEnabled = false,
         ) {
-            items(items = filteredSchedules) { schedule ->
+            daySchedules.forEach { schedule ->
                 Box(
                     modifier =
                         Modifier

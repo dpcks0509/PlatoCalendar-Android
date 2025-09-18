@@ -1,8 +1,7 @@
 package pnu.plato.calendar.presentation.calendar.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,14 +23,10 @@ fun MonthItem(
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier,
-        userScrollEnabled = false,
     ) {
-        this.items(
-            items = monthDates,
-            key = { weekDates -> weekDates.first() },
-        ) { week ->
+        monthDates.forEach { week ->
             WeekItem(
                 weekDates = week,
                 today = today,

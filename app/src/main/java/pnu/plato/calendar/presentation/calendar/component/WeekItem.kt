@@ -1,10 +1,9 @@
 package pnu.plato.calendar.presentation.calendar.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,15 +25,11 @@ fun WeekItem(
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyRow(
+    Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
-        userScrollEnabled = false,
     ) {
-        items(
-            items = weekDates,
-            key = { date -> date },
-        ) { date ->
+        weekDates.forEach { date ->
             DayItem(
                 date = date,
                 today = today,
@@ -44,7 +39,7 @@ fun WeekItem(
                 onClickDate = { onClickDate(date) },
                 modifier =
                     Modifier
-                        .fillParentMaxWidth(1f / weekDates.size)
+                        .weight(1f)
                         .aspectRatio(3f / 3.6f),
             )
         }
