@@ -13,6 +13,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.GetPersonal
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
+import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.*
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
@@ -32,7 +33,7 @@ class CalendarViewModel
         private val loginManager: LoginManager,
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
-    ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState(isLoading = true)) {
+    ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
         init {
             viewModelScope.launch {
                 loginManager.loginStatus.collect { loginStatus ->
@@ -62,6 +63,8 @@ class CalendarViewModel
                     } else {
                         setState { copy(selectedDate = today, currentYearMonth = YearMonth(year = today.year, month = today.monthValue)) }
                     }
+
+                    setSideEffect { ScrollToFirstMonth }
                 }
 
                 is MakePersonalSchedule ->

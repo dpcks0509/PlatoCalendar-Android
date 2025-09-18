@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -20,12 +22,13 @@ import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
 
-private const val MAX_MONTH_SIZE = 12
+const val MAX_MONTH_SIZE = 12
 private const val MAX_WEEK_SIZE = 6
 private const val MAX_DAY_SIZE = 7
 
 @Composable
 fun Calendar(
+    pagerState: PagerState,
     today: LocalDate,
     selectedDate: LocalDate,
     currentYearMonth: YearMonth,
@@ -34,18 +37,16 @@ fun Calendar(
     onSwipeMonth: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val pagerState =
-        rememberPagerState(
-            initialPage = 0,
-            pageCount = { MAX_MONTH_SIZE },
-        )
-
     var previousPage by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+    LaunchedEffect(pagerState.currentPage) {
+        if (!pagerState.isScrollInProgress) {
+            previousPage = 0
+        }
+
         val diff = pagerState.currentPage - previousPage
 
-        if (diff != 0 && !pagerState.isScrollInProgress) {
+        if (diff != 0) {
             val yearMonth = calculateYearMonth(currentYearMonth, pagerState.currentPage, previousPage)
             onSwipeMonth(yearMonth)
             previousPage = pagerState.currentPage
@@ -59,13 +60,16 @@ fun Calendar(
     ) { page ->
         val yearMonth = calculateYearMonth(currentYearMonth, page, previousPage)
 
-        val month =
-            createMonth(
-                yearMonth = yearMonth,
-                today = today,
-                selectedDate = selectedDate,
-                schedules = schedules,
+        val month by remember {
+            mutableStateOf(
+                createMonth(
+                    yearMonth = yearMonth,
+                    today = today,
+                    selectedDate = selectedDate,
+                    schedules = schedules,
+                ),
             )
+        }
 
         Column {
             DayOfWeekHeader(modifier = Modifier.padding(top = 4.dp))
@@ -155,6 +159,7 @@ fun CalendarPreview() {
     val today = LocalDate.now()
     PlatoCalendarTheme {
         Calendar(
+            pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             today = today,
             selectedDate = today,
             currentYearMonth = YearMonth(today.year, today.monthValue),

@@ -6,11 +6,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -57,7 +58,7 @@ fun DayItem(
                     } else {
                         Modifier
                     },
-                ).padding(top = 6.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
+                ).padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -104,14 +105,16 @@ fun DayItem(
                     }
                 }.take(MAX_SCHEDULES_SIZE)
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+        LazyRow(
+            modifier = Modifier.padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(1.5.dp, Alignment.CenterHorizontally),
+            userScrollEnabled = false,
         ) {
-            schedules.forEach { schedule ->
+            items(items = schedules) { schedule ->
                 Box(
                     modifier =
                         Modifier
-                            .size(6.dp)
+                            .size(4.5.dp)
                             .clip(CircleShape)
                             .background(schedule.color),
                 )

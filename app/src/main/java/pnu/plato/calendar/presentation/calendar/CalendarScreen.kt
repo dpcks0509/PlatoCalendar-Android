@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,10 +25,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
+import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -40,8 +44,17 @@ fun CalendarScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val pagerState =
+        rememberPagerState(
+            initialPage = 0,
+            pageCount = { MAX_MONTH_SIZE },
+        )
+
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                ScrollToFirstMonth -> pagerState.scrollToPage(0)
+            }
         }
     }
 
@@ -51,6 +64,7 @@ fun CalendarScreen(
 
     CalendarContent(
         state = state,
+        pagerState = pagerState,
         onEvent = viewModel::setEvent,
         modifier = modifier,
     )
@@ -59,6 +73,7 @@ fun CalendarScreen(
 @Composable
 fun CalendarContent(
     state: CalendarState,
+    pagerState: PagerState,
     onEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -79,6 +94,7 @@ fun CalendarContent(
         )
 
         Calendar(
+            pagerState = pagerState,
             today = state.today,
             selectedDate = state.selectedDate,
             currentYearMonth = state.currentYearMonth,
@@ -107,6 +123,7 @@ fun CalendarScreenPreview() {
     PlatoCalendarTheme {
         CalendarContent(
             state = CalendarState(),
+            pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
         )
