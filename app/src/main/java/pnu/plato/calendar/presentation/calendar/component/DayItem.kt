@@ -49,13 +49,15 @@ fun DayItem(
     modifier: Modifier = Modifier,
 ) {
     val day =
-        createDay(
-            date = date,
-            today = today,
-            selectedDate = selectedDate,
-            currentYearMonth = currentYearMonth,
-            schedules = schedules,
-        )
+        remember {
+            createDay(
+                date = date,
+                today = today,
+                selectedDate = selectedDate,
+                currentYearMonth = currentYearMonth,
+                schedules = schedules,
+            )
+        }
 
     Column(
         modifier =
