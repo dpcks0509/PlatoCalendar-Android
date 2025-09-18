@@ -1,7 +1,7 @@
 package pnu.plato.calendar.presentation.calendar.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +15,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,10 +56,19 @@ fun CalendarTopBar(
         Spacer(modifier = Modifier.weight(1f))
 
         if (today != selectedDate || today.monthValue != currentYearMonth.month) {
-            OutlinedButton(
+            Button(
                 onClick = moveToToday,
-                border = BorderStroke(2.dp, Color.White),
-                shape = RoundedCornerShape(40.dp),
+                colors =
+                    ButtonColors(
+                        containerColor = PrimaryColor,
+                        contentColor = Color.White,
+                        disabledContentColor = PrimaryColor,
+                        disabledContainerColor = Color.White,
+                    ),
+                modifier =
+                    Modifier
+                        .clip(RoundedCornerShape(40.dp))
+                        .border(2.dp, Color.White, RoundedCornerShape(40.dp)),
             ) {
                 Text(
                     text = "TODAY",
