@@ -28,6 +28,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurre
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
+import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 
@@ -89,7 +90,12 @@ fun CalendarContent(
     }
 
     if (state.isLoading) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .noRippleClickable(),
+        ) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
