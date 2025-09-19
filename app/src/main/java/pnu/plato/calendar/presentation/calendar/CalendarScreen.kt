@@ -118,7 +118,7 @@ fun CalendarContent(
                     .fillMaxSize()
                     .noRippleClickable(),
         ) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            CircularProgressIndicator(color = PrimaryColor, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
