@@ -16,9 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 const val MAX_MONTH_SIZE = 12
 const val MAX_WEEK_SIZE = 6
@@ -101,15 +104,26 @@ private fun calculateYearMonth(
 @Preview(showBackground = true)
 @Composable
 fun CalendarPreview() {
-    val today = LocalDate.now()
     PlatoCalendarTheme {
+        val today = LocalDate.of(2024, 1, 8)
+
+        val monthlyDates: Map<YearMonth, List<List<LocalDate>>> = (0 until 12).associate { monthOffset ->
+            val yearMonth = YearMonth(2024, monthOffset + 1)
+            val monthDates = List(MAX_WEEK_SIZE) { week ->
+                List(MAX_DAY_SIZE) { day ->
+                    LocalDate.of(2024, monthOffset + 1, 1).minusDays(1).plusDays((week * MAX_DAY_SIZE + day).toLong())
+                }
+            }
+            yearMonth to monthDates
+        }
+
         Calendar(
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             today = today,
             selectedDate = today,
             currentYearMonth = YearMonth(today.year, today.monthValue),
             schedules = listOf(),
-            monthlyDates = mapOf(),
+            monthlyDates = monthlyDates,
             onClickDate = {},
             onSwipeMonth = {},
             modifier = Modifier.fillMaxWidth(),

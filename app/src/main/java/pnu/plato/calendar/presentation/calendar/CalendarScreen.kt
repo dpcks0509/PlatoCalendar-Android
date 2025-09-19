@@ -19,8 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import pnu.plato.calendar.presentation.calendar.component.Calendar
@@ -32,11 +30,14 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelec
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun CalendarScreen(
@@ -126,10 +127,42 @@ fun CalendarContent(
 @Composable
 fun CalendarScreenPreview() {
     PlatoCalendarTheme {
+        val monthlyDates: Map<YearMonth, List<List<LocalDate>>> =
+            (0 until 12).associate { monthOffset ->
+                val yearMonth = YearMonth(2024, monthOffset + 1)
+                val monthDates = List(6) { week ->
+                    List(7) { day ->
+                        LocalDate.of(2024, monthOffset + 1, 1).minusDays(1)
+                            .plusDays((week * 7 + day).toLong())
+                    }
+                }
+                yearMonth to monthDates
+            }
+
+        val schedules = listOf(
+            AcademicScheduleUiModel(
+                title = "신정",
+                startAt = LocalDate.of(2024, 1, 1),
+                endAt = LocalDate.of(2024, 1, 1),
+            ),
+            PersonalScheduleUiModel(
+                id = 1L,
+                title = "새해 계획 세우기",
+                description = "",
+                startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
+                endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
+                courseName = null,
+            ),
+        )
+
         CalendarContent(
-            state = CalendarState(),
+            state = CalendarState(
+                today = LocalDate.of(2024, 1, 8),
+                selectedDate = LocalDate.of(2024, 1, 11),
+                schedules = schedules
+            ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            monthlyDates = emptyMap(),
+            monthlyDates = monthlyDates,
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
         )

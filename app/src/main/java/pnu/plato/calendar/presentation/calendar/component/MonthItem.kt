@@ -44,47 +44,34 @@ fun MonthItem(
 @Composable
 fun MonthItemPreview() {
     PlatoCalendarTheme {
+        val monthDates = List(6) { week ->
+            List(7) { day ->
+                LocalDate.of(2024, 1, 1).minusDays(1).plusDays((week * 7 + day).toLong())
+            }
+        }
+
+        val schedules = listOf(
+            AcademicScheduleUiModel(
+                title = "신정",
+                startAt = LocalDate.of(2024, 1, 1),
+                endAt = LocalDate.of(2024, 1, 1),
+            ),
+            PersonalScheduleUiModel(
+                id = 1L,
+                title = "새해 계획 세우기",
+                description = "",
+                startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
+                endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
+                courseName = null,
+            ),
+        )
+
         MonthItem(
-            monthDates =
-                listOf(
-                    listOf(
-                        LocalDate.of(2023, 12, 31),
-                        LocalDate.of(2024, 1, 1),
-                        LocalDate.of(2024, 1, 2),
-                        LocalDate.of(2024, 1, 3),
-                        LocalDate.of(2024, 1, 4),
-                        LocalDate.of(2024, 1, 5),
-                        LocalDate.of(2024, 1, 6),
-                    ),
-                    listOf(
-                        LocalDate.of(2024, 1, 7),
-                        LocalDate.of(2024, 1, 8),
-                        LocalDate.of(2024, 1, 9),
-                        LocalDate.of(2024, 1, 10),
-                        LocalDate.of(2024, 1, 11),
-                        LocalDate.of(2024, 1, 12),
-                        LocalDate.of(2024, 1, 13),
-                    ),
-                ),
+            monthDates = monthDates,
             today = LocalDate.of(2024, 1, 8),
             selectedDate = LocalDate.of(2024, 1, 11),
             currentYearMonth = YearMonth(2024, 1),
-            schedules =
-                listOf(
-                    AcademicScheduleUiModel(
-                        title = "신정",
-                        startAt = LocalDate.of(2024, 1, 1),
-                        endAt = LocalDate.of(2024, 1, 1),
-                    ),
-                    PersonalScheduleUiModel(
-                        id = 1L,
-                        title = "새해 계획 세우기",
-                        description = "목표 설정하기",
-                        startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
-                        endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
-                        courseName = null,
-                    ),
-                ),
+            schedules = schedules,
             onClickDate = {},
             modifier = Modifier.fillMaxWidth(),
         )
