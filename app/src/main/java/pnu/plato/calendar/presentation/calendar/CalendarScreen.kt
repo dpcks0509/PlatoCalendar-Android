@@ -32,9 +32,11 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelec
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
+import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import java.time.LocalDate
 
 @Composable
 fun CalendarScreen(
@@ -58,13 +60,14 @@ fun CalendarScreen(
         }
     }
 
-    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
-        viewModel.setEvent(CalendarEvent.GetPersonalSchedules)
-    }
+//    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+//        viewModel.setEvent(CalendarEvent.GetPersonalSchedules)
+//    }
 
     CalendarContent(
         state = state,
         pagerState = pagerState,
+        monthlyDates = viewModel.monthlyDates,
         onEvent = viewModel::setEvent,
         modifier = modifier,
     )
@@ -74,6 +77,7 @@ fun CalendarScreen(
 fun CalendarContent(
     state: CalendarState,
     pagerState: PagerState,
+    monthlyDates: Map<YearMonth, List<List<LocalDate>>>,
     onEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -99,7 +103,7 @@ fun CalendarContent(
             selectedDate = state.selectedDate,
             currentYearMonth = state.currentYearMonth,
             schedules = state.schedules,
-            monthlyDates = state.monthlyDates,
+            monthlyDates = monthlyDates,
             onClickDate = { date -> onEvent(ChangeSelectedDate(date)) },
             onSwipeMonth = { yearMonth -> onEvent(ChangeCurrentYearMonth(yearMonth)) },
             modifier = Modifier.fillMaxWidth(),
@@ -125,6 +129,7 @@ fun CalendarScreenPreview() {
         CalendarContent(
             state = CalendarState(),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
+            monthlyDates = emptyMap(),
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
         )
