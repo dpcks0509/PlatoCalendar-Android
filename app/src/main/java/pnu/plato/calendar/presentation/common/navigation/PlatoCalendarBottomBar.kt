@@ -68,9 +68,6 @@ fun PlatoCalendarBottomBar(navController: NavController) {
                     onClick = {
                         if (!isSelected) {
                             navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
                                 launchSingleTop = true
                                 restoreState = true
                             }
