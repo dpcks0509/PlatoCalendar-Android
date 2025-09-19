@@ -6,6 +6,9 @@ import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
+import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
+import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
+import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
@@ -22,6 +25,7 @@ import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -32,7 +36,8 @@ constructor(
     private val loginManager: LoginManager,
     private val scheduleRepository: ScheduleRepository,
     private val courseRepository: CourseRepository,
-) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState()) {
+) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState(isLoading = true)
+) {
     init {
         viewModelScope.launch {
             loginManager.loginStatus.collect { loginStatus ->
@@ -43,6 +48,23 @@ constructor(
         viewModelScope.launch {
             getAcademicSchedules()
         }
+    }
+
+    val monthlyDates: Map<YearMonth, List<List<LocalDate>>> = run {
+        val result = mutableMapOf<YearMonth, List<List<LocalDate>>>()
+
+        val today = state.value.today
+        repeat(MAX_MONTH_SIZE) { monthOffset ->
+            val targetDate =
+                LocalDate.of(today.year, today.month, 1)
+                    .plusMonths(monthOffset.toLong())
+            val yearMonth = YearMonth(targetDate.year, targetDate.monthValue)
+            val monthDates = generateMonthDates(yearMonth)
+
+            result[yearMonth] = monthDates
+        }
+
+        result
     }
 
     override suspend fun handleEvent(event: CalendarEvent) {
@@ -126,7 +148,7 @@ constructor(
 
             is LoginStatus.Logout -> {
                 setState {
-                    copy(schedules = academicSchedules)
+                    copy(schedules = academicSchedules, isLoading = false)
                 }
             }
         }
@@ -278,5 +300,26 @@ constructor(
             }.onFailure { throwable ->
                 ErrorEventBus.sendError(throwable.message)
             }
+    }
+
+    private fun generateMonthDates(yearMonth: YearMonth): List<List<LocalDate>> {
+        val monthDates = mutableListOf<List<LocalDate>>()
+
+        val baseDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
+        val dayOfWeekValue = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
+        val firstDateOfMonth = baseDate.minusDays(dayOfWeekValue.toLong())
+
+        repeat(MAX_WEEK_SIZE) { weekOffset ->
+            val week = mutableListOf<LocalDate>()
+
+            repeat(MAX_DAY_SIZE) { dayOffset ->
+                val date =
+                    firstDateOfMonth.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
+                week.add(date)
+            }
+            monthDates.add(week)
+        }
+
+        return monthDates
     }
 }
