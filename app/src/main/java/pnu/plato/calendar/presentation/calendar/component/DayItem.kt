@@ -65,16 +65,19 @@ fun DayItem(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = { onClickDate(day.date) },
-                ).then(
+                )
+                .then(
                     if (day.isSelected) {
                         Modifier
                             .clip(
                                 RoundedCornerShape(12.dp),
-                            ).background(LightGray)
+                            )
+                            .background(LightGray)
                     } else {
                         Modifier
                     },
-                ).padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
+                )
+                .padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -84,7 +87,7 @@ fun DayItem(
                     .then(
                         if (day.isToday) {
                             Modifier
-                                .size(24.dp)
+                                .size(26.dp)
                                 .clip(CircleShape)
                                 .background(PrimaryColor)
                         } else {
@@ -97,14 +100,14 @@ fun DayItem(
                 text = day.date.dayOfMonth.toString(),
                 color =
                     (
-                        if (day.isWeekend) {
-                            Color.Red
-                        } else if (day.isToday) {
-                            Color.White
-                        } else {
-                            Color.Black
-                        }
-                    ).let { color -> if (day.isInMonth) color else color.copy(alpha = 0.6f) },
+                            if (day.isWeekend && !day.isToday) {
+                                Color.Red
+                            } else if (day.isToday) {
+                                Color.White
+                            } else {
+                                Color.Black
+                            }
+                            ).let { color -> if (day.isInMonth) color else color.copy(alpha = 0.6f) },
                 fontSize = 14.sp,
                 fontWeight = if (day.isInMonth) FontWeight.Bold else FontWeight.Normal,
             )
