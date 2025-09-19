@@ -26,9 +26,9 @@ fun MonthItem(
     Column(
         modifier = modifier,
     ) {
-        monthDates.forEach { week ->
+        monthDates.forEach { weekDates ->
             WeekItem(
-                weekDates = week,
+                weekDates = weekDates,
                 today = today,
                 selectedDate = selectedDate,
                 currentYearMonth = currentYearMonth,
