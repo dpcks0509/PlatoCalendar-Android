@@ -178,7 +178,7 @@ constructor(
                     }
                 }
 
-                LoginStatus.Uninitialized -> Unit
+                LoginStatus.Uninitialized -> setState { copy(isLoading = false) }
             }
         }
     }
