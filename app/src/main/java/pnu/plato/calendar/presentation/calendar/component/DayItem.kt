@@ -25,11 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.presentation.calendar.model.DayUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
+import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
+import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
@@ -39,35 +38,20 @@ private const val MAX_SCHEDULES_SIZE = 5
 
 @Composable
 fun DayItem(
-    date: LocalDate,
-    today: LocalDate,
-    selectedDate: LocalDate,
-    currentYearMonth: YearMonth,
-    schedules: List<ScheduleUiModel>,
+    daySchedule: DaySchedule,
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val day =
-        remember(date, today, selectedDate, currentYearMonth, schedules) {
-            createDay(
-                date = date,
-                today = today,
-                selectedDate = selectedDate,
-                currentYearMonth = currentYearMonth,
-                schedules = schedules,
-            )
-        }
-
     Column(
         modifier =
             modifier
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    onClick = { onClickDate(day.date) },
+                    onClick = { onClickDate(daySchedule.date) },
                 )
                 .then(
-                    if (day.isSelected) {
+                    if (daySchedule.isSelected) {
                         Modifier
                             .clip(
                                 RoundedCornerShape(12.dp),
@@ -85,7 +69,7 @@ fun DayItem(
             modifier =
                 Modifier
                     .then(
-                        if (day.isToday) {
+                        if (daySchedule.isToday) {
                             Modifier
                                 .size(26.dp)
                                 .clip(CircleShape)
@@ -97,24 +81,21 @@ fun DayItem(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = day.date.dayOfMonth.toString(),
-                color =
-                    (
-                            if (day.isWeekend && !day.isToday) {
-                                Color.Red
-                            } else if (day.isToday) {
-                                Color.White
-                            } else {
-                                Color.Black
-                            }
-                            ).let { color -> if (day.isInMonth) color else color.copy(alpha = 0.6f) },
+                text = daySchedule.date.dayOfMonth.toString(),
+                color = (if (daySchedule.isToday) {
+                    Color.White
+                } else if (daySchedule.isWeekend) {
+                    Color.Red
+                } else {
+                    Color.Black
+                }).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
                 fontSize = 14.sp,
-                fontWeight = if (day.isInMonth) FontWeight.Bold else FontWeight.Normal,
+                fontWeight = if (daySchedule.isInMonth) FontWeight.Bold else FontWeight.Normal,
             )
         }
 
         val daySchedules =
-            day.schedules
+            daySchedule.schedules
                 .filter { schedule ->
                     !(schedule is PersonalScheduleUiModel && schedule.isComplete)
                 }.sortedBy { schedule ->
@@ -141,100 +122,37 @@ fun DayItem(
     }
 }
 
-private fun createDay(
-    date: LocalDate,
-    today: LocalDate,
-    selectedDate: LocalDate,
-    currentYearMonth: YearMonth,
-    schedules: List<ScheduleUiModel>,
-): DayUiModel {
-    val isToday = date == today
-    val isSelected = date == selectedDate
-    val isInMonth = date.monthValue == currentYearMonth.month && date.year == currentYearMonth.year
-    val daySchedules =
-        schedules.filter { schedule ->
-            when (schedule) {
-                is AcademicScheduleUiModel -> {
-                    date == schedule.endAt
-                }
-
-                is PersonalScheduleUiModel -> {
-                    date == schedule.endAt.toLocalDate()
-                }
-            }
-        }
-
-    return DayUiModel(
-        date = date,
-        isToday = isToday,
-        isSelected = isSelected,
-        isInMonth = isInMonth,
-        schedules = daySchedules,
-    )
-}
-
 @Preview(showBackground = false)
 @Composable
 fun DayItemPreview() {
     PlatoCalendarTheme {
-        DayItem(
-            date = LocalDate.now(),
-            today = LocalDate.now(),
-            selectedDate = LocalDate.now(),
-            currentYearMonth = YearMonth(LocalDate.now().year, LocalDate.now().monthValue),
-            schedules =
-                listOf(
-                    AcademicScheduleUiModel(
-                        "",
-                        LocalDate.now(),
-                        LocalDate.now(),
-                    ),
-                    AcademicScheduleUiModel(
-                        "",
-                        LocalDate.now(),
-                        LocalDate.now(),
-                    ),
-                    PersonalScheduleUiModel(
-                        0L,
-                        "",
-                        "",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        "",
-                    ),
-                    PersonalScheduleUiModel(
-                        0L,
-                        "",
-                        "",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        "",
-                    ),
-                    PersonalScheduleUiModel(
-                        0L,
-                        "",
-                        "",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        "",
-                    ),
-                    PersonalScheduleUiModel(
-                        0L,
-                        "",
-                        "",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        "",
-                    ),
-                    PersonalScheduleUiModel(
-                        0L,
-                        "",
-                        "",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        "",
-                    ),
+        val sampleSchedules =
+            listOf(
+                AcademicScheduleUiModel(
+                    title = "",
+                    startAt = today,
+                    endAt = today,
                 ),
+                PersonalScheduleUiModel(
+                    id = 0L,
+                    title = "",
+                    description = "",
+                    startAt = LocalDateTime.now(),
+                    endAt = LocalDateTime.now(),
+                    courseName = "",
+                ),
+            )
+
+        val daySchedule = DaySchedule(
+            date = today,
+            isToday = true,
+            isSelected = true,
+            isInMonth = true,
+            schedules = sampleSchedules,
+        )
+
+        DayItem(
+            daySchedule = daySchedule,
             onClickDate = { },
             modifier =
                 Modifier

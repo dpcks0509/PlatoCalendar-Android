@@ -3,7 +3,7 @@ package pnu.plato.calendar.presentation.calendar.model
 import pnu.plato.calendar.presentation.calendar.model.DayOfWeekUiModel.Companion.isWeekend
 import java.time.LocalDate
 
-data class DayUiModel(
+data class DaySchedule(
     val date: LocalDate,
     val isToday: Boolean,
     val isSelected: Boolean,

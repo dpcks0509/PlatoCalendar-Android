@@ -14,6 +14,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,8 +30,10 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.RefreshSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
+import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
@@ -61,14 +65,14 @@ fun CalendarScreen(
         }
     }
 
-//    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
-//        viewModel.setEvent(CalendarEvent.GetPersonalSchedules)
-//    }
+    LaunchedEffect(state.schedules) {
+        viewModel.setEvent(RefreshSchedules)
+    }
 
     CalendarContent(
         state = state,
         pagerState = pagerState,
-        monthlyDates = viewModel.monthlyDates,
+        getMonthSchedule = viewModel::getMonthSchedule,
         onEvent = viewModel::setEvent,
         modifier = modifier,
     )
@@ -78,13 +82,12 @@ fun CalendarScreen(
 fun CalendarContent(
     state: CalendarState,
     pagerState: PagerState,
-    monthlyDates: Map<YearMonth, List<List<LocalDate>>>,
+    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule>>,
     onEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         CalendarTopBar(
-            today = state.today,
             selectedDate = state.selectedDate,
             currentYearMonth = state.currentYearMonth,
             moveToToday = { onEvent(MoveToToday) },
@@ -100,11 +103,7 @@ fun CalendarContent(
 
         Calendar(
             pagerState = pagerState,
-            today = state.today,
-            selectedDate = state.selectedDate,
-            currentYearMonth = state.currentYearMonth,
-            schedules = state.schedules,
-            monthlyDates = monthlyDates,
+            getMonthSchedule = getMonthSchedule,
             onClickDate = { date -> onEvent(ChangeSelectedDate(date)) },
             onSwipeMonth = { yearMonth -> onEvent(ChangeCurrentYearMonth(yearMonth)) },
             modifier = Modifier.fillMaxWidth(),
@@ -118,7 +117,10 @@ fun CalendarContent(
                     .fillMaxSize()
                     .noRippleClickable(),
         ) {
-            CircularProgressIndicator(color = PrimaryColor, modifier = Modifier.align(Alignment.Center))
+            CircularProgressIndicator(
+                color = PrimaryColor,
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
@@ -127,16 +129,26 @@ fun CalendarContent(
 @Composable
 fun CalendarScreenPreview() {
     PlatoCalendarTheme {
-        val monthlyDates: Map<YearMonth, List<List<LocalDate>>> =
+        val today = LocalDate.of(2024, 1, 8)
+
+        val monthlySchedules: Map<YearMonth, List<SnapshotStateList<DaySchedule>>> =
             (0 until 12).associate { monthOffset ->
                 val yearMonth = YearMonth(2024, monthOffset + 1)
-                val monthDates = List(6) { week ->
+                val monthSchedule = List(6) { week ->
                     List(7) { day ->
-                        LocalDate.of(2024, monthOffset + 1, 1).minusDays(1)
+                        val date = LocalDate.of(2024, monthOffset + 1, 1).minusDays(1)
                             .plusDays((week * 7 + day).toLong())
-                    }
+
+                        DaySchedule(
+                            date = date,
+                            isToday = date == today,
+                            isSelected = date == LocalDate.of(2024, 1, 11),
+                            isInMonth = date.monthValue == yearMonth.month,
+                            schedules = emptyList(),
+                        )
+                    }.toMutableStateList()
                 }
-                yearMonth to monthDates
+                yearMonth to monthSchedule
             }
 
         val schedules = listOf(
@@ -157,12 +169,11 @@ fun CalendarScreenPreview() {
 
         CalendarContent(
             state = CalendarState(
-                today = LocalDate.of(2024, 1, 8),
                 selectedDate = LocalDate.of(2024, 1, 11),
-                schedules = schedules
+                schedules = schedules,
             ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            monthlyDates = monthlyDates,
+            getMonthSchedule = { yearMonth -> monthlySchedules[yearMonth] ?: emptyList() },
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
         )

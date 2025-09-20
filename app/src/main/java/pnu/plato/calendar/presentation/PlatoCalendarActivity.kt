@@ -22,6 +22,7 @@ import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
+import java.time.LocalDate
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,7 +37,7 @@ class PlatoCalendarActivity : ComponentActivity() {
             loginManager.autoLogin()
         }
 
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         enableEdgeToEdge(
             statusBarStyle =
                 SystemBarStyle.light(
@@ -76,5 +77,9 @@ class PlatoCalendarActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        val today: LocalDate = LocalDate.now()
     }
 }

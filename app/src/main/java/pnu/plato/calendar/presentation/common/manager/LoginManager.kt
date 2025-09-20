@@ -20,13 +20,13 @@ constructor(
     private val loginRepository: LoginRepository,
     private val loginCredentialsDataStore: LoginCredentialsDataStore,
 ) {
-    private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Logout)
+    private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Uninitialized)
     val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
     suspend fun autoLogin(): Boolean {
         val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
-        loginCredentials?.let { loginCredentials ->
+        if (loginCredentials != null) {
             loginRepository
                 .login(loginCredentials)
                 .onSuccess { loginSession ->
@@ -36,8 +36,8 @@ constructor(
                 }.onFailure { throwable ->
                     ErrorEventBus.sendError(throwable.message)
                 }
-
-            return false
+        } else {
+            _loginStatus.update { LoginStatus.Logout }
         }
 
         return false

@@ -6,8 +6,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 sealed interface CalendarEvent : UiEvent {
-    data object GetPersonalSchedules : CalendarEvent
-
     data object MoveToToday : CalendarEvent
 
     data class MakePersonalSchedule(
@@ -24,4 +22,6 @@ sealed interface CalendarEvent : UiEvent {
     data class ChangeCurrentYearMonth(
         val yearMonth: YearMonth,
     ) : CalendarEvent
+
+    data object RefreshSchedules : CalendarEvent
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
@@ -35,7 +36,6 @@ import java.time.LocalDate
 
 @Composable
 fun CalendarTopBar(
-    today: LocalDate,
     selectedDate: LocalDate,
     currentYearMonth: YearMonth,
     moveToToday: () -> Unit,
@@ -102,9 +102,8 @@ fun CalendarTopBar(
 fun CalendarTopBarPreview() {
     PlatoCalendarTheme {
         CalendarTopBar(
-            today = LocalDate.now(),
-            selectedDate = LocalDate.now(),
-            currentYearMonth = YearMonth(year = 2025, month = 9),
+            selectedDate = today,
+            currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
             moveToToday = {},
             showMakePersonalScheduleBottomSheet = {},
             modifier =

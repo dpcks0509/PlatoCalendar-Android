@@ -7,20 +7,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
 fun WeekItem(
-    weekDates: List<LocalDate>,
-    today: LocalDate,
-    selectedDate: LocalDate,
-    currentYearMonth: YearMonth,
-    schedules: List<ScheduleUiModel>,
+    weekSchedule: List<DaySchedule>,
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -28,14 +23,10 @@ fun WeekItem(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
     ) {
-        weekDates.forEach { date ->
+        weekSchedule.forEach { daySchedule ->
             DayItem(
-                date = date,
-                today = today,
-                selectedDate = selectedDate,
-                currentYearMonth = currentYearMonth,
-                schedules = schedules,
-                onClickDate = { onClickDate(date) },
+                daySchedule = daySchedule,
+                onClickDate = { onClickDate(daySchedule.date) },
                 modifier =
                     Modifier
                         .weight(1f)
@@ -49,7 +40,7 @@ fun WeekItem(
 @Composable
 fun WeekItemPreview() {
     PlatoCalendarTheme {
-        val weekDates = List(7) { LocalDate.of(2024, 1, 7).plusDays(it.toLong()) }
+        val baseDate = LocalDate.of(2024, 1, 7)
         val schedules = List(7) { index ->
             PersonalScheduleUiModel(
                 id = index.toLong(),
@@ -61,12 +52,19 @@ fun WeekItemPreview() {
             )
         }
 
+        val weekSchedule = List(7) { index ->
+            val date = baseDate.plusDays(index.toLong())
+            DaySchedule(
+                date = date,
+                isToday = index == 1,
+                isSelected = index == 3,
+                isInMonth = true,
+                schedules = schedules,
+            )
+        }
+
         WeekItem(
-            weekDates = weekDates,
-            today = weekDates[1],
-            selectedDate = weekDates[3],
-            currentYearMonth = YearMonth(2024, 1),
-            schedules = schedules,
+            weekSchedule = weekSchedule,
             onClickDate = {},
             modifier = Modifier.fillMaxWidth(),
         )

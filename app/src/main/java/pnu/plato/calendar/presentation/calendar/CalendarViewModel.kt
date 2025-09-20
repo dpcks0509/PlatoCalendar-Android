@@ -1,23 +1,27 @@
 package pnu.plato.calendar.presentation.calendar
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
+import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
-import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
 import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.GetPersonalSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.RefreshSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
+import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.Companion.COMPLETE
@@ -36,46 +40,36 @@ constructor(
     private val loginManager: LoginManager,
     private val scheduleRepository: ScheduleRepository,
     private val courseRepository: CourseRepository,
-) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(initialState = CalendarState(isLoading = true)
+) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
+    initialState = CalendarState(isLoading = true)
 ) {
+    private val monthlyDates = mutableMapOf<YearMonth, List<List<LocalDate>>>()
+    private val monthlySchedules = mutableMapOf<YearMonth, List<SnapshotStateList<DaySchedule>>>()
+
     init {
         viewModelScope.launch {
             loginManager.loginStatus.collect { loginStatus ->
-                getPersonalSchedules()
+                getSchedules()
             }
         }
-
-        viewModelScope.launch {
-            getAcademicSchedules()
-        }
-    }
-
-    val monthlyDates: Map<YearMonth, List<List<LocalDate>>> = run {
-        val result = mutableMapOf<YearMonth, List<List<LocalDate>>>()
-
-        val today = state.value.today
-        repeat(MAX_MONTH_SIZE) { monthOffset ->
-            val targetDate =
-                LocalDate.of(today.year, today.month, 1)
-                    .plusMonths(monthOffset.toLong())
-            val yearMonth = YearMonth(targetDate.year, targetDate.monthValue)
-            val monthDates = generateMonthDates(yearMonth)
-
-            result[yearMonth] = monthDates
-        }
-
-        result
     }
 
     override suspend fun handleEvent(event: CalendarEvent) {
         when (event) {
-            GetPersonalSchedules -> getPersonalSchedules()
-
             MoveToToday -> {
+                val previousSelectedDate = state.value.selectedDate
+                val previousYearMonth = state.value.currentYearMonth
+                val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
+
+                deselectDateEverywhere(previousSelectedDate)
+                clearIsInMonth(previousYearMonth)
+                applyIsInMonth(todayYearMonth)
+                selectDateInMonth(todayYearMonth, today)
+
                 setState {
                     copy(
                         selectedDate = today,
-                        currentYearMonth = YearMonth(year = today.year, month = today.monthValue)
+                        currentYearMonth = todayYearMonth
                     )
                 }
 
@@ -90,66 +84,101 @@ constructor(
                     endAt = event.endAt,
                 )
 
-            is ChangeSelectedDate -> setState { copy(selectedDate = event.date) }
+            is ChangeSelectedDate -> {
+                val previousSelectedDate = state.value.selectedDate
 
-            is ChangeCurrentYearMonth -> setState { copy(currentYearMonth = event.yearMonth) }
+                deselectDateEverywhere(previousSelectedDate)
+                selectDateInMonth(state.value.currentYearMonth, event.date)
+
+                setState { copy(selectedDate = event.date) }
+            }
+
+            is ChangeCurrentYearMonth -> {
+                val previousYearMonth = state.value.currentYearMonth
+
+                clearIsInMonth(previousYearMonth)
+                applyIsInMonth(event.yearMonth)
+
+                setState { copy(currentYearMonth = event.yearMonth) }
+            }
+
+            RefreshSchedules -> refreshSchedules()
         }
     }
 
-    private suspend fun getAcademicSchedules() {
+    fun getMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule>> =
+        monthlySchedules.getOrPut(yearMonth) {
+            generateMonthSchedule(yearMonth)
+        }
+
+    private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
         scheduleRepository
             .getAcademicSchedules()
             .onSuccess {
                 val academicSchedules = it.map(::AcademicScheduleUiModel)
 
-                setState {
-                    copy(schedules = state.value.schedules + academicSchedules)
-                }
+                return academicSchedules
             }.onFailure { throwable ->
                 ErrorEventBus.sendError(throwable.message)
             }
+
+        return emptyList()
     }
 
-    private suspend fun getPersonalSchedules() {
-        val academicSchedules = state.value.schedules.filterIsInstance<AcademicScheduleUiModel>()
-
-        when (val loginStatus = loginManager.loginStatus.value) {
-            is LoginStatus.Login -> {
-                setState { copy(isLoading = true) }
-
-                scheduleRepository
-                    .getPersonalSchedules(sessKey = loginStatus.loginSession.sessKey)
-                    .onSuccess {
-                        val personalSchedules =
-                            it.map { domain ->
-                                PersonalScheduleUiModel(
-                                    domain = domain,
-                                    courseName =
-                                        courseRepository.getCourseName(
-                                            domain.courseCode,
-                                        ),
-                                )
-                            }
-
-                        setState {
-                            copy(
-                                schedules = academicSchedules + personalSchedules,
-                                isLoading = false
-                            )
-                        }
-                    }.onFailure { throwable ->
-                        setState {
-                            copy(isLoading = false)
-                        }
-
-                        ErrorEventBus.sendError(throwable.message)
+    private suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
+        scheduleRepository
+            .getPersonalSchedules(sessKey = sessKey)
+            .onSuccess {
+                val personalSchedules =
+                    it.map { domain ->
+                        PersonalScheduleUiModel(
+                            domain = domain,
+                            courseName =
+                                courseRepository.getCourseName(
+                                    domain.courseCode,
+                                ),
+                        )
                     }
+
+                return personalSchedules
+            }.onFailure { throwable ->
+                setState {
+                    copy(isLoading = false)
+                }
+
+                ErrorEventBus.sendError(throwable.message)
             }
 
-            is LoginStatus.Logout -> {
-                setState {
-                    copy(schedules = academicSchedules, isLoading = false)
+        return emptyList()
+    }
+
+    private fun getSchedules() {
+        viewModelScope.launch {
+            when (val loginStatus = loginManager.loginStatus.value) {
+                is LoginStatus.Login -> {
+                    setState { copy(isLoading = true) }
+
+                    val academicSchedules = async { getAcademicSchedules() }.await()
+                    val personalSchedules =
+                        async { getPersonalSchedules(loginStatus.loginSession.sessKey) }.await()
+                    val schedules = academicSchedules + personalSchedules
+
+                    setState {
+                        copy(schedules = schedules, isLoading = false)
+                    }
                 }
+
+                LoginStatus.Logout -> {
+                    setState { copy(isLoading = true) }
+
+                    val academicSchedules = getAcademicSchedules()
+
+                    setState {
+                        copy(schedules = academicSchedules, isLoading = false)
+                    }
+                }
+
+                LoginStatus.Uninitialized -> Unit
             }
         }
     }
@@ -302,24 +331,105 @@ constructor(
             }
     }
 
-    private fun generateMonthDates(yearMonth: YearMonth): List<List<LocalDate>> {
-        val monthDates = mutableListOf<List<LocalDate>>()
+    private fun getMonthDate(yearMonth: YearMonth): List<List<LocalDate>> =
+        monthlyDates.getOrPut(yearMonth) {
+            generateMonthDate(yearMonth)
+        }
 
+    private fun generateMonthDate(yearMonth: YearMonth): List<List<LocalDate>> {
         val baseDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
         val dayOfWeekValue = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
         val firstDateOfMonth = baseDate.minusDays(dayOfWeekValue.toLong())
 
-        repeat(MAX_WEEK_SIZE) { weekOffset ->
-            val week = mutableListOf<LocalDate>()
-
-            repeat(MAX_DAY_SIZE) { dayOffset ->
-                val date =
-                    firstDateOfMonth.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
-                week.add(date)
+        return List(MAX_WEEK_SIZE) { weekOffset ->
+            List(MAX_DAY_SIZE) { dayOffset ->
+                firstDateOfMonth.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
             }
-            monthDates.add(week)
+        }
+    }
+
+    private fun generateMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule>> =
+        getMonthDate(yearMonth).map { week ->
+            week.map { date -> createDay(date) }.toMutableStateList()
         }
 
-        return monthDates
+    private fun createDay(date: LocalDate): DaySchedule {
+        val isToday = date == today
+        val isSelected = date == state.value.selectedDate
+        val isInMonth =
+            date.monthValue == state.value.currentYearMonth.month && date.year == state.value.currentYearMonth.year
+        val daySchedules =
+            state.value.schedules.filter { schedule ->
+                when (schedule) {
+                    is AcademicScheduleUiModel -> date == schedule.endAt
+                    is PersonalScheduleUiModel -> date == schedule.endAt.toLocalDate()
+                }
+            }
+
+        return DaySchedule(
+            date = date,
+            isToday = isToday,
+            isSelected = isSelected,
+            isInMonth = isInMonth,
+            schedules = daySchedules,
+        )
+    }
+
+    private fun refreshSchedules() {
+        val groupedByDate: Map<LocalDate, List<pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel>> =
+            state.value.schedules.groupBy { schedule ->
+                when (schedule) {
+                    is AcademicScheduleUiModel -> schedule.endAt
+                    is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
+                }
+            }
+
+        monthlySchedules.values.forEach { monthSchedule ->
+            monthSchedule.forEach { weekSchedule ->
+                weekSchedule.forEachIndexed { index, daySchedule ->
+                    val newSchedules = groupedByDate[daySchedule.date].orEmpty()
+                    if (daySchedule.schedules != newSchedules) {
+                        weekSchedule[index] = daySchedule.copy(schedules = newSchedules)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deselectDateEverywhere(date: LocalDate) {
+        monthlySchedules.values.flatten().forEach { weekSchedule ->
+            weekSchedule.find { it.date == date }?.let { matched ->
+                val index = weekSchedule.indexOf(matched)
+                weekSchedule[index] = matched.copy(isSelected = false)
+            }
+        }
+    }
+
+    private fun selectDateInMonth(yearMonth: YearMonth, date: LocalDate) {
+        monthlySchedules[yearMonth]?.forEach { weekSchedule ->
+            weekSchedule.find { it.date == date }?.let { matched ->
+                val index = weekSchedule.indexOf(matched)
+                weekSchedule[index] = matched.copy(isSelected = true)
+            }
+        }
+    }
+
+    private fun clearIsInMonth(yearMonth: YearMonth) {
+        monthlySchedules[yearMonth]?.forEach { weekSchedule ->
+            weekSchedule.forEachIndexed { index, daySchedule ->
+                weekSchedule[index] = daySchedule.copy(isInMonth = false)
+            }
+        }
+    }
+
+    private fun applyIsInMonth(yearMonth: YearMonth) {
+        monthlySchedules[yearMonth]?.forEach { weekSchedule ->
+            weekSchedule.forEachIndexed { index, daySchedule ->
+                weekSchedule[index] = daySchedule.copy(
+                    isInMonth = daySchedule.date.monthValue == yearMonth.month &&
+                            daySchedule.date.year == yearMonth.year
+                )
+            }
+        }
     }
 }
