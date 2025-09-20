@@ -19,14 +19,14 @@ import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
 
-const val MAX_MONTH_SIZE = 12
+const val MAX_MONTH_SIZE = 13
 const val MAX_WEEK_SIZE = 6
 const val MAX_DAY_SIZE = 7
 
 @Composable
 fun Calendar(
     pagerState: PagerState,
-    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule>>,
+    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule?>>,
     onClickDate: (LocalDate) -> Unit,
     onSwipeMonth: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,

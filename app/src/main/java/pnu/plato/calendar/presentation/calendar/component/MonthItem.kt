@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 
 @Composable
 fun MonthItem(
-    monthSchedule: List<List<DaySchedule>>,
+    monthSchedule: List<List<DaySchedule?>>,
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {

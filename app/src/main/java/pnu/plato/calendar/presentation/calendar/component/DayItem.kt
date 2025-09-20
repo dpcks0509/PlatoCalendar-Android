@@ -38,86 +38,100 @@ private const val MAX_SCHEDULES_SIZE = 5
 
 @Composable
 fun DayItem(
-    daySchedule: DaySchedule,
+    daySchedule: DaySchedule?,
     onClickDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier =
-            modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = { onClickDate(daySchedule.date) },
-                )
-                .then(
-                    if (daySchedule.isSelected) {
-                        Modifier
-                            .clip(
-                                RoundedCornerShape(12.dp),
-                            )
-                            .background(LightGray)
-                    } else {
-                        Modifier
-                    },
-                )
-                .padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Box(
+    if (daySchedule != null) {
+        Column(
             modifier =
-                Modifier
+                modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = { onClickDate(daySchedule.date) },
+                    )
                     .then(
-                        if (daySchedule.isToday) {
+                        if (daySchedule.isSelected) {
                             Modifier
-                                .size(26.dp)
-                                .clip(CircleShape)
-                                .background(PrimaryColor)
+                                .clip(
+                                    RoundedCornerShape(12.dp),
+                                )
+                                .background(LightGray)
                         } else {
                             Modifier
                         },
-                    ),
-            contentAlignment = Alignment.Center,
+                    )
+                    .padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = daySchedule.date.dayOfMonth.toString(),
-                color = (if (daySchedule.isToday) {
-                    Color.White
-                } else if (daySchedule.isWeekend) {
-                    Color.Red
-                } else {
-                    Color.Black
-                }).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
-                fontSize = 14.sp,
-                fontWeight = if (daySchedule.isInMonth) FontWeight.Bold else FontWeight.Normal,
-            )
-        }
-
-        val daySchedules =
-            daySchedule.schedules
-                .filter { schedule ->
-                    !(schedule is PersonalScheduleUiModel && schedule.isComplete)
-                }.sortedBy { schedule ->
-                    when (schedule) {
-                        is AcademicScheduleUiModel -> 0
-                        is PersonalScheduleUiModel -> 1
-                    }
-                }.take(MAX_SCHEDULES_SIZE)
-
-        Row(
-            modifier = Modifier.padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(1.5.dp, Alignment.CenterHorizontally),
-        ) {
-            daySchedules.forEach { schedule ->
-                Box(
-                    modifier =
-                        Modifier
-                            .size(4.5.dp)
-                            .clip(CircleShape)
-                            .background(schedule.color),
+            Box(
+                modifier =
+                    Modifier
+                        .then(
+                            if (daySchedule.isToday) {
+                                Modifier
+                                    .size(26.dp)
+                                    .clip(CircleShape)
+                                    .background(PrimaryColor)
+                            } else {
+                                Modifier
+                            },
+                        ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = daySchedule.date.dayOfMonth.toString(),
+                    color = (if (daySchedule.isToday) {
+                        Color.White
+                    } else if (daySchedule.isWeekend) {
+                        Color.Red
+                    } else {
+                        Color.Black
+                    }).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
+                    fontSize = 14.sp,
+                    fontWeight = if (daySchedule.isInMonth) FontWeight.Bold else FontWeight.Normal,
                 )
             }
+
+            val daySchedules =
+                daySchedule.schedules
+                    .filter { schedule ->
+                        !(schedule is PersonalScheduleUiModel && schedule.isComplete)
+                    }.sortedBy { schedule ->
+                        when (schedule) {
+                            is AcademicScheduleUiModel -> 0
+                            is PersonalScheduleUiModel -> 1
+                        }
+                    }.take(MAX_SCHEDULES_SIZE)
+
+            Row(
+                modifier = Modifier.padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(1.5.dp, Alignment.CenterHorizontally),
+            ) {
+                daySchedules.forEach { schedule ->
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(4.5.dp)
+                                .clip(CircleShape)
+                                .background(schedule.color),
+                    )
+                }
+            }
+        }
+    } else {
+        Box(
+            modifier = modifier.padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Text(
+                text = "X",
+                color = Color.Black.copy(alpha = 0.6f),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+            )
         }
     }
 }

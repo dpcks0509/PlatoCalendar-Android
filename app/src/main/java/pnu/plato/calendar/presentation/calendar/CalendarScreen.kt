@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
 import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
@@ -54,7 +55,7 @@ fun CalendarScreen(
     val pagerState =
         rememberPagerState(
             initialPage = 0,
-            pageCount = { MAX_MONTH_SIZE },
+            pageCount = { if (today.dayOfMonth != 1) MAX_MONTH_SIZE else MAX_MONTH_SIZE - 1 },
         )
 
     LaunchedEffect(viewModel.sideEffect) {
@@ -82,7 +83,7 @@ fun CalendarScreen(
 fun CalendarContent(
     state: CalendarState,
     pagerState: PagerState,
-    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule>>,
+    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule?>>,
     onEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -129,28 +130,7 @@ fun CalendarContent(
 @Composable
 fun CalendarScreenPreview() {
     PlatoCalendarTheme {
-        val today = LocalDate.of(2024, 1, 8)
-
-        val monthlySchedules: Map<YearMonth, List<SnapshotStateList<DaySchedule>>> =
-            (0 until 12).associate { monthOffset ->
-                val yearMonth = YearMonth(2024, monthOffset + 1)
-                val monthSchedule = List(6) { week ->
-                    List(7) { day ->
-                        val date = LocalDate.of(2024, monthOffset + 1, 1).minusDays(1)
-                            .plusDays((week * 7 + day).toLong())
-
-                        DaySchedule(
-                            date = date,
-                            isToday = date == today,
-                            isSelected = date == LocalDate.of(2024, 1, 11),
-                            isInMonth = date.monthValue == yearMonth.month,
-                            schedules = emptyList(),
-                        )
-                    }.toMutableStateList()
-                }
-                yearMonth to monthSchedule
-            }
-
+        val base = LocalDate.of(2024, 1, 1)
         val schedules = listOf(
             AcademicScheduleUiModel(
                 title = "신정",
@@ -167,13 +147,26 @@ fun CalendarScreenPreview() {
             ),
         )
 
+        val monthSchedule = List(6) { week ->
+            List<DaySchedule?>(7) { day ->
+                val date = base.minusDays(1).plusDays((week * 7 + day).toLong())
+                DaySchedule(
+                    date = date,
+                    isToday = date.dayOfMonth == 8,
+                    isSelected = date.dayOfMonth == 11,
+                    isInMonth = date.monthValue == 1,
+                    schedules = schedules,
+                )
+            }.toMutableStateList()
+        }
+
         CalendarContent(
             state = CalendarState(
                 selectedDate = LocalDate.of(2024, 1, 11),
                 schedules = schedules,
             ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            getMonthSchedule = { yearMonth -> monthlySchedules[yearMonth] ?: emptyList() },
+            getMonthSchedule = { yearMonth -> monthSchedule },
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
         )

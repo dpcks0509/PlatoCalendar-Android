@@ -43,8 +43,8 @@ constructor(
 ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
     initialState = CalendarState(isLoading = true)
 ) {
-    private val monthlyDates = mutableMapOf<YearMonth, List<List<LocalDate>>>()
-    private val monthlySchedules = mutableMapOf<YearMonth, List<SnapshotStateList<DaySchedule>>>()
+    private val monthlyDates = mutableMapOf<YearMonth, List<List<LocalDate?>>>()
+    private val monthlySchedules = mutableMapOf<YearMonth, List<SnapshotStateList<DaySchedule?>>>()
 
     init {
         viewModelScope.launch {
@@ -106,7 +106,7 @@ constructor(
         }
     }
 
-    fun getMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule>> =
+    fun getMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule?>> =
         monthlySchedules.getOrPut(yearMonth) {
             generateMonthSchedule(yearMonth)
         }
@@ -331,26 +331,42 @@ constructor(
             }
     }
 
-    private fun getMonthDate(yearMonth: YearMonth): List<List<LocalDate>> =
+    private fun getMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> =
         monthlyDates.getOrPut(yearMonth) {
             generateMonthDate(yearMonth)
         }
 
-    private fun generateMonthDate(yearMonth: YearMonth): List<List<LocalDate>> {
+    private fun generateMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> {
         val baseDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
-        val dayOfWeekValue = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
-        val firstDateOfMonth = baseDate.minusDays(dayOfWeekValue.toLong())
+        val firstDayOfWeek = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
+        val firstDateOfCalendar = baseDate.minusDays(firstDayOfWeek.toLong())
+
+        val firstMonth = YearMonth(today.year, today.monthValue)
+        val lastMonth = firstMonth.plusMonths(12)
+
+        val firstMonthStart = if (yearMonth == firstMonth) {
+            val maxExtraDays = (6 - today.dayOfMonth).coerceAtLeast(0)
+            LocalDate.of(today.year, today.monthValue, 1)
+                .minusDays(maxExtraDays.toLong())
+        } else null
+
+        val lastMonthEnd = if (yearMonth == lastMonth) {
+            today.plusYears(1).minusDays(1)
+        } else null
 
         return List(MAX_WEEK_SIZE) { weekOffset ->
             List(MAX_DAY_SIZE) { dayOffset ->
-                firstDateOfMonth.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
+                val date = firstDateOfCalendar.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
+                val isBeforeStart = firstMonthStart?.let { date.isBefore(it) } ?: false
+                val isAfterEnd = lastMonthEnd?.let { date.isAfter(it) } ?: false
+                if (isBeforeStart || isAfterEnd) null else date
             }
         }
     }
 
-    private fun generateMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule>> =
+    private fun generateMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule?>> =
         getMonthDate(yearMonth).map { week ->
-            week.map { date -> createDay(date) }.toMutableStateList()
+            week.map { date -> if(date != null) createDay(date) else null }.toMutableStateList()
         }
 
     private fun createDay(date: LocalDate): DaySchedule {
@@ -387,9 +403,9 @@ constructor(
         monthlySchedules.values.forEach { monthSchedule ->
             monthSchedule.forEach { weekSchedule ->
                 weekSchedule.forEachIndexed { index, daySchedule ->
-                    val newSchedules = groupedByDate[daySchedule.date].orEmpty()
-                    if (daySchedule.schedules != newSchedules) {
-                        weekSchedule[index] = daySchedule.copy(schedules = newSchedules)
+                    val newSchedules = groupedByDate[daySchedule?.date].orEmpty()
+                    if (daySchedule?.schedules != newSchedules) {
+                        weekSchedule[index] = daySchedule?.copy(schedules = newSchedules)
                     }
                 }
             }
@@ -398,7 +414,7 @@ constructor(
 
     private fun deselectDateEverywhere(date: LocalDate) {
         monthlySchedules.values.flatten().forEach { weekSchedule ->
-            weekSchedule.find { it.date == date }?.let { matched ->
+            weekSchedule.find { it?.date == date }?.let { matched ->
                 val index = weekSchedule.indexOf(matched)
                 weekSchedule[index] = matched.copy(isSelected = false)
             }
@@ -407,7 +423,7 @@ constructor(
 
     private fun selectDateInMonth(yearMonth: YearMonth, date: LocalDate) {
         monthlySchedules[yearMonth]?.forEach { weekSchedule ->
-            weekSchedule.find { it.date == date }?.let { matched ->
+            weekSchedule.find { it?.date == date }?.let { matched ->
                 val index = weekSchedule.indexOf(matched)
                 weekSchedule[index] = matched.copy(isSelected = true)
             }
@@ -417,7 +433,7 @@ constructor(
     private fun clearIsInMonth(yearMonth: YearMonth) {
         monthlySchedules[yearMonth]?.forEach { weekSchedule ->
             weekSchedule.forEachIndexed { index, daySchedule ->
-                weekSchedule[index] = daySchedule.copy(isInMonth = false)
+                weekSchedule[index] = daySchedule?.copy(isInMonth = false)
             }
         }
     }
@@ -425,7 +441,7 @@ constructor(
     private fun applyIsInMonth(yearMonth: YearMonth) {
         monthlySchedules[yearMonth]?.forEach { weekSchedule ->
             weekSchedule.forEachIndexed { index, daySchedule ->
-                weekSchedule[index] = daySchedule.copy(
+                weekSchedule[index] = daySchedule?.copy(
                     isInMonth = daySchedule.date.monthValue == yearMonth.month &&
                             daySchedule.date.year == yearMonth.year
                 )
