@@ -7,6 +7,8 @@ import pnu.plato.calendar.presentation.common.theme.CalendarLavender
 import pnu.plato.calendar.presentation.common.theme.CalendarSage
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 sealed class ScheduleUiModel {
     abstract val title: String
@@ -49,6 +51,12 @@ sealed class ScheduleUiModel {
         )
 
         val isComplete: Boolean get() = startsWithComplete(title)
+
+        val deadLine: String
+            get() {
+                val formatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
+                return endAt.format(formatter) + " 까지"
+            }
 
         override val color: Color get() = if (!isComplete) CalendarSage else CalendarGraphite
 

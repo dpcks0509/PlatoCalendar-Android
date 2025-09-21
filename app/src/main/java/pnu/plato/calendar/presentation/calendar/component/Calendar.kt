@@ -27,15 +27,15 @@ const val MAX_DAY_SIZE = 7
 fun Calendar(
     pagerState: PagerState,
     getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule?>>,
-    onClickDate: (LocalDate) -> Unit,
-    onSwipeMonth: (YearMonth) -> Unit,
+    onDateClick: (LocalDate) -> Unit,
+    onMonthSwipe: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val baseYearMonth = YearMonth(today.year, today.monthValue)
 
     LaunchedEffect(pagerState.currentPage) {
         val yearMonth = baseYearMonth.plusMonths(pagerState.currentPage)
-        onSwipeMonth(yearMonth)
+        onMonthSwipe(yearMonth)
     }
 
     HorizontalPager(
@@ -51,7 +51,7 @@ fun Calendar(
 
             MonthItem(
                 monthSchedule = monthSchedule,
-                onClickDate = onClickDate,
+                onDateClick = onDateClick,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -92,8 +92,8 @@ fun CalendarPreview() {
                     }.toMutableStateList()
                 }
             },
-            onClickDate = {},
-            onSwipeMonth = {},
+            onDateClick = {},
+            onMonthSwipe = {},
             modifier = Modifier.fillMaxWidth(),
         )
     }

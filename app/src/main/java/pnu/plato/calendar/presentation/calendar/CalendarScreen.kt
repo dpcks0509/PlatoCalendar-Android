@@ -27,11 +27,13 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
 import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
+import pnu.plato.calendar.presentation.calendar.component.SelectedDateScheduleInfo
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.RefreshSchedules
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleDetail
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
@@ -97,7 +99,7 @@ fun CalendarContent(
                 Modifier
                     .background(PrimaryColor)
                     .statusBarsPadding()
-                    .padding(all = 16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth()
                     .height(50.dp),
         )
@@ -105,9 +107,19 @@ fun CalendarContent(
         Calendar(
             pagerState = pagerState,
             getMonthSchedule = getMonthSchedule,
-            onClickDate = { date -> onEvent(ChangeSelectedDate(date)) },
-            onSwipeMonth = { yearMonth -> onEvent(ChangeCurrentYearMonth(yearMonth)) },
+            onDateClick = { date -> onEvent(ChangeSelectedDate(date)) },
+            onMonthSwipe = { yearMonth -> onEvent(ChangeCurrentYearMonth(yearMonth)) },
             modifier = Modifier.fillMaxWidth(),
+        )
+
+        SelectedDateScheduleInfo(
+            selectedDate = state.selectedDate,
+            schedules = state.selectedDateSchedules,
+            onScheduleClick = { schedule -> onEvent(ShowScheduleDetail(schedule)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 8.dp)
         )
     }
 

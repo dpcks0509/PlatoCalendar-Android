@@ -20,7 +20,7 @@ fun DayOfWeekItem(
     Text(
         text = dayOfWeek.title,
         color = dayOfWeek.color,
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
         modifier = modifier,
     )

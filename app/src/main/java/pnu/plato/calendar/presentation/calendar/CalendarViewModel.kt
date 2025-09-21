@@ -18,6 +18,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelec
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.RefreshSchedules
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleDetail
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
@@ -103,6 +104,10 @@ constructor(
             }
 
             RefreshSchedules -> refreshSchedules()
+
+            is ShowScheduleDetail -> {
+                // TODO
+            }
         }
     }
 
@@ -338,35 +343,36 @@ constructor(
 
     private fun generateMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> {
         val baseDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
-        val firstDayOfWeek = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
-        val firstDateOfCalendar = baseDate.minusDays(firstDayOfWeek.toLong())
+        val dayOfWeekValue = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
+        val firstDateOfMonth = baseDate.minusDays(dayOfWeekValue.toLong())
 
-        val firstMonth = YearMonth(today.year, today.monthValue)
+        // Range end: (today + 1 year) - 1 day
+        val rangeEnd = today.plusYears(1).minusDays(1)
+
+        // Boundary months
+        val firstMonth = YearMonth(year = today.year, month = today.monthValue)
         val lastMonth = firstMonth.plusMonths(12)
 
-        val firstMonthStart = if (yearMonth == firstMonth) {
-            val maxExtraDays = (6 - today.dayOfMonth).coerceAtLeast(0)
-            LocalDate.of(today.year, today.monthValue, 1)
-                .minusDays(maxExtraDays.toLong())
-        } else null
-
-        val lastMonthEnd = if (yearMonth == lastMonth) {
-            today.plusYears(1).minusDays(1)
-        } else null
+        // First month keeps data from the 1st day of that month
+        val firstMonthStart: LocalDate? =
+            if (yearMonth == firstMonth) LocalDate.of(today.year, today.monthValue, 1) else null
+        // Last month truncates after rangeEnd
+        val lastMonthEnd: LocalDate? = if (yearMonth == lastMonth) rangeEnd else null
 
         return List(MAX_WEEK_SIZE) { weekOffset ->
             List(MAX_DAY_SIZE) { dayOffset ->
-                val date = firstDateOfCalendar.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
-                val isBeforeStart = firstMonthStart?.let { date.isBefore(it) } ?: false
-                val isAfterEnd = lastMonthEnd?.let { date.isAfter(it) } ?: false
-                if (isBeforeStart || isAfterEnd) null else date
+                val date =
+                    firstDateOfMonth.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
+                val beforeStart = firstMonthStart?.let { date.isBefore(it) } ?: false
+                val afterEnd = lastMonthEnd?.let { date.isAfter(it) } ?: false
+                if (beforeStart || afterEnd) null else date
             }
         }
     }
 
     private fun generateMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule?>> =
         getMonthDate(yearMonth).map { week ->
-            week.map { date -> if(date != null) createDay(date) else null }.toMutableStateList()
+            week.map { date -> if (date != null) createDay(date) else null }.toMutableStateList()
         }
 
     private fun createDay(date: LocalDate): DaySchedule {

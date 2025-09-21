@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Composable
 fun MonthItem(
     monthSchedule: List<List<DaySchedule?>>,
-    onClickDate: (LocalDate) -> Unit,
+    onDateClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -24,7 +24,7 @@ fun MonthItem(
         monthSchedule.forEach { weekSchedule ->
             WeekItem(
                 weekSchedule = weekSchedule,
-                onClickDate = onClickDate,
+                onDateClick = onDateClick,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -67,7 +67,7 @@ fun MonthItemPreview() {
 
         MonthItem(
             monthSchedule = monthSchedule,
-            onClickDate = {},
+            onDateClick = {},
             modifier = Modifier.fillMaxWidth(),
         )
     }

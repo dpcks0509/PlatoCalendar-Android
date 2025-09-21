@@ -39,7 +39,7 @@ private const val MAX_SCHEDULES_SIZE = 5
 @Composable
 fun DayItem(
     daySchedule: DaySchedule?,
-    onClickDate: (LocalDate) -> Unit,
+    onDateClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (daySchedule != null) {
@@ -49,7 +49,7 @@ fun DayItem(
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
-                        onClick = { onClickDate(daySchedule.date) },
+                        onClick = { onDateClick(daySchedule.date) },
                     )
                     .then(
                         if (daySchedule.isSelected) {
@@ -72,7 +72,7 @@ fun DayItem(
                         .then(
                             if (daySchedule.isToday) {
                                 Modifier
-                                    .size(26.dp)
+                                    .size(28.dp)
                                     .clip(CircleShape)
                                     .background(PrimaryColor)
                             } else {
@@ -90,7 +90,7 @@ fun DayItem(
                     } else {
                         Color.Black
                     }).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     fontWeight = if (daySchedule.isInMonth) FontWeight.Bold else FontWeight.Normal,
                 )
             }
@@ -102,7 +102,7 @@ fun DayItem(
                     }.sortedBy { schedule ->
                         when (schedule) {
                             is AcademicScheduleUiModel -> 0
-                            is PersonalScheduleUiModel -> 1
+                            is PersonalScheduleUiModel -> if (!schedule.isComplete) 1 else 2
                         }
                     }.take(MAX_SCHEDULES_SIZE)
 
@@ -128,7 +128,7 @@ fun DayItem(
         ) {
             Text(
                 text = "X",
-                color = Color.Black.copy(alpha = 0.6f),
+                color = LightGray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
             )
@@ -167,7 +167,7 @@ fun DayItemPreview() {
 
         DayItem(
             daySchedule = daySchedule,
-            onClickDate = { },
+            onDateClick = { },
             modifier =
                 Modifier
                     .width(60.dp)

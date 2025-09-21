@@ -11,4 +11,12 @@ data class CalendarState(
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),
     val isLoading: Boolean = false,
-) : UiState
+) : UiState {
+    val selectedDateSchedules: List<ScheduleUiModel>
+        get() = schedules.filter { schedule ->
+            when (schedule) {
+                is ScheduleUiModel.AcademicScheduleUiModel -> schedule.endAt == selectedDate
+                is ScheduleUiModel.PersonalScheduleUiModel -> schedule.endAt.toLocalDate() == selectedDate
+            }
+        }
+}

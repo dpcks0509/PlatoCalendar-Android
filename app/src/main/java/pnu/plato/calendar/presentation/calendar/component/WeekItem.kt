@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 @Composable
 fun WeekItem(
     weekSchedule: List<DaySchedule?>,
-    onClickDate: (LocalDate) -> Unit,
+    onDateClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -26,7 +26,7 @@ fun WeekItem(
         weekSchedule.forEach { daySchedule ->
             DayItem(
                 daySchedule = daySchedule,
-                onClickDate = onClickDate,
+                onDateClick = onDateClick,
                 modifier =
                     Modifier
                         .weight(1f)
@@ -65,7 +65,7 @@ fun WeekItemPreview() {
 
         WeekItem(
             weekSchedule = weekSchedule,
-            onClickDate = {},
+            onDateClick = {},
             modifier = Modifier.fillMaxWidth(),
         )
     }
