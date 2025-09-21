@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.calendar.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -56,26 +59,19 @@ fun CalendarTopBar(
         Spacer(modifier = Modifier.weight(1f))
 
         if (today != selectedDate || today.monthValue != currentYearMonth.month) {
-            Button(
+            OutlinedButton(
                 onClick = moveToToday,
-                colors =
-                    ButtonColors(
-                        containerColor = PrimaryColor,
-                        contentColor = Color.White,
-                        disabledContentColor = PrimaryColor,
-                        disabledContainerColor = Color.White,
-                    ),
-                modifier =
-                    Modifier
-                        .clip(RoundedCornerShape(40.dp))
-                        .border(2.dp, Color.White, RoundedCornerShape(40.dp)),
+                shape = RoundedCornerShape(40.dp),
+                border = BorderStroke(2.dp, Color.White),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = PrimaryColor,
+                    contentColor = Color.White,
+                )
             ) {
                 Text(
                     text = "TODAY",
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
         }
@@ -102,7 +98,7 @@ fun CalendarTopBar(
 fun CalendarTopBarPreview() {
     PlatoCalendarTheme {
         CalendarTopBar(
-            selectedDate = today,
+            selectedDate = today.plusMonths(1),
             currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
             moveToToday = {},
             showMakePersonalScheduleBottomSheet = {},
