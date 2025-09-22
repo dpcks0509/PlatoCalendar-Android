@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,8 +28,12 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.common.theme.Black
+import pnu.plato.calendar.presentation.common.theme.Gray
+import pnu.plato.calendar.presentation.common.theme.LightGray
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import pnu.plato.calendar.presentation.common.theme.Red
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -85,9 +88,9 @@ fun DayItem(
                             if (daySchedule.isToday) {
                                 Color.White
                             } else if (daySchedule.isWeekend) {
-                                Color.Red
+                                Red
                             } else {
-                                Color.Black
+                                Black
                             }
                         ).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
                     fontSize = 16.sp,
@@ -128,7 +131,7 @@ fun DayItem(
         ) {
             Text(
                 text = "X",
-                color = LightGray,
+                color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
             )

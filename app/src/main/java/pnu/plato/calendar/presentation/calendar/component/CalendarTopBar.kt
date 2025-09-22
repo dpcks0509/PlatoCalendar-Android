@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +31,7 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
 
 @Composable
@@ -50,7 +50,7 @@ fun CalendarTopBar(
             text = "${currentYearMonth.year}년 ${currentYearMonth.month}월",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -59,11 +59,12 @@ fun CalendarTopBar(
             OutlinedButton(
                 onClick = moveToToday,
                 shape = RoundedCornerShape(40.dp),
-                border = BorderStroke(2.dp, Color.White),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = PrimaryColor,
-                    contentColor = Color.White,
-                )
+                border = BorderStroke(2.dp, White),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        containerColor = PrimaryColor,
+                        contentColor = White,
+                    ),
             ) {
                 Text(
                     text = "TODAY",
@@ -78,7 +79,7 @@ fun CalendarTopBar(
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = "Add",
-            tint = Color.White,
+            tint = White,
             modifier =
                 Modifier
                     .size(28.dp)

@@ -15,9 +15,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 const val MAX_MONTH_SIZE = 13
 const val MAX_WEEK_SIZE = 6
@@ -63,31 +66,38 @@ fun Calendar(
 fun CalendarPreview() {
     PlatoCalendarTheme {
         val today = LocalDate.of(2024, 1, 8)
-
-        val monthlyDates: Map<YearMonth, List<List<LocalDate>>> =
-            (0 until 12).associate { monthOffset ->
-                val yearMonth = YearMonth(2024, monthOffset + 1)
-                val monthDate = List(MAX_WEEK_SIZE) { week ->
-                    List(MAX_DAY_SIZE) { day ->
-                        LocalDate.of(2024, monthOffset + 1, 1).minusDays(1)
-                            .plusDays((week * MAX_DAY_SIZE + day).toLong())
-                    }
-                }
-                yearMonth to monthDate
-            }
+        val schedules =
+            listOf(
+                AcademicScheduleUiModel(
+                    title = "신정",
+                    startAt = LocalDate.of(2024, 1, 1),
+                    endAt = LocalDate.of(2024, 1, 1),
+                ),
+                PersonalScheduleUiModel(
+                    id = 1L,
+                    title = "새해 계획 세우기",
+                    description = "",
+                    startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
+                    endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
+                ),
+            )
 
         Calendar(
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             getMonthSchedule = { yearMonth ->
-                val dates = monthlyDates[yearMonth].orEmpty()
-                dates.map { week ->
-                    week.map { date ->
+                val firstDayOfMonth = LocalDate.of(yearMonth.year, yearMonth.month, 1)
+                val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // Sunday = 0
+                val startDate = firstDayOfMonth.minusDays(firstDayOfWeek.toLong())
+
+                List(MAX_WEEK_SIZE) { week ->
+                    List(MAX_DAY_SIZE) { day ->
+                        val currentDate = startDate.plusDays((week * MAX_DAY_SIZE + day).toLong())
                         DaySchedule(
-                            date = date,
-                            isToday = date == today,
-                            isSelected = date == today,
-                            isInMonth = date.monthValue == yearMonth.month && date.year == yearMonth.year,
-                            schedules = emptyList(),
+                            date = currentDate,
+                            isToday = currentDate == today,
+                            isSelected = currentDate == today.plusDays(3), // Select a different day for demo
+                            isInMonth = currentDate.monthValue == yearMonth.month && currentDate.year == yearMonth.year,
+                            schedules = if (currentDate.dayOfMonth in listOf(1, 3)) schedules else emptyList(),
                         )
                     }.toMutableStateList()
                 }

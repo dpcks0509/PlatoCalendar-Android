@@ -25,8 +25,10 @@ import pnu.plato.calendar.presentation.calendar.model.DayOfWeekUiModel.Companion
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import pnu.plato.calendar.presentation.common.theme.Red
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.TextStyle
@@ -51,9 +53,9 @@ fun SelectedDateScheduleInfo(
                 fontWeight = FontWeight.SemiBold,
                 color =
                     if (selectedDate.dayOfWeek.isWeekend()) {
-                        Color.Red
+                        Red
                     } else {
-                        Color.Black
+                        Black
                     },
             )
 
@@ -78,9 +80,9 @@ fun SelectedDateScheduleInfo(
                         if (selectedDate == today) {
                             Color.White
                         } else if (selectedDate.dayOfWeek.isWeekend()) {
-                            Color.Red
+                            Red
                         } else {
-                            Color.Black
+                            Black
                         },
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.LightBlue
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 
@@ -77,8 +78,8 @@ fun PlatoCalendarBottomBar(navController: NavController) {
                         NavigationBarItemDefaults.colors(
                             selectedIconColor = PrimaryColor,
                             selectedTextColor = PrimaryColor,
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray,
+                            unselectedIconColor = Gray,
+                            unselectedTextColor = Gray,
                             indicatorColor = LightBlue,
                         ),
                 )

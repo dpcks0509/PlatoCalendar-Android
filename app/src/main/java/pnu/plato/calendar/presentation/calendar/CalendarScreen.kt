@@ -43,6 +43,7 @@ import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -77,7 +78,7 @@ fun CalendarScreen(
         pagerState = pagerState,
         getMonthSchedule = viewModel::getMonthSchedule,
         onEvent = viewModel::setEvent,
-        modifier = modifier,
+        modifier = modifier.background(White),
     )
 }
 
@@ -148,15 +149,15 @@ fun CalendarScreenPreview() {
             listOf(
                 AcademicScheduleUiModel(
                     title = "신정",
-                    startAt = LocalDate.of(2024, 1, 1),
-                    endAt = LocalDate.of(2024, 1, 1),
+                    startAt = LocalDate.of(2024, 1, 11),
+                    endAt = LocalDate.of(2024, 1, 11),
                 ),
                 PersonalScheduleUiModel(
                     id = 1L,
                     title = "새해 계획 세우기",
                     description = "",
-                    startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
-                    endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
+                    startAt = LocalDateTime.of(2024, 1, 11, 14, 0),
+                    endAt = LocalDateTime.of(2024, 1, 11, 16, 0),
                 ),
             )
 

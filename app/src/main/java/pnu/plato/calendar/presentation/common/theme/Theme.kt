@@ -12,22 +12,35 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = PrimaryDarkColor,
-        onPrimary = OnPrimaryDarkColor,
-        background = BackgroundDarkColor,
+        primary = PrimaryDark,
+        onPrimary = WhiteDark,
+        background = BlackDark,
+        surface = BlackDark,
+        onBackground = WhiteDark,
+        onSurface = WhiteDark,
+        secondary = LightBlueDark,
+        onSecondary = WhiteDark,
+        error = RedDark,
+        onError = WhiteDark,
     )
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = PrimaryColor,
-        onPrimary = OnPrimaryColor,
-        background = BackgroundColor,
+        primary = PrimaryLight,
+        onPrimary = BlackLight,
+        background = WhiteLight,
+        surface = WhiteLight,
+        onBackground = BlackLight,
+        onSurface = BlackLight,
+        secondary = LightBlueLight,
+        onSecondary = BlackLight,
+        error = RedLight,
+        onError = WhiteLight,
     )
 
 @Composable
 fun PlatoCalendarTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {

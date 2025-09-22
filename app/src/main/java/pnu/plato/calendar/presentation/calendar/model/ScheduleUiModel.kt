@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.calendar.model
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import pnu.plato.calendar.domain.entity.Schedule
 import pnu.plato.calendar.presentation.common.theme.CalendarGraphite
@@ -12,14 +13,14 @@ import java.util.Locale
 
 sealed class ScheduleUiModel {
     abstract val title: String
-    abstract val color: Color
+    abstract val color: Color @Composable get
 
     data class AcademicScheduleUiModel(
         override val title: String,
         val startAt: LocalDate,
         val endAt: LocalDate,
     ) : ScheduleUiModel() {
-        override val color: Color = CalendarLavender
+        override val color: Color @Composable get() = CalendarLavender
 
         constructor(domain: Schedule.AcademicSchedule) : this(
             title = domain.title,
@@ -62,7 +63,7 @@ sealed class ScheduleUiModel {
                 return endAt.format(formatter) + " 까지"
             }
 
-        override val color: Color get() = if (!isComplete) CalendarSage else CalendarGraphite
+        override val color: Color @Composable get() = if (!isComplete) CalendarSage else CalendarGraphite
 
         companion object {
             const val COMPLETE = "(완료) "

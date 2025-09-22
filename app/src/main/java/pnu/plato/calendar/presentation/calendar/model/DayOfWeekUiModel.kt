@@ -1,6 +1,9 @@
 package pnu.plato.calendar.presentation.calendar.model
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import pnu.plato.calendar.presentation.common.theme.Black
+import pnu.plato.calendar.presentation.common.theme.Red
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
@@ -10,10 +13,11 @@ data class DayOfWeekUiModel(
     val color: Color
 ) {
     companion object {
+        @Composable
         fun from(dayOfWeek: DayOfWeek): DayOfWeekUiModel {
             return DayOfWeekUiModel(
                 title = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN),
-                color = if (dayOfWeek.isWeekend()) Color.Red else Color.Black
+                color = if (dayOfWeek.isWeekend()) Red else Black
             )
         }
 

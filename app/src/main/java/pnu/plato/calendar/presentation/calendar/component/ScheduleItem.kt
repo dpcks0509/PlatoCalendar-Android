@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,8 +20,9 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
-import pnu.plato.calendar.presentation.common.theme.LightGrey
+import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
+import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDateTime
 
 private const val HAS_NO_SCHEDULE = "일정 없음"
@@ -37,7 +37,7 @@ fun ScheduleItem(
         Text(
             text = HAS_NO_SCHEDULE,
             fontSize = 16.sp,
-            color = LightGrey,
+            color = Gray,
         )
     } else {
         LazyColumn(
@@ -59,7 +59,7 @@ fun ScheduleItem(
                                 text = schedule.title,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = White,
                             )
                         }
                     }
@@ -77,13 +77,13 @@ fun ScheduleItem(
                                 text = schedule.title,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = White,
                             )
                             Text(
                                 text = schedule.deadLine,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = White,
                             )
                         }
                     }
