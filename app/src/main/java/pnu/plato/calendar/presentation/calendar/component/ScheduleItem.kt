@@ -31,7 +31,7 @@ private const val HAS_NO_SCHEDULE = "일정 없음"
 fun ScheduleItem(
     schedules: List<ScheduleUiModel>,
     onScheduleClick: (ScheduleUiModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     if (schedules.isEmpty()) {
         Text(
@@ -42,46 +42,48 @@ fun ScheduleItem(
     } else {
         LazyColumn(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             items(items = schedules) { schedule ->
                 when (schedule) {
                     is AcademicScheduleUiModel -> {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(schedule.color)
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(schedule.color)
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
                         ) {
                             Text(
                                 text = schedule.title,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = Color.White,
                             )
                         }
                     }
 
                     is PersonalScheduleUiModel -> {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(schedule.color)
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(schedule.color)
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
                         ) {
                             Text(
                                 text = schedule.title,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = Color.White,
                             )
                             Text(
                                 text = schedule.deadLine,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = Color.White,
                             )
                         }
                     }
@@ -108,7 +110,6 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
                 PersonalScheduleUiModel(
                     id = 0L,
@@ -116,7 +117,6 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
                 PersonalScheduleUiModel(
                     id = 0L,
@@ -124,7 +124,6 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
                 PersonalScheduleUiModel(
                     id = 0L,
@@ -132,14 +131,13 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
             )
 
         ScheduleItem(
             schedules = sampleSchedules,
             onScheduleClick = {},
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

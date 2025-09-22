@@ -50,19 +50,16 @@ fun DayItem(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = { onDateClick(daySchedule.date) },
-                    )
-                    .then(
+                    ).then(
                         if (daySchedule.isSelected) {
                             Modifier
                                 .clip(
                                     RoundedCornerShape(12.dp),
-                                )
-                                .background(LightGray)
+                                ).background(LightGray)
                         } else {
                             Modifier
                         },
-                    )
-                    .padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
+                    ).padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -83,13 +80,16 @@ fun DayItem(
             ) {
                 Text(
                     text = daySchedule.date.dayOfMonth.toString(),
-                    color = (if (daySchedule.isToday) {
-                        Color.White
-                    } else if (daySchedule.isWeekend) {
-                        Color.Red
-                    } else {
-                        Color.Black
-                    }).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
+                    color =
+                        (
+                            if (daySchedule.isToday) {
+                                Color.White
+                            } else if (daySchedule.isWeekend) {
+                                Color.Red
+                            } else {
+                                Color.Black
+                            }
+                        ).let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) },
                     fontSize = 16.sp,
                     fontWeight = if (daySchedule.isInMonth) FontWeight.Bold else FontWeight.Normal,
                 )
@@ -124,7 +124,7 @@ fun DayItem(
     } else {
         Box(
             modifier = modifier.padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.TopCenter,
         ) {
             Text(
                 text = "X",
@@ -153,17 +153,17 @@ fun DayItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
             )
 
-        val daySchedule = DaySchedule(
-            date = today,
-            isToday = true,
-            isSelected = true,
-            isInMonth = true,
-            schedules = sampleSchedules,
-        )
+        val daySchedule =
+            DaySchedule(
+                date = today,
+                isToday = true,
+                isSelected = true,
+                isInMonth = true,
+                schedules = sampleSchedules,
+            )
 
         DayItem(
             daySchedule = daySchedule,

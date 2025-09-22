@@ -34,7 +34,6 @@ sealed class ScheduleUiModel {
         val description: String?,
         val startAt: LocalDateTime,
         val endAt: LocalDateTime,
-        val courseName: String?,
     ) : ScheduleUiModel() {
         constructor(domain: Schedule.PersonalSchedule, courseName: String?) : this(
             id = domain.id,
@@ -43,11 +42,16 @@ sealed class ScheduleUiModel {
                     domain.title.removePrefix(COMPLETE)
                 } else {
                     domain.title
+                }.run {
+                    if (courseName != null) {
+                        "${courseName}_$this"
+                    } else {
+                        this
+                    }
                 },
             description = domain.description,
             startAt = domain.startAt,
             endAt = domain.endAt,
-            courseName = courseName,
         )
 
         val isComplete: Boolean get() = startsWithComplete(title)

@@ -200,7 +200,6 @@ class CalendarViewModel
                             description = description,
                             startAt = startAt,
                             endAt = endAt,
-                            courseName = null,
                         )
                     setState {
                         copy(schedules = schedules + newSchedule)

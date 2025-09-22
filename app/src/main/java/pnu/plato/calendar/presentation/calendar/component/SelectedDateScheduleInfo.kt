@@ -37,23 +37,24 @@ fun SelectedDateScheduleInfo(
     selectedDate: LocalDate,
     schedules: List<ScheduleUiModel>,
     onScheduleClick: (ScheduleUiModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.width(28.dp)
+            modifier = Modifier.width(28.dp),
         ) {
             Text(
                 text = selectedDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (selectedDate.dayOfWeek.isWeekend()) {
-                    Color.Red
-                } else {
-                    Color.Black
-                },
+                color =
+                    if (selectedDate.dayOfWeek.isWeekend()) {
+                        Color.Red
+                    } else {
+                        Color.Black
+                    },
             )
 
             Box(
@@ -73,15 +74,16 @@ fun SelectedDateScheduleInfo(
             ) {
                 Text(
                     text = selectedDate.dayOfMonth.toString(),
-                    color = if (selectedDate == today) {
-                        Color.White
-                    } else if (selectedDate.dayOfWeek.isWeekend()) {
-                        Color.Red
-                    } else {
-                        Color.Black
-                    },
+                    color =
+                        if (selectedDate == today) {
+                            Color.White
+                        } else if (selectedDate.dayOfWeek.isWeekend()) {
+                            Color.Red
+                        } else {
+                            Color.Black
+                        },
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }
@@ -91,7 +93,7 @@ fun SelectedDateScheduleInfo(
         ScheduleItem(
             schedules = schedules,
             onScheduleClick = onScheduleClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -113,7 +115,6 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
                 PersonalScheduleUiModel(
                     id = 0L,
@@ -121,7 +122,6 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
                 PersonalScheduleUiModel(
                     id = 0L,
@@ -129,7 +129,6 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
                 PersonalScheduleUiModel(
                     id = 0L,
@@ -137,7 +136,6 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseName = "",
                 ),
             )
 
@@ -145,7 +143,7 @@ fun SelectedDateScheduleInfoPreview() {
             selectedDate = LocalDate.now(),
             schedules = sampleSchedules,
             onScheduleClick = {},
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

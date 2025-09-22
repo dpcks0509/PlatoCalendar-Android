@@ -36,34 +36,35 @@ fun MonthItem(
 fun MonthItemPreview() {
     PlatoCalendarTheme {
         val base = LocalDate.of(2024, 1, 1)
-        val schedules = listOf(
-            AcademicScheduleUiModel(
-                title = "신정",
-                startAt = LocalDate.of(2024, 1, 1),
-                endAt = LocalDate.of(2024, 1, 1),
-            ),
-            PersonalScheduleUiModel(
-                id = 1L,
-                title = "새해 계획 세우기",
-                description = "",
-                startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
-                endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
-                courseName = null,
-            ),
-        )
+        val schedules =
+            listOf(
+                AcademicScheduleUiModel(
+                    title = "신정",
+                    startAt = LocalDate.of(2024, 1, 1),
+                    endAt = LocalDate.of(2024, 1, 1),
+                ),
+                PersonalScheduleUiModel(
+                    id = 1L,
+                    title = "새해 계획 세우기",
+                    description = "",
+                    startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
+                    endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
+                ),
+            )
 
-        val monthSchedule = List(6) { week ->
-            List(7) { day ->
-                val date = base.minusDays(1).plusDays((week * 7 + day).toLong())
-                DaySchedule(
-                    date = date,
-                    isToday = date.dayOfMonth == 8,
-                    isSelected = date.dayOfMonth == 11,
-                    isInMonth = date.monthValue == 1,
-                    schedules = schedules,
-                )
+        val monthSchedule =
+            List(6) { week ->
+                List(7) { day ->
+                    val date = base.minusDays(1).plusDays((week * 7 + day).toLong())
+                    DaySchedule(
+                        date = date,
+                        isToday = date.dayOfMonth == 8,
+                        isSelected = date.dayOfMonth == 11,
+                        isInMonth = date.monthValue == 1,
+                        schedules = schedules,
+                    )
+                }
             }
-        }
 
         MonthItem(
             monthSchedule = monthSchedule,

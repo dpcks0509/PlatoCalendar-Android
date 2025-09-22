@@ -41,27 +41,28 @@ fun WeekItem(
 fun WeekItemPreview() {
     PlatoCalendarTheme {
         val baseDate = LocalDate.of(2024, 1, 7)
-        val schedules = List(7) { index ->
-            PersonalScheduleUiModel(
-                id = index.toLong(),
-                title = "일정 $index",
-                description = "",
-                startAt = LocalDateTime.of(2024, 1, 7 + index, 10, 0),
-                endAt = LocalDateTime.of(2024, 1, 7 + index, 12, 0),
-                courseName = null
-            )
-        }
+        val schedules =
+            List(7) { index ->
+                PersonalScheduleUiModel(
+                    id = index.toLong(),
+                    title = "일정 $index",
+                    description = "",
+                    startAt = LocalDateTime.of(2024, 1, 7 + index, 10, 0),
+                    endAt = LocalDateTime.of(2024, 1, 7 + index, 12, 0),
+                )
+            }
 
-        val weekSchedule = List(7) { index ->
-            val date = baseDate.plusDays(index.toLong())
-            DaySchedule(
-                date = date,
-                isToday = index == 1,
-                isSelected = index == 3,
-                isInMonth = true,
-                schedules = schedules,
-            )
-        }
+        val weekSchedule =
+            List(7) { index ->
+                val date = baseDate.plusDays(index.toLong())
+                DaySchedule(
+                    date = date,
+                    isToday = index == 1,
+                    isSelected = index == 3,
+                    isInMonth = true,
+                    schedules = schedules,
+                )
+            }
 
         WeekItem(
             weekSchedule = weekSchedule,
