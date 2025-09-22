@@ -13,14 +13,13 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
 import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeCurrentYearMonth
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ChangeSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.RefreshSchedules
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleDetail
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
-import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToFirstMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
@@ -70,8 +69,6 @@ class CalendarViewModel
                             currentYearMonth = todayYearMonth,
                         )
                     }
-
-                    setSideEffect { ScrollToFirstMonth }
                 }
 
                 is MakePersonalSchedule ->
@@ -82,7 +79,7 @@ class CalendarViewModel
                         endAt = event.endAt,
                     )
 
-                is ChangeSelectedDate -> {
+                is UpdateSelectedDate -> {
                     val previousSelectedDate = state.value.selectedDate
 
                     deselectDate(previousSelectedDate)
@@ -91,15 +88,13 @@ class CalendarViewModel
                     setState { copy(selectedDate = event.date) }
                 }
 
-                is ChangeCurrentYearMonth -> {
+                is UpdateSelectedSchedule -> setState { copy(selectedSchedule = event.schedule) }
+
+                is UpdateCurrentYearMonth -> {
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
 
-                RefreshSchedules -> refreshSchedules()
-
-                is ShowScheduleDetail -> {
-                    // TODO
-                }
+                UpdateSchedules -> refreshSchedules()
             }
         }
 

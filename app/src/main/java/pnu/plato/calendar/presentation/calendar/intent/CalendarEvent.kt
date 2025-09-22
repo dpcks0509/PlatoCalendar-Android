@@ -16,17 +16,17 @@ sealed interface CalendarEvent : UiEvent {
         val endAt: LocalDateTime,
     ) : CalendarEvent
 
-    data class ChangeSelectedDate(
+    data class UpdateSelectedDate(
         val date: LocalDate,
     ) : CalendarEvent
 
-    data class ChangeCurrentYearMonth(
+    data class UpdateSelectedSchedule(
+        val schedule: ScheduleUiModel?,
+    ) : CalendarEvent
+
+    data class UpdateCurrentYearMonth(
         val yearMonth: YearMonth,
     ) : CalendarEvent
 
-    data object RefreshSchedules : CalendarEvent
-
-    data class ShowScheduleDetail(
-        val schedule: ScheduleUiModel
-    ) : CalendarEvent
+    data object UpdateSchedules : CalendarEvent
 }
