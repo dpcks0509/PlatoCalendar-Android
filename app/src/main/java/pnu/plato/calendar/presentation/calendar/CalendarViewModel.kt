@@ -63,7 +63,7 @@ class CalendarViewModel
                     val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
 
                     deselectDate(previousSelectedDate)
-                    selectDate(todayYearMonth, today)
+                    selectDate(yearMonth = todayYearMonth, date = today)
 
                     setState {
                         copy(
@@ -85,7 +85,7 @@ class CalendarViewModel
                     val previousSelectedDate = state.value.selectedDate
 
                     deselectDate(previousSelectedDate)
-                    selectDate(state.value.currentYearMonth, event.date)
+                    selectDate(yearMonth = state.value.currentYearMonth, date = event.date)
 
                     setState { copy(selectedDate = event.date) }
                 }
