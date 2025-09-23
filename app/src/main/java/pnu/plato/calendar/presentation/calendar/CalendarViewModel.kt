@@ -408,7 +408,7 @@ class CalendarViewModel
         }
 
         private fun updateSchedules() {
-            val groupedByDate: Map<LocalDate, List<pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel>> =
+            val groupedByDate: Map<LocalDate, List<ScheduleUiModel>> =
                 state.value.schedules.groupBy { schedule ->
                     when (schedule) {
                         is AcademicScheduleUiModel -> schedule.endAt

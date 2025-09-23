@@ -112,12 +112,12 @@ fun CalendarContent(
                 onEvent(MoveToToday)
                 coroutineScope.launch { pagerState.scrollToPage(0) }
             },
-            showMakePersonalScheduleBottomSheet = {},
+            onMakeScheduleClick = { onEvent(ShowScheduleBottomSheet()) },
             modifier =
                 Modifier
                     .background(PrimaryColor)
                     .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
                     .fillMaxWidth()
                     .height(50.dp),
         )

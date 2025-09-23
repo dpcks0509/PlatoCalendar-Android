@@ -39,7 +39,7 @@ fun CalendarTopBar(
     selectedDate: LocalDate,
     currentYearMonth: YearMonth,
     moveToToday: () -> Unit,
-    showMakePersonalScheduleBottomSheet: () -> Unit,
+    onMakeScheduleClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -85,7 +85,7 @@ fun CalendarTopBar(
                     .size(28.dp)
                     .clip(CircleShape)
                     .clickable {
-                        showMakePersonalScheduleBottomSheet()
+                        onMakeScheduleClick()
                     },
         )
     }
@@ -99,7 +99,7 @@ fun CalendarTopBarPreview() {
             selectedDate = today.plusMonths(1),
             currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
             moveToToday = {},
-            showMakePersonalScheduleBottomSheet = {},
+            onMakeScheduleClick = {},
             modifier =
                 Modifier
                     .background(PrimaryColor)
