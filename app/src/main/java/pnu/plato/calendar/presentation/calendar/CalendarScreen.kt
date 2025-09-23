@@ -45,7 +45,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelec
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -181,7 +181,7 @@ fun CalendarScreenPreview() {
                     startAt = LocalDate.of(2024, 1, 11),
                     endAt = LocalDate.of(2024, 1, 11),
                 ),
-                PersonalScheduleUiModel(
+                CustomScheduleUiModel(
                     id = 1L,
                     title = "새해 계획 세우기",
                     description = "",

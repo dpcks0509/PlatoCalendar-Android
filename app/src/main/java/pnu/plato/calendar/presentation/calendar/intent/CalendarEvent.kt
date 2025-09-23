@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 sealed interface CalendarEvent : UiEvent {
     data object MoveToToday : CalendarEvent
 
-    data class MakePersonalSchedule(
+    data class MakeCustomSchedule(
         val title: String,
         val description: String?,
         val startAt: LocalDateTime,

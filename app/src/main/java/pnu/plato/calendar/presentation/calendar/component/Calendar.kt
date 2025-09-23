@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
@@ -73,7 +73,7 @@ fun CalendarPreview() {
                     startAt = LocalDate.of(2024, 1, 1),
                     endAt = LocalDate.of(2024, 1, 1),
                 ),
-                PersonalScheduleUiModel(
+                CustomScheduleUiModel(
                     id = 1L,
                     title = "새해 계획 세우기",
                     description = "",
@@ -86,7 +86,7 @@ fun CalendarPreview() {
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             getMonthSchedule = { yearMonth ->
                 val firstDayOfMonth = LocalDate.of(yearMonth.year, yearMonth.month, 1)
-                val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // Sunday = 0
+                val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
                 val startDate = firstDayOfMonth.minusDays(firstDayOfWeek.toLong())
 
                 List(MAX_WEEK_SIZE) { week ->
@@ -95,7 +95,7 @@ fun CalendarPreview() {
                         DaySchedule(
                             date = currentDate,
                             isToday = currentDate == today,
-                            isSelected = currentDate == today.plusDays(3), // Select a different day for demo
+                            isSelected = currentDate == today.plusDays(3),
                             isInMonth = currentDate.monthValue == yearMonth.month && currentDate.year == yearMonth.year,
                             schedules = if (currentDate.dayOfMonth in listOf(1, 3)) schedules else emptyList(),
                         )

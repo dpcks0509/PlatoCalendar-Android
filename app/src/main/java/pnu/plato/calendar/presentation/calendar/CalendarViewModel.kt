@@ -7,6 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.LoginStatus
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
@@ -14,7 +16,7 @@ import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
 import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
@@ -24,9 +26,12 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelec
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.Companion.COMPLETE
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
@@ -73,8 +78,8 @@ class CalendarViewModel
                     }
                 }
 
-                is MakePersonalSchedule ->
-                    makePersonalSchedule(
+                is MakeCustomSchedule ->
+                    makeCustomSchedule(
                         title = event.title,
                         description = event.description,
                         startAt = event.startAt,
@@ -96,7 +101,7 @@ class CalendarViewModel
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
 
-                is UpdateSchedules -> refreshSchedules()
+                is UpdateSchedules -> updateSchedules()
 
                 is ShowScheduleBottomSheet -> setState { copy(selectedSchedule = event.schedule, isScheduleBottomSheetVisible = true) }
 
@@ -123,19 +128,27 @@ class CalendarViewModel
             return emptyList()
         }
 
-        private suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
+        private suspend fun getPersonalSchedules(sessKey: String): List<ScheduleUiModel> {
             scheduleRepository
                 .getPersonalSchedules(sessKey = sessKey)
                 .onSuccess {
                     val personalSchedules =
                         it.map { domain ->
-                            PersonalScheduleUiModel(
-                                domain = domain,
-                                courseName =
-                                    courseRepository.getCourseName(
-                                        domain.courseCode,
-                                    ),
-                            )
+                            when (domain) {
+                                is CourseSchedule -> {
+                                    val courseName =
+                                        courseRepository.getCourseName(
+                                            domain.courseCode,
+                                        )
+
+                                    CourseScheduleUiModel(
+                                        domain = domain,
+                                        courseName = courseName,
+                                    )
+                                }
+
+                                is CustomSchedule -> CustomScheduleUiModel(domain)
+                            }
                         }
 
                     return personalSchedules
@@ -181,21 +194,21 @@ class CalendarViewModel
             }
         }
 
-        private suspend fun makePersonalSchedule(
+        private suspend fun makeCustomSchedule(
             title: String,
             description: String?,
             startAt: LocalDateTime,
             endAt: LocalDateTime,
         ) {
             scheduleRepository
-                .makePersonalSchedule(
+                .makeCustomSchedule(
                     title = title,
                     description = description,
                     startAt = startAt,
                     endAt = endAt,
                 ).onSuccess {
                     val newSchedule =
-                        PersonalScheduleUiModel(
+                        CustomScheduleUiModel(
                             id = System.currentTimeMillis(),
                             title = title,
                             description = description,
@@ -210,7 +223,7 @@ class CalendarViewModel
                 }
         }
 
-        private suspend fun editPersonalSchedule(
+        private suspend fun editCustomSchedule(
             id: Long,
             title: String,
             description: String?,
@@ -229,7 +242,7 @@ class CalendarViewModel
                         copy(
                             schedules =
                                 schedules.map { schedule ->
-                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                                    if (schedule is CustomScheduleUiModel && schedule.id == id) {
                                         schedule.copy(
                                             title = title,
                                             description = description,
@@ -267,7 +280,10 @@ class CalendarViewModel
                             schedules =
                                 schedules.map { schedule ->
                                     if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                                        schedule.copy(title = COMPLETE + title)
+                                        when (schedule) {
+                                            is CourseScheduleUiModel -> schedule.copy(title = COMPLETE + title)
+                                            is CustomScheduleUiModel -> schedule.copy(title = COMPLETE + title)
+                                        }
                                     } else {
                                         schedule
                                     }
@@ -299,7 +315,10 @@ class CalendarViewModel
                             schedules =
                                 schedules.map { schedule ->
                                     if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                                        schedule.copy(title = title.removePrefix(COMPLETE))
+                                        when (schedule) {
+                                            is CourseScheduleUiModel -> schedule.copy(title = title.removePrefix(COMPLETE))
+                                            is CustomScheduleUiModel -> schedule.copy(title = title.removePrefix(COMPLETE))
+                                        }
                                     } else {
                                         schedule
                                     }
@@ -311,9 +330,9 @@ class CalendarViewModel
                 }
         }
 
-        private suspend fun deletePersonalSchedule(id: Long) {
+        private suspend fun deleteCustomSchedule(id: Long) {
             scheduleRepository
-                .deletePersonalSchedule(id)
+                .deleteCustomSchedule(id)
                 .onSuccess {
                     setState {
                         copy(
@@ -388,7 +407,7 @@ class CalendarViewModel
             )
         }
 
-        private fun refreshSchedules() {
+        private fun updateSchedules() {
             val groupedByDate: Map<LocalDate, List<pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel>> =
                 state.value.schedules.groupBy { schedule ->
                     when (schedule) {

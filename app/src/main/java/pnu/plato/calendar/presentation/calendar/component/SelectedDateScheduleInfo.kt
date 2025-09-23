@@ -24,7 +24,8 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DayOfWeekUiModel.Companion.isWeekend
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
@@ -111,28 +112,30 @@ fun SelectedDateScheduleInfoPreview() {
                     startAt = today,
                     endAt = today,
                 ),
-                PersonalScheduleUiModel(
+                CourseScheduleUiModel(
+                    id = 0L,
+                    title = "개인 일정",
+                    description = "",
+                    startAt = LocalDateTime.now(),
+                    endAt = LocalDateTime.now(),
+                    courseCode = "CB20125",
+                ),
+                CourseScheduleUiModel(
+                    id = 0L,
+                    title = "개인 일정",
+                    description = "",
+                    startAt = LocalDateTime.now(),
+                    endAt = LocalDateTime.now(),
+                    courseCode = "DS20438",
+                ),
+                CustomScheduleUiModel(
                     id = 0L,
                     title = "개인 일정",
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
                 ),
-                PersonalScheduleUiModel(
-                    id = 0L,
-                    title = "개인 일정",
-                    description = "",
-                    startAt = LocalDateTime.now(),
-                    endAt = LocalDateTime.now(),
-                ),
-                PersonalScheduleUiModel(
-                    id = 0L,
-                    title = "개인 일정",
-                    description = "",
-                    startAt = LocalDateTime.now(),
-                    endAt = LocalDateTime.now(),
-                ),
-                PersonalScheduleUiModel(
+                CustomScheduleUiModel(
                     id = 0L,
                     title = "개인 일정",
                     description = "",

@@ -70,9 +70,10 @@ class PlatoCalendarActivity : ComponentActivity() {
                 ) { paddingValues ->
                     PlatoCalendarNavHost(
                         navController = navController,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
                     )
                 }
             }

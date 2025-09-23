@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -43,7 +43,7 @@ fun WeekItemPreview() {
         val baseDate = LocalDate.of(2024, 1, 7)
         val schedules =
             List(7) { index ->
-                PersonalScheduleUiModel(
+                CustomScheduleUiModel(
                     id = index.toLong(),
                     title = "일정 $index",
                     description = "",

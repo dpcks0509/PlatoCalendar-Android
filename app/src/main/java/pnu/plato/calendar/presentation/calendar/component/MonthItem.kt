@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -43,7 +43,7 @@ fun MonthItemPreview() {
                     startAt = LocalDate.of(2024, 1, 1),
                     endAt = LocalDate.of(2024, 1, 1),
                 ),
-                PersonalScheduleUiModel(
+                CustomScheduleUiModel(
                     id = 1L,
                     title = "새해 계획 세우기",
                     description = "",

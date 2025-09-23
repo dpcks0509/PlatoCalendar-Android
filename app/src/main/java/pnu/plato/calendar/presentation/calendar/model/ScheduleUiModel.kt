@@ -2,7 +2,10 @@ package pnu.plato.calendar.presentation.calendar.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import pnu.plato.calendar.domain.entity.Schedule
+import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pnu.plato.calendar.presentation.common.theme.CalendarFlamingo
 import pnu.plato.calendar.presentation.common.theme.CalendarGraphite
 import pnu.plato.calendar.presentation.common.theme.CalendarLavender
 import pnu.plato.calendar.presentation.common.theme.CalendarSage
@@ -22,53 +25,79 @@ sealed class ScheduleUiModel {
     ) : ScheduleUiModel() {
         override val color: Color @Composable get() = CalendarLavender
 
-        constructor(domain: Schedule.AcademicSchedule) : this(
+        constructor(domain: AcademicSchedule) : this(
             title = domain.title,
             startAt = domain.startAt,
             endAt = domain.endAt,
         )
     }
 
-    data class PersonalScheduleUiModel(
-        val id: Long,
-        override val title: String,
-        val description: String?,
-        val startAt: LocalDateTime,
-        val endAt: LocalDateTime,
-    ) : ScheduleUiModel() {
-        constructor(domain: Schedule.PersonalSchedule, courseName: String?) : this(
-            id = domain.id,
-            title =
-                if (startsWithComplete(domain.title)) {
-                    domain.title.removePrefix(COMPLETE)
-                } else {
-                    domain.title
-                }.run {
-                    if (courseName != null) {
-                        "${courseName}_$this"
-                    } else {
-                        this
-                    }
-                },
-            description = domain.description,
-            startAt = domain.startAt,
-            endAt = domain.endAt,
-        )
+    sealed class PersonalScheduleUiModel : ScheduleUiModel() {
+        abstract val id: Long
+        abstract val description: String?
+        abstract val startAt: LocalDateTime
+        abstract val endAt: LocalDateTime
+        abstract override val title: String
 
-        val isComplete: Boolean get() = startsWithComplete(title)
+        val isComplete: Boolean get() = title.startsWith(COMPLETE)
 
         val deadLine: String
-            get() {
-                val formatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
-                return endAt.format(formatter) + " 까지"
-            }
+            get() = endAt.format(TIME_FORMATTER) + " 까지"
 
-        override val color: Color @Composable get() = if (!isComplete) CalendarSage else CalendarGraphite
+        data class CourseScheduleUiModel(
+            override val id: Long,
+            override val description: String?,
+            override val startAt: LocalDateTime,
+            override val endAt: LocalDateTime,
+            val courseCode: String,
+            override val title: String,
+        ) : PersonalScheduleUiModel() {
+            constructor(domain: PersonalSchedule.CourseSchedule, courseName: String) : this(
+                id = domain.id,
+                description = domain.description,
+                startAt = domain.startAt,
+                endAt = domain.endAt,
+                courseCode = domain.courseCode,
+                title = formatTitle(domain.title, courseName),
+            )
+
+            override val color: Color
+                @Composable get() =
+                    if (!isComplete) CalendarSage else CalendarGraphite
+        }
+
+        data class CustomScheduleUiModel(
+            override val id: Long,
+            override val description: String?,
+            override val startAt: LocalDateTime,
+            override val endAt: LocalDateTime,
+            override val title: String,
+        ) : PersonalScheduleUiModel() {
+            constructor(domain: CustomSchedule) : this(
+                id = domain.id,
+                description = domain.description,
+                startAt = domain.startAt,
+                endAt = domain.endAt,
+                title = formatTitle(domain.title),
+            )
+
+            override val color: Color
+                @Composable get() =
+                    if (!isComplete) CalendarFlamingo else CalendarGraphite
+        }
 
         companion object {
             const val COMPLETE = "(완료) "
+            private val TIME_FORMATTER =
+                DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
 
-            private fun startsWithComplete(title: String): Boolean = title.startsWith(COMPLETE)
+            private fun formatTitle(
+                title: String,
+                courseName: String? = null,
+            ): String =
+                title.removePrefix(COMPLETE).run {
+                    if (courseName.isNullOrEmpty()) this else "${courseName}_$this"
+                }
         }
     }
 }

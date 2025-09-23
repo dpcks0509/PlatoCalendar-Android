@@ -28,6 +28,7 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.LightGray
@@ -150,7 +151,7 @@ fun DayItemPreview() {
                     startAt = today,
                     endAt = today,
                 ),
-                PersonalScheduleUiModel(
+                CustomScheduleUiModel(
                     id = 0L,
                     title = "",
                     description = "",

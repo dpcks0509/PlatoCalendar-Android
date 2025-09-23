@@ -15,7 +15,7 @@ import retrofit2.http.Query
 interface PersonalScheduleService {
     @FormUrlEncoded
     @POST("/calendar/export.php")
-    suspend fun readMonthNowPersonalSchedules(
+    suspend fun readCurrentMonthPersonalSchedules(
         @Field("sesskey") sessKey: String,
         @Field("_qf__core_calendar_export_form") form: String = "1",
         @Field("events[exportevents]") exportEvents: String = "all",
@@ -25,7 +25,7 @@ interface PersonalScheduleService {
 
     @FormUrlEncoded
     @POST("/calendar/export.php")
-    suspend fun readCustomPersonalSchedules(
+    suspend fun readYearPersonalSchedules(
         @Field("sesskey") sessKey: String,
         @Field("_qf__core_calendar_export_form") form: String = "1",
         @Field("events[exportevents]") exportEvents: String = "all",
@@ -34,7 +34,7 @@ interface PersonalScheduleService {
     ): Response<ResponseBody>
 
     @POST("/lib/ajax/service.php")
-    suspend fun createPersonalSchedule(
+    suspend fun createCustomSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_submit_create_update_form",
         @Body request: List<CreatePersonalScheduleRequest>,
@@ -48,7 +48,7 @@ interface PersonalScheduleService {
     ): Response<List<PersonalScheduleResponse>>
 
     @POST("/lib/ajax/service.php")
-    suspend fun deletePersonalSchedule(
+    suspend fun deleteCustomSchedule(
         @Query("sesskey") sessKey: String,
         @Query("info") info: String = "core_calendar_delete_calendar_events",
         @Body request: List<DeletePersonalScheduleRequest>,
