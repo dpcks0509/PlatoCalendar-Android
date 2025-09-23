@@ -62,8 +62,8 @@ class CalendarViewModel
                     val previousSelectedDate = state.value.selectedDate
                     val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
 
-                    deselectDate(previousSelectedDate)
-                    selectDate(yearMonth = todayYearMonth, date = today)
+                    deselectDate(date = previousSelectedDate)
+                    selectDate(date = today)
 
                     setState {
                         copy(
@@ -84,8 +84,8 @@ class CalendarViewModel
                 is UpdateSelectedDate -> {
                     val previousSelectedDate = state.value.selectedDate
 
-                    deselectDate(previousSelectedDate)
-                    selectDate(yearMonth = state.value.currentYearMonth, date = event.date)
+                    deselectDate(date = previousSelectedDate)
+                    selectDate(date = event.date)
 
                     setState { copy(selectedDate = event.date) }
                 }
@@ -418,11 +418,8 @@ class CalendarViewModel
             }
         }
 
-        private fun selectDate(
-            yearMonth: YearMonth,
-            date: LocalDate,
-        ) {
-            monthlySchedules[yearMonth]?.forEach { weekSchedule ->
+        private fun selectDate(date: LocalDate) {
+            monthlySchedules.values.flatten().forEach { weekSchedule ->
                 weekSchedule.find { it?.date == date }?.let { matched ->
                     val index = weekSchedule.indexOf(matched)
                     weekSchedule[index] = matched.copy(isSelected = true)
