@@ -14,6 +14,7 @@ data class CalendarState(
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),
     val isLoading: Boolean = false,
+    val isScheduleBottomSheetVisible: Boolean = false,
 ) : UiState {
     val selectedDateSchedules: List<ScheduleUiModel>
         get() =

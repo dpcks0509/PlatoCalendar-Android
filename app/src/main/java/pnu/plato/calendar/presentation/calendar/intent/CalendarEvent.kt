@@ -29,4 +29,10 @@ sealed interface CalendarEvent : UiEvent {
     ) : CalendarEvent
 
     data object UpdateSchedules : CalendarEvent
+
+    data class ShowScheduleBottomSheet(
+        val schedule: ScheduleUiModel?,
+    ) : CalendarEvent
+
+    data object HideScheduleBottomSheet : CalendarEvent
 }

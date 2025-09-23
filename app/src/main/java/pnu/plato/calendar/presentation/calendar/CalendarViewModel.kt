@@ -13,8 +13,10 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
 import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakePersonalSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
@@ -94,7 +96,11 @@ class CalendarViewModel
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
 
-                UpdateSchedules -> refreshSchedules()
+                is UpdateSchedules -> refreshSchedules()
+
+                is ShowScheduleBottomSheet -> setState { copy(selectedSchedule = event.schedule, isScheduleBottomSheetVisible = true) }
+
+                is HideScheduleBottomSheet -> setState { copy(selectedSchedule = null, isScheduleBottomSheetVisible = false) }
             }
         }
 

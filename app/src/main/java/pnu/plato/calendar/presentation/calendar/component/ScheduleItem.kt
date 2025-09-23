@@ -1,6 +1,7 @@
 package pnu.plato.calendar.presentation.calendar.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,6 +54,7 @@ fun ScheduleItem(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(schedule.color)
+                                    .clickable { onScheduleClick(schedule) }
                                     .padding(horizontal = 12.dp, vertical = 4.dp),
                         ) {
                             Text(
@@ -71,6 +73,7 @@ fun ScheduleItem(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(schedule.color)
+                                    .clickable { onScheduleClick(schedule) }
                                     .padding(horizontal = 12.dp, vertical = 4.dp),
                         ) {
                             Text(

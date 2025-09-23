@@ -36,7 +36,9 @@ import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
 import pnu.plato.calendar.presentation.calendar.component.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.component.SelectedDateScheduleInfo
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
@@ -132,7 +134,7 @@ fun CalendarContent(
             selectedDate = state.selectedDate,
             schedules = state.selectedDateSchedules,
             onScheduleClick = { schedule ->
-                coroutineScope.launch { sheetState.show() }
+                onEvent(ShowScheduleBottomSheet(schedule))
             },
             modifier =
                 Modifier
@@ -156,12 +158,14 @@ fun CalendarContent(
         }
     }
 
-    ScheduleBottomSheet(
-        schedule = state.selectedSchedule,
-        sheetState = sheetState,
-        onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
-        modifier = Modifier.fillMaxWidth(),
-    )
+    if (state.isScheduleBottomSheetVisible) {
+        ScheduleBottomSheet(
+            schedule = state.selectedSchedule,
+            sheetState = sheetState,
+            onDismissRequest = { onEvent(HideScheduleBottomSheet) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -205,6 +209,7 @@ fun CalendarScreenPreview() {
                 CalendarState(
                     selectedDate = LocalDate.of(2024, 1, 11),
                     schedules = schedules,
+                    isScheduleBottomSheetVisible = false,
                 ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             sheetState = rememberModalBottomSheetState(),
