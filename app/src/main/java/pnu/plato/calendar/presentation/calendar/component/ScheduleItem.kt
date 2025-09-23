@@ -48,51 +48,67 @@ fun ScheduleItem(
             items(items = schedules) { schedule ->
                 when (schedule) {
                     is AcademicScheduleUiModel -> {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(schedule.color)
-                                    .clickable { onScheduleClick(schedule) }
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                        ) {
-                            Text(
-                                text = schedule.title,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = White,
-                            )
-                        }
+                        AcademicScheduleItem(schedule = schedule, onScheduleClick = onScheduleClick)
                     }
 
                     is PersonalScheduleUiModel -> {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(schedule.color)
-                                    .clickable { onScheduleClick(schedule) }
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                        ) {
-                            Text(
-                                text = schedule.title,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = White,
-                            )
-                            Text(
-                                text = schedule.deadLine,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = White,
-                            )
-                        }
+                        PersonalScheduleItem(schedule = schedule, onScheduleClick = onScheduleClick)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AcademicScheduleItem(
+    schedule: AcademicScheduleUiModel,
+    onScheduleClick: (ScheduleUiModel) -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(schedule.color)
+                .clickable { onScheduleClick(schedule) }
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+    ) {
+        Text(
+            text = schedule.title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = White,
+        )
+    }
+}
+
+@Composable
+private fun PersonalScheduleItem(
+    schedule: PersonalScheduleUiModel,
+    onScheduleClick: (ScheduleUiModel) -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(schedule.color)
+                .clickable { onScheduleClick(schedule) }
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+    ) {
+        Text(
+            text = schedule.title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = White,
+        )
+        Text(
+            text = schedule.deadLine,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = White,
+        )
     }
 }
 
