@@ -206,10 +206,10 @@ class CalendarViewModel
                     description = description,
                     startAt = startAt,
                     endAt = endAt,
-                ).onSuccess {
+                ).onSuccess { id ->
                     val newSchedule =
                         CustomScheduleUiModel(
-                            id = System.currentTimeMillis(),
+                            id = id,
                             title = title,
                             description = description,
                             startAt = startAt,
