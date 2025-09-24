@@ -86,9 +86,9 @@ class CalendarViewModel
 
                 is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
 
-                is EditCustomSchedule -> TODO()
+                is EditCustomSchedule -> editCustomSchedule(event.schedule)
 
-                is DeleteCustomSchedule -> TODO()
+                is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
 
                 is UpdateSelectedDate -> {
                     val previousSelectedDate = state.value.selectedDate
