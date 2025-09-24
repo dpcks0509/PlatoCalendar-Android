@@ -31,7 +31,7 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
-import pnu.plato.calendar.presentation.common.theme.LightGray
+import pnu.plato.calendar.presentation.common.theme.MediumGray
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.Red
@@ -59,7 +59,7 @@ fun DayItem(
                             Modifier
                                 .clip(
                                     RoundedCornerShape(12.dp),
-                                ).background(LightGray)
+                                ).background(MediumGray)
                         } else {
                             Modifier
                         },

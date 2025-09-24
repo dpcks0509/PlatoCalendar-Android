@@ -16,8 +16,11 @@ val BlackDark = Color.White
 val LightBlueLight = Color(0xFFAAD0F5)
 val LightBlueDark = Color(0xFF1E3A5F)
 
-val LightGrayLight = Color(0xFFCCCCCC)
-val LightGrayDark = Color(0xFF666666)
+val LightGrayLight = Color(0xFFDDDDDD)
+val LightGrayDark = Color(0xFF444444)
+
+val MediumGrayLight = Color(0xFFCCCCCC)
+val MediumGrayDark = Color(0xFF666666)
 
 val GrayLight = Color(0x99000000)
 val GrayDark = Color(0x99FFFFFF)
@@ -59,6 +62,9 @@ val LightBlue: Color
 
 val LightGray: Color
     @Composable get() = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight
+
+val MediumGray: Color
+    @Composable get() = if (isSystemInDarkTheme()) MediumGrayDark else MediumGrayLight
 
 val Gray: Color
     @Composable get() = if (isSystemInDarkTheme()) GrayDark else GrayLight
