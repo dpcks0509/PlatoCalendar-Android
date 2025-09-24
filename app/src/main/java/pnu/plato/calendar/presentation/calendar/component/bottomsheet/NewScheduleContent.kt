@@ -1,0 +1,81 @@
+package pnu.plato.calendar.presentation.calendar.component.bottomsheet
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
+import pnu.plato.calendar.presentation.common.extension.noRippleClickable
+import pnu.plato.calendar.presentation.common.theme.CalendarFlamingo
+import pnu.plato.calendar.presentation.common.theme.White
+import java.time.LocalDateTime
+
+@Composable
+fun NewScheduleContent(
+    makeSchedule: (NewSchedule) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    val now = LocalDateTime.now()
+
+    var title: String by remember { mutableStateOf("") }
+    var description: String by remember { mutableStateOf("") }
+    var startAt: LocalDateTime by remember { mutableStateOf(now) }
+    var endAt: LocalDateTime by remember { mutableStateOf(now.plusHours(1)) }
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .background(CalendarFlamingo)
+                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = "Back",
+            tint = White,
+            modifier =
+                Modifier
+                    .size(32.dp)
+                    .noRippleClickable(onDismissRequest),
+        )
+
+        ActionButton(
+            text = "저장",
+            onClick = {
+                makeSchedule(
+                    NewSchedule(
+                        title = title,
+                        description = description,
+                        startAt = startAt,
+                        endAt = endAt,
+                    ),
+                )
+            },
+        )
+    }
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+    )
+}

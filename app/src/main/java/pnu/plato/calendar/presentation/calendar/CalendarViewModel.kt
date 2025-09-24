@@ -7,6 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.LoginStatus
+import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.domain.repository.CourseRepository
@@ -14,7 +16,13 @@ import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
 import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
@@ -22,7 +30,6 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowSchedul
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
@@ -37,7 +44,6 @@ import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import java.time.LocalDate
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,13 +84,11 @@ class CalendarViewModel
                     }
                 }
 
-                is MakeCustomSchedule ->
-                    makeCustomSchedule(
-                        title = event.title,
-                        description = event.description,
-                        startAt = event.startAt,
-                        endAt = event.endAt,
-                    )
+                is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
+
+                is EditCustomSchedule -> TODO()
+
+                is DeleteCustomSchedule -> TODO()
 
                 is UpdateSelectedDate -> {
                     val previousSelectedDate = state.value.selectedDate
@@ -95,17 +99,26 @@ class CalendarViewModel
                     setState { copy(selectedDate = event.date) }
                 }
 
-                is UpdateSelectedSchedule -> setState { copy(selectedSchedule = event.schedule) }
-
                 is UpdateCurrentYearMonth -> {
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
 
                 is UpdateSchedules -> updateSchedules()
 
-                is ShowScheduleBottomSheet -> setState { copy(selectedSchedule = event.schedule, isScheduleBottomSheetVisible = true) }
+                is ShowScheduleBottomSheet ->
+                    setState {
+                        val scheduleBottomSheetContent =
+                            when (event.schedule) {
+                                is AcademicScheduleUiModel -> AcademicScheduleContent(event.schedule)
+                                is CourseScheduleUiModel -> CourseScheduleContent(event.schedule)
+                                is CustomScheduleUiModel -> CustomScheduleContent(event.schedule)
+                                else -> ScheduleBottomSheetContent.NewScheduleContent
+                            }
 
-                is HideScheduleBottomSheet -> setState { copy(selectedSchedule = null, isScheduleBottomSheetVisible = false) }
+                        copy(scheduleBottomSheetContent = scheduleBottomSheetContent, isScheduleBottomSheetVisible = true)
+                    }
+
+                is HideScheduleBottomSheet -> setState { copy(scheduleBottomSheetContent = null, isScheduleBottomSheetVisible = false) }
             }
         }
 
@@ -194,60 +207,40 @@ class CalendarViewModel
             }
         }
 
-        private suspend fun makeCustomSchedule(
-            title: String,
-            description: String?,
-            startAt: LocalDateTime,
-            endAt: LocalDateTime,
-        ) {
+        private suspend fun makeCustomSchedule(newSchedule: NewSchedule) {
             scheduleRepository
-                .makeCustomSchedule(
-                    title = title,
-                    description = description,
-                    startAt = startAt,
-                    endAt = endAt,
-                ).onSuccess { id ->
-                    val newSchedule =
+                .makeCustomSchedule(newSchedule)
+                .onSuccess { id ->
+                    val customSchedule =
                         CustomScheduleUiModel(
                             id = id,
-                            title = title,
-                            description = description,
-                            startAt = startAt,
-                            endAt = endAt,
+                            title = newSchedule.title,
+                            description = newSchedule.description,
+                            startAt = newSchedule.startAt,
+                            endAt = newSchedule.endAt,
                         )
                     setState {
-                        copy(schedules = schedules + newSchedule)
+                        copy(schedules = schedules + customSchedule)
                     }
                 }.onFailure { throwable ->
                     ErrorEventBus.sendError(throwable.message)
                 }
         }
 
-        private suspend fun editCustomSchedule(
-            id: Long,
-            title: String,
-            description: String?,
-            startAt: LocalDateTime,
-            endAt: LocalDateTime,
-        ) {
+        private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
             scheduleRepository
-                .editPersonalSchedule(
-                    id = id,
-                    title = title,
-                    description = description,
-                    startAt = startAt,
-                    endAt = endAt,
-                ).onSuccess {
+                .editPersonalSchedule(customSchedule)
+                .onSuccess {
                     setState {
                         copy(
                             schedules =
                                 schedules.map { schedule ->
-                                    if (schedule is CustomScheduleUiModel && schedule.id == id) {
+                                    if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
                                         schedule.copy(
-                                            title = title,
-                                            description = description,
-                                            startAt = startAt,
-                                            endAt = endAt,
+                                            title = customSchedule.title,
+                                            description = customSchedule.description,
+                                            startAt = customSchedule.startAt,
+                                            endAt = customSchedule.endAt,
                                         )
                                     } else {
                                         schedule
@@ -260,29 +253,18 @@ class CalendarViewModel
                 }
         }
 
-        private suspend fun completePersonalSchedule(
-            id: Long,
-            title: String,
-            description: String?,
-            startAt: LocalDateTime,
-            endAt: LocalDateTime,
-        ) {
+        private suspend fun completePersonalSchedule(personalSchedule: PersonalSchedule) {
             scheduleRepository
-                .editPersonalSchedule(
-                    id = id,
-                    title = COMPLETE + title,
-                    description = description,
-                    startAt = startAt,
-                    endAt = endAt,
-                ).onSuccess {
+                .editPersonalSchedule(personalSchedule)
+                .onSuccess {
                     setState {
                         copy(
                             schedules =
                                 schedules.map { schedule ->
-                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                                    if (schedule is PersonalScheduleUiModel && schedule.id == personalSchedule.id) {
                                         when (schedule) {
-                                            is CourseScheduleUiModel -> schedule.copy(title = COMPLETE + title)
-                                            is CustomScheduleUiModel -> schedule.copy(title = COMPLETE + title)
+                                            is CourseScheduleUiModel -> schedule.copy(title = COMPLETE + personalSchedule.title)
+                                            is CustomScheduleUiModel -> schedule.copy(title = COMPLETE + personalSchedule.title)
                                         }
                                     } else {
                                         schedule
@@ -295,29 +277,18 @@ class CalendarViewModel
                 }
         }
 
-        private suspend fun unCompletePersonalSchedule(
-            id: Long,
-            title: String,
-            description: String?,
-            startAt: LocalDateTime,
-            endAt: LocalDateTime,
-        ) {
+        private suspend fun unCompletePersonalSchedule(personalSchedule: PersonalSchedule) {
             scheduleRepository
-                .editPersonalSchedule(
-                    id = id,
-                    title = title.removePrefix(COMPLETE),
-                    description = description,
-                    startAt = startAt,
-                    endAt = endAt,
-                ).onSuccess {
+                .editPersonalSchedule(personalSchedule)
+                .onSuccess {
                     setState {
                         copy(
                             schedules =
                                 schedules.map { schedule ->
-                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                                    if (schedule is PersonalScheduleUiModel && schedule.id == personalSchedule.id) {
                                         when (schedule) {
-                                            is CourseScheduleUiModel -> schedule.copy(title = title.removePrefix(COMPLETE))
-                                            is CustomScheduleUiModel -> schedule.copy(title = title.removePrefix(COMPLETE))
+                                            is CourseScheduleUiModel -> schedule.copy(title = personalSchedule.title.removePrefix(COMPLETE))
+                                            is CustomScheduleUiModel -> schedule.copy(title = personalSchedule.title.removePrefix(COMPLETE))
                                         }
                                     } else {
                                         schedule

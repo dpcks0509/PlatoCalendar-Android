@@ -35,4 +35,11 @@ sealed class Schedule {
             override val endAt: LocalDateTime,
         ) : PersonalSchedule()
     }
+
+    data class NewSchedule(
+        override val title: String,
+        val description: String?,
+        val startAt: LocalDateTime,
+        val endAt: LocalDateTime,
+    ) : Schedule()
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.PagerState
@@ -13,6 +14,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +35,14 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
 import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
-import pnu.plato.calendar.presentation.calendar.component.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.component.SelectedDateScheduleInfo
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
@@ -67,7 +73,7 @@ fun CalendarScreen(
             initialPage = 0,
             pageCount = { if (today.dayOfMonth != 1) MAX_MONTH_SIZE else MAX_MONTH_SIZE - 1 },
         )
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel.sideEffect) {
@@ -80,6 +86,12 @@ fun CalendarScreen(
 
     LaunchedEffect(state.schedules) {
         viewModel.setEvent(UpdateSchedules)
+    }
+
+    LaunchedEffect(sheetState.currentValue) {
+        if (sheetState.currentValue == SheetValue.Hidden) {
+            viewModel.setEvent(HideScheduleBottomSheet)
+        }
     }
 
     CalendarContent(
@@ -133,9 +145,7 @@ fun CalendarContent(
         SelectedDateScheduleInfo(
             selectedDate = state.selectedDate,
             schedules = state.selectedDateSchedules,
-            onScheduleClick = { schedule ->
-                onEvent(ShowScheduleBottomSheet(schedule))
-            },
+            onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -160,10 +170,16 @@ fun CalendarContent(
 
     if (state.isScheduleBottomSheetVisible) {
         ScheduleBottomSheet(
-            schedule = state.selectedSchedule,
+            content = state.scheduleBottomSheetContent,
             sheetState = sheetState,
-            onDismissRequest = { onEvent(HideScheduleBottomSheet) },
-            modifier = Modifier.fillMaxWidth(),
+            makeSchedule = { schedule -> onEvent(MakeCustomSchedule(schedule)) },
+            editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
+            deleteSchedule = { id -> onEvent(DeleteCustomSchedule(id)) },
+            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
         )
     }
 }
@@ -210,6 +226,7 @@ fun CalendarScreenPreview() {
                     selectedDate = LocalDate.of(2024, 1, 11),
                     schedules = schedules,
                     isScheduleBottomSheetVisible = false,
+                    scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
                 ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             sheetState = rememberModalBottomSheetState(),

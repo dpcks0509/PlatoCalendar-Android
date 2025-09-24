@@ -46,19 +46,19 @@ sealed class ScheduleUiModel {
 
         data class CourseScheduleUiModel(
             override val id: Long,
+            override val title: String,
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
             val courseCode: String,
-            override val title: String,
         ) : PersonalScheduleUiModel() {
             constructor(domain: PersonalSchedule.CourseSchedule, courseName: String) : this(
                 id = domain.id,
+                title = formatTitle(domain.title, courseName),
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
                 courseCode = domain.courseCode,
-                title = formatTitle(domain.title, courseName),
             )
 
             override val color: Color
@@ -68,17 +68,17 @@ sealed class ScheduleUiModel {
 
         data class CustomScheduleUiModel(
             override val id: Long,
+            override val title: String,
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
-            override val title: String,
         ) : PersonalScheduleUiModel() {
             constructor(domain: CustomSchedule) : this(
                 id = domain.id,
+                title = formatTitle(domain.title),
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
-                title = formatTitle(domain.title),
             )
 
             override val color: Color

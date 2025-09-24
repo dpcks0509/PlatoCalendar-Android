@@ -13,6 +13,7 @@ import pnu.plato.calendar.data.request.UpdatePersonalScheduleArgs
 import pnu.plato.calendar.data.request.UpdatePersonalScheduleRequest
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
+import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
@@ -57,12 +58,7 @@ class RemoteScheduleRepository
                 Result.success(personalSchedules)
             }
 
-        override suspend fun makeCustomSchedule(
-            title: String,
-            description: String?,
-            startAt: LocalDateTime,
-            endAt: LocalDateTime,
-        ): Result<Long> {
+        override suspend fun makeCustomSchedule(newSchedule: NewSchedule): Result<Long> {
             val loginStatus = loginManager.loginStatus.value
 
             if (loginStatus is LoginStatus.Login) {
@@ -72,10 +68,7 @@ class RemoteScheduleRepository
                     buildCreatePersonalScheduleRequest(
                         userId = loginStatus.loginSession.userId,
                         sessKey = sessKey,
-                        name = title,
-                        startDateTime = startAt,
-                        endDateTime = endAt,
-                        description = description.orEmpty(),
+                        newSchedule = newSchedule,
                     )
 
                 val response =
@@ -101,13 +94,7 @@ class RemoteScheduleRepository
             return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
         }
 
-        override suspend fun editPersonalSchedule(
-            id: Long,
-            title: String,
-            description: String?,
-            startAt: LocalDateTime,
-            endAt: LocalDateTime,
-        ): Result<Unit> {
+        override suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): Result<Unit> {
             val loginStatus = loginManager.loginStatus.value
 
             if (loginStatus is LoginStatus.Login) {
@@ -118,13 +105,13 @@ class RemoteScheduleRepository
                         sessKey = sessKey,
                         request =
                             buildUpdatePersonalScheduleRequest(
-                                id = id,
+                                id = personalSchedule.id,
                                 userId = loginStatus.loginSession.userId,
                                 sessKey = sessKey,
-                                name = title,
-                                startDateTime = startAt,
-                                endDateTime = endAt,
-                                description = description.orEmpty(),
+                                name = personalSchedule.title,
+                                startDateTime = personalSchedule.startAt,
+                                endDateTime = personalSchedule.endAt,
+                                description = personalSchedule.description.orEmpty(),
                             ),
                     )
 
@@ -350,14 +337,11 @@ class RemoteScheduleRepository
             private fun buildCreatePersonalScheduleRequest(
                 userId: String,
                 sessKey: String,
-                name: String,
-                startDateTime: LocalDateTime,
-                endDateTime: LocalDateTime,
-                description: String,
+                newSchedule: NewSchedule,
             ): List<CreatePersonalScheduleRequest> {
-                val encodedName = URLEncoder.encode(name, "UTF-8").replace("+", "%20")
+                val encodedName = URLEncoder.encode(newSchedule.title, "UTF-8").replace("+", "%20")
                 val encodedDescription =
-                    URLEncoder.encode("<p>$description</p>", "UTF-8").replace("+", "%20")
+                    URLEncoder.encode("<p>${newSchedule.description.orEmpty()}</p>", "UTF-8").replace("+", "%20")
 
                 val formData =
                     buildString {
@@ -371,20 +355,20 @@ class RemoteScheduleRepository
                         append("_qf__core_calendar_local_event_forms_create=1&")
                         append("mform_showmore_id_general=1&")
                         append("name=$encodedName&")
-                        append("timestart%5Byear%5D=${startDateTime.year}&")
-                        append("timestart%5Bmonth%5D=${startDateTime.monthValue}&")
-                        append("timestart%5Bday%5D=${startDateTime.dayOfMonth}&")
-                        append("timestart%5Bhour%5D=${startDateTime.hour}&")
-                        append("timestart%5Bminute%5D=${startDateTime.minute}&")
+                        append("timestart%5Byear%5D=${newSchedule.startAt.year}&")
+                        append("timestart%5Bmonth%5D=${newSchedule.startAt.monthValue}&")
+                        append("timestart%5Bday%5D=${newSchedule.startAt.dayOfMonth}&")
+                        append("timestart%5Bhour%5D=${newSchedule.startAt.hour}&")
+                        append("timestart%5Bminute%5D=${newSchedule.startAt.minute}&")
                         append("description%5Btext%5D=$encodedDescription&")
                         append("description%5Bformat%5D=1&")
                         append("description%5Bitemid%5D=0&")
                         append("duration=1&")
-                        append("timedurationuntil%5Byear%5D=${endDateTime.year}&")
-                        append("timedurationuntil%5Bmonth%5D=${endDateTime.monthValue}&")
-                        append("timedurationuntil%5Bday%5D=${endDateTime.dayOfMonth}&")
-                        append("timedurationuntil%5Bhour%5D=${endDateTime.hour}&")
-                        append("timedurationuntil%5Bminute%5D=${endDateTime.minute}")
+                        append("timedurationuntil%5Byear%5D=${newSchedule.endAt.year}&")
+                        append("timedurationuntil%5Bmonth%5D=${newSchedule.endAt.monthValue}&")
+                        append("timedurationuntil%5Bday%5D=${newSchedule.endAt.dayOfMonth}&")
+                        append("timedurationuntil%5Bhour%5D=${newSchedule.endAt.hour}&")
+                        append("timedurationuntil%5Bminute%5D=${newSchedule.endAt.minute}")
                     }
 
                 return listOf(CreatePersonalScheduleRequest(args = CreatePersonalScheduleArgs(formData = formData)))

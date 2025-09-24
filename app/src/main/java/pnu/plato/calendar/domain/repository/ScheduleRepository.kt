@@ -1,28 +1,17 @@
 package pnu.plato.calendar.domain.repository
 
-import pnu.plato.calendar.domain.entity.Schedule
 import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
-import java.time.LocalDateTime
+import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
+import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 
 interface ScheduleRepository {
     suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>>
 
-    suspend fun getPersonalSchedules(sessKey: String): Result<List<Schedule.PersonalSchedule>>
+    suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>>
 
-    suspend fun makeCustomSchedule(
-        title: String,
-        description: String?,
-        startAt: LocalDateTime,
-        endAt: LocalDateTime,
-    ): Result<Long>
+    suspend fun makeCustomSchedule(newSchedule: NewSchedule): Result<Long>
 
-    suspend fun editPersonalSchedule(
-        id: Long,
-        title: String,
-        description: String?,
-        startAt: LocalDateTime,
-        endAt: LocalDateTime,
-    ): Result<Unit>
+    suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): Result<Unit>
 
     suspend fun deleteCustomSchedule(id: Long): Result<Unit>
 }
