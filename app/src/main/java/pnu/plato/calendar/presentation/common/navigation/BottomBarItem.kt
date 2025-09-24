@@ -2,6 +2,7 @@ package pnu.plato.calendar.presentation.common.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
@@ -23,7 +24,7 @@ enum class BottomBarItem(
     ),
     TODO(
         route = ToDoScreen,
-        icon = Icons.Default.List,
+        icon = Icons.AutoMirrored.Filled.List,
         titleRes = R.string.to_do,
     ),
     SETTING(
