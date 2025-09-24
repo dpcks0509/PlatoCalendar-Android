@@ -118,7 +118,7 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseCode = "CB20125",
+                    courseName = "CB20125",
                 ),
                 CourseScheduleUiModel(
                     id = 0L,
@@ -126,7 +126,7 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseCode = "DS20438",
+                    courseName = "DS20438",
                 ),
                 CustomScheduleUiModel(
                     id = 0L,

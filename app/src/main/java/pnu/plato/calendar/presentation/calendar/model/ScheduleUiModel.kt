@@ -50,15 +50,15 @@ sealed class ScheduleUiModel {
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
-            val courseCode: String,
+            val courseName: String,
         ) : PersonalScheduleUiModel() {
             constructor(domain: PersonalSchedule.CourseSchedule, courseName: String) : this(
                 id = domain.id,
-                title = formatTitle(domain.title, courseName),
+                title = domain.title.removePrefix(COMPLETE),
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
-                courseCode = domain.courseCode,
+                courseName = courseName,
             )
 
             override val color: Color
@@ -75,7 +75,7 @@ sealed class ScheduleUiModel {
         ) : PersonalScheduleUiModel() {
             constructor(domain: CustomSchedule) : this(
                 id = domain.id,
-                title = formatTitle(domain.title),
+                title = domain.title.removePrefix(COMPLETE),
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
@@ -90,14 +90,6 @@ sealed class ScheduleUiModel {
             const val COMPLETE = "(완료) "
             private val TIME_FORMATTER =
                 DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
-
-            private fun formatTitle(
-                title: String,
-                courseName: String? = null,
-            ): String =
-                title.removePrefix(COMPLETE).run {
-                    if (courseName.isNullOrEmpty()) this else "${courseName}_$this"
-                }
         }
     }
 }

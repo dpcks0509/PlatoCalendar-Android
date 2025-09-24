@@ -3,7 +3,9 @@ package pnu.plato.calendar.presentation.calendar.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -37,11 +40,14 @@ fun ScheduleItem(
     modifier: Modifier = Modifier,
 ) {
     if (schedules.isEmpty()) {
-        Text(
-            text = HAS_NO_SCHEDULE,
-            fontSize = 16.sp,
-            color = Gray,
-        )
+        Box(modifier = modifier.fillMaxHeight().padding(end = 44.dp), contentAlignment = Alignment.Center) {
+            Text(
+                text = HAS_NO_SCHEDULE,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Gray,
+            )
+        }
     } else {
         LazyColumn(
             modifier = modifier,
@@ -100,7 +106,14 @@ private fun PersonalScheduleItem(
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(
-            text = schedule.title,
+            text =
+                schedule.title.run {
+                    if (schedule is CourseScheduleUiModel) {
+                        if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
+                    } else {
+                        this
+                    }
+                },
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = White,
@@ -131,7 +144,7 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseCode = "CB20125",
+                    courseName = "운영체제",
                 ),
                 CourseScheduleUiModel(
                     id = 0L,
@@ -139,7 +152,7 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
-                    courseCode = "DS20438",
+                    courseName = "네트워크",
                 ),
                 CustomScheduleUiModel(
                     id = 0L,
