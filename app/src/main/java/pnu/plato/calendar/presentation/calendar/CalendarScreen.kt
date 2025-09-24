@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.PagerState
@@ -48,6 +47,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowSchedul
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
+import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
@@ -79,7 +79,7 @@ fun CalendarScreen(
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
-                else -> Unit // TODO
+                CalendarSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
             }
         }
     }
@@ -176,10 +176,8 @@ fun CalendarContent(
             editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
             deleteSchedule = { id -> onEvent(DeleteCustomSchedule(id)) },
             onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
+            modifier = Modifier.fillMaxWidth()
+
         )
     }
 }
