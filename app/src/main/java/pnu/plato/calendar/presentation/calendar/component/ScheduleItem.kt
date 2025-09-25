@@ -1,7 +1,6 @@
 package pnu.plato.calendar.presentation.calendar.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +40,13 @@ fun ScheduleItem(
     modifier: Modifier = Modifier,
 ) {
     if (schedules.isEmpty()) {
-        Box(modifier = modifier.fillMaxHeight().padding(end = 44.dp), contentAlignment = Alignment.Center) {
+        Box(
+            modifier =
+                modifier
+                    .fillMaxHeight()
+                    .padding(end = 44.dp),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(
                 text = HAS_NO_SCHEDULE,
                 fontSize = 18.sp,
@@ -50,11 +55,25 @@ fun ScheduleItem(
             )
         }
     } else {
+        val sortedSchedule =
+            schedules.sortedWith(
+                compareBy(
+                    { if (it is AcademicScheduleUiModel) 0 else 1 },
+                    { if (it is PersonalScheduleUiModel) it.isCompleted else false },
+                    {
+                        when (it) {
+                            is AcademicScheduleUiModel -> it.endAt.atStartOfDay()
+                            is PersonalScheduleUiModel -> it.endAt
+                        }
+                    },
+                ),
+            )
+
         LazyColumn(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            items(items = schedules) { schedule ->
+            items(items = sortedSchedule) { schedule ->
                 when (schedule) {
                     is AcademicScheduleUiModel -> {
                         AcademicScheduleItem(schedule = schedule, onScheduleClick = onScheduleClick)
