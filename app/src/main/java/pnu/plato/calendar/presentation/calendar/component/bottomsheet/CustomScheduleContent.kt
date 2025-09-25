@@ -432,7 +432,7 @@ fun CustomScheduleContent(
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "일정 삭제",
+            text = "삭제하기",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = Red,
