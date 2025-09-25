@@ -19,12 +19,10 @@ import pnu.plato.calendar.presentation.common.theme.White
 @Composable
 fun ActionButton(
     text: String,
-    enabled: Boolean,
     onClick: () -> Unit,
 ) {
     OutlinedButton(
         onClick = onClick,
-        enabled = enabled,
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(2.dp, White),
         colors =

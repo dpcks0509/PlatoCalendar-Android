@@ -58,17 +58,18 @@ fun CourseScheduleContent(
 
         ActionButton(
             text = "수정",
-            enabled = title.isNotEmpty(),
             onClick = {
-                editSchedule(
-                    CustomSchedule(
-                        id = schedule.id,
-                        title = title,
-                        description = description,
-                        startAt = startAt,
-                        endAt = endAt,
-                    ),
-                )
+                if (title.isNotEmpty()) {
+                    editSchedule(
+                        CustomSchedule(
+                            id = schedule.id,
+                            title = title,
+                            description = description,
+                            startAt = startAt,
+                            endAt = endAt,
+                        ),
+                    )
+                }
             },
         )
     }

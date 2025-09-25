@@ -63,7 +63,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private const val HAS_NO_TITLE = "제목 없음"
+private const val TITLE_REQUIRED = "제목 필수"
 private const val HAS_NO_DESCRIPTION = "설명 없음"
 
 private enum class PickerTarget { START, END }
@@ -148,17 +148,18 @@ fun CustomScheduleContent(
 
         ActionButton(
             text = "수정",
-            enabled = title.isNotEmpty(),
             onClick = {
-                editSchedule(
-                    CustomSchedule(
-                        id = schedule.id,
-                        title = title,
-                        description = description,
-                        startAt = startAt,
-                        endAt = endAt,
-                    ),
-                )
+                if (title.isNotEmpty()) {
+                    editSchedule(
+                        CustomSchedule(
+                            id = schedule.id,
+                            title = title,
+                            description = description,
+                            startAt = startAt,
+                            endAt = endAt,
+                        ),
+                    )
+                }
             },
         )
     }
@@ -197,9 +198,9 @@ fun CustomScheduleContent(
             },
             placeholder = {
                 Text(
-                    text = HAS_NO_TITLE,
+                    text = TITLE_REQUIRED,
                     fontSize = 16.sp,
-                    color = Gray,
+                    color = Red,
                 )
             },
             textStyle =
