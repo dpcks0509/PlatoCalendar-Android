@@ -59,9 +59,8 @@ fun AcademicScheduleContent(
                 .fillMaxWidth()
                 .height(60.dp)
                 .background(schedule.color)
-                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 24.dp),
+                .padding(top = 12.dp, bottom = 8.dp, start = 16.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -71,6 +70,15 @@ fun AcademicScheduleContent(
                 Modifier
                     .size(32.dp)
                     .noRippleClickable(onDismissRequest),
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "학사 일정",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = White,
         )
     }
 

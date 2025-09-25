@@ -52,9 +52,9 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
-import pnu.plato.calendar.presentation.common.theme.CalendarFlamingo
 import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.LightGray
+import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import java.time.Instant
 import java.time.LocalDate
@@ -65,7 +65,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 private const val TITLE_REQUIRED = "제목 필수"
-private const val HAS_NO_DESCRIPTION = "설명 없음"
+private const val DESCRIPTION = "설명"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +74,7 @@ fun NewScheduleContent(
     onDismissRequest: () -> Unit,
 ) {
     val now = LocalDateTime.now()
-    val color = CalendarFlamingo
+    val color = PrimaryColor
 
     var title: String by remember { mutableStateOf("") }
     var description: String by remember { mutableStateOf("") }
@@ -100,7 +100,8 @@ fun NewScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean =
+                    year in minDate.year..maxDate.year
             }
         }
 
@@ -131,9 +132,8 @@ fun NewScheduleContent(
                 .fillMaxWidth()
                 .height(60.dp)
                 .background(color)
-                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 24.dp),
+                .padding(top = 12.dp, bottom = 8.dp, start = 16.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -143,6 +143,16 @@ fun NewScheduleContent(
                 Modifier
                     .size(32.dp)
                     .noRippleClickable(onDismissRequest),
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "일정 생성",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = White,
+            modifier = Modifier.weight(1f)
         )
 
         ActionButton(
@@ -170,7 +180,13 @@ fun NewScheduleContent(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true, ambientColor = Black, spotColor = Black)
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    clip = true,
+                    ambientColor = Black,
+                    spotColor = Black
+                )
                 .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -198,7 +214,7 @@ fun NewScheduleContent(
                 Text(
                     text = TITLE_REQUIRED,
                     fontSize = 16.sp,
-                    color = CalendarFlamingo,
+                    color = color,
                 )
             },
             textStyle =
@@ -228,7 +244,13 @@ fun NewScheduleContent(
             Modifier
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true, ambientColor = Black, spotColor = Black)
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    clip = true,
+                    ambientColor = Black,
+                    spotColor = Black
+                )
                 .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -255,7 +277,7 @@ fun NewScheduleContent(
                 },
                 placeholder = {
                     Text(
-                        text = HAS_NO_DESCRIPTION,
+                        text = DESCRIPTION,
                         fontSize = 16.sp,
                         color = Gray,
                     )
