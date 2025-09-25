@@ -213,7 +213,6 @@ fun CustomScheduleContent(
                     fontWeight = FontWeight.SemiBold,
                     color = Black,
                 ),
-            modifier = Modifier.fillMaxWidth(),
             colors =
                 TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
@@ -224,6 +223,7 @@ fun CustomScheduleContent(
                     cursorColor = schedule.color,
                 ),
             maxLines = 3,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 
@@ -271,7 +271,6 @@ fun CustomScheduleContent(
                         fontSize = 16.sp,
                         color = Black,
                     ),
-                modifier = Modifier.weight(1f),
                 colors =
                     TextFieldDefaults.colors(
                         unfocusedContainerColor = Color.Transparent,
@@ -282,6 +281,7 @@ fun CustomScheduleContent(
                         cursorColor = schedule.color,
                     ),
                 maxLines = 5,
+                modifier = Modifier.weight(1f),
             )
         }
 
@@ -293,7 +293,7 @@ fun CustomScheduleContent(
         ) {
             Icon(
                 imageVector = Icons.Default.DateRange,
-                contentDescription = "Description",
+                contentDescription = "Date",
                 tint = Black,
                 modifier = Modifier.size(24.dp),
             )
