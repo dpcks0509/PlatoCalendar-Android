@@ -37,9 +37,6 @@ val CalendarSageDark = Color(0xFF81C995)
 val CalendarLavenderLight = Color(0xFF7986CB)
 val CalendarLavenderDark = Color(0xFF9FA8DA)
 
-val CalendarGraphiteLight = Color(0xFF616161)
-val CalendarGraphiteDark = Color(0xFFB0BEC5)
-
 val CalendarGrape = Color(0xFF8E24AA)
 val CalendarBanana = Color(0xFFF6BF26)
 val CalendarTangerine = Color(0xFFF4511E)
@@ -47,6 +44,7 @@ val CalendarPeacock = Color(0xFF039BE5)
 val CalendarBlueberry = Color(0xFF3F51B5)
 val CalendarBasil = Color(0xFF0B8043)
 val CalendarTomato = Color(0xFFD50000)
+val CalendarGraphite = Color(0xFF616161)
 
 val PrimaryColor: Color
     @Composable get() = if (isSystemInDarkTheme()) PrimaryDark else PrimaryLight
@@ -80,6 +78,3 @@ val CalendarSage: Color
 
 val CalendarLavender: Color
     @Composable get() = if (isSystemInDarkTheme()) CalendarLavenderDark else CalendarLavenderLight
-
-val CalendarGraphite: Color
-    @Composable get() = if (isSystemInDarkTheme()) CalendarGraphiteDark else CalendarGraphiteLight
