@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
+import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
@@ -66,8 +67,6 @@ import java.util.Locale
 
 private const val TITLE_REQUIRED = "제목 필수"
 private const val HAS_NO_DESCRIPTION = "설명 없음"
-
-private enum class PickerTarget { START, END }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
