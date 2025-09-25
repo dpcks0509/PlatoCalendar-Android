@@ -10,7 +10,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_plato_calendar"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_plato_calendar"
+        android:roundIcon="@mipmap/ic_plato_calendar_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PlatoCalendarAOS">
         <activity
