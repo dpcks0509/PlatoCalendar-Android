@@ -1,6 +1,5 @@
 package pnu.plato.calendar.presentation.common.navigation
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -13,12 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -46,9 +42,7 @@ fun PlatoCalendarBottomBar(navController: NavController) {
         )
 
     CompositionLocalProvider(LocalRippleConfiguration provides noRippleConfiguration) {
-        NavigationBar(
-            modifier = Modifier.clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
-        ) {
+        NavigationBar {
             BottomBarItem.entries.forEach { item ->
                 val isSelected = currentRoute == item.route::class.qualifiedName
 
