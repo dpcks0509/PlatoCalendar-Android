@@ -242,12 +242,13 @@ class RemoteScheduleRepository
 
             private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
                 val courseCode = fields["CATEGORIES"]?.split("_")[2]
+                val description = fields["DESCRIPTION"]?.processIcsDescription()
 
                 return if (courseCode == null) {
                     CustomSchedule(
                         id = fields["UID"].orEmpty().split("@")[0].toLong(),
                         title = fields["SUMMARY"].orEmpty(),
-                        description = fields["DESCRIPTION"],
+                        description = description,
                         startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime(),
                         endAt = fields["DTEND"].orEmpty().parseUtcToKstLocalDateTime(),
                     )
@@ -255,12 +256,26 @@ class RemoteScheduleRepository
                     CourseSchedule(
                         id = fields["UID"].orEmpty().split("@")[0].toLong(),
                         title = fields["SUMMARY"].orEmpty(),
-                        description = fields["DESCRIPTION"],
+                        description = description,
                         startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime(),
                         endAt = fields["DTEND"].orEmpty().parseUtcToKstLocalDateTime(),
-                        courseCode = fields["CATEGORIES"]?.split("_")[2].orEmpty(),
+                        courseCode = fields["CATEGORIES"]?.split("_")[2].toString(),
                     )
                 }
+            }
+
+            private fun String.processIcsDescription(): String {
+                return this
+                    .replace(Regex("(\\\\n){2,}"), "\\\\n")
+                    .replace(Regex("^(\\\\n)+"), "")
+                    .replace(Regex("(\\\\n)+$"), "")
+                    .replace("\\\\", "\u0001")
+                    .replace("\\n", "\n")
+                    .replace("\\r", "\r")
+                    .replace("\\t", "\t")
+                    .replace("\\;", ";")
+                    .replace("\\,", ",")
+                    .replace("\u0001", "\\")
             }
 
             private fun String.parseUtcToKstLocalDateTime(): LocalDateTime {

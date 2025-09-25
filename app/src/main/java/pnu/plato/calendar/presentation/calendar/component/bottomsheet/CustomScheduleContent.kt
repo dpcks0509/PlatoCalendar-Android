@@ -63,6 +63,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+private const val HAS_NO_TITLE = "제목 없음"
 private const val HAS_NO_DESCRIPTION = "설명 없음"
 
 private enum class PickerTarget { START, END }
@@ -90,28 +91,28 @@ fun CustomScheduleContent(
     val minDate = remember(today) { today.withDayOfMonth(1) }
     val maxDate = remember(today) { today.plusYears(1).minusDays(1) }
 
-    val selectableDates = remember(minDate, maxDate) {
-        object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                val date = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
-                val notBefore = !date.isBefore(minDate)
-                val notAfter = !date.isAfter(maxDate)
-                return notBefore && notAfter
-            }
+    val selectableDates =
+        remember(minDate, maxDate) {
+            object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    val date = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
+                    val notBefore = !date.isBefore(minDate)
+                    val notAfter = !date.isAfter(maxDate)
+                    return notBefore && notAfter
+                }
 
-            override fun isSelectableYear(year: Int): Boolean {
-                return year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
             }
         }
-    }
 
     fun initialMillisFor(dateTime: LocalDateTime): Long {
         val date = dateTime.toLocalDate()
-        val clamped = when {
-            date.isBefore(minDate) -> minDate
-            date.isAfter(maxDate) -> maxDate
-            else -> date
-        }
+        val clamped =
+            when {
+                date.isBefore(minDate) -> minDate
+                date.isAfter(maxDate) -> maxDate
+                else -> date
+            }
 
         return clamped.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
     }
@@ -147,6 +148,7 @@ fun CustomScheduleContent(
 
         ActionButton(
             text = "수정",
+            enabled = title.isNotEmpty(),
             onClick = {
                 editSchedule(
                     CustomSchedule(
@@ -187,7 +189,19 @@ fun CustomScheduleContent(
 
         TextField(
             value = title,
-            onValueChange = { title = it },
+            onValueChange = { newValue ->
+                val filteredValue = newValue.replace("\n", "")
+                if (filteredValue.length <= 67) {
+                    title = filteredValue
+                }
+            },
+            placeholder = {
+                Text(
+                    text = HAS_NO_TITLE,
+                    fontSize = 16.sp,
+                    color = Gray,
+                )
+            },
             textStyle =
                 TextStyle(
                     fontSize = 20.sp,
@@ -204,7 +218,7 @@ fun CustomScheduleContent(
                     focusedIndicatorColor = Color.Transparent,
                     cursorColor = schedule.color,
                 ),
-            maxLines = 3
+            maxLines = 3,
         )
     }
 
@@ -234,7 +248,12 @@ fun CustomScheduleContent(
 
             TextField(
                 value = description,
-                onValueChange = { description = it },
+                onValueChange = { newValue ->
+                    val filteredValue = newValue.replace("\n", "")
+                    if (filteredValue.length <= 63) {
+                        description = filteredValue
+                    }
+                },
                 placeholder = {
                     Text(
                         text = HAS_NO_DESCRIPTION,
@@ -257,7 +276,7 @@ fun CustomScheduleContent(
                         focusedIndicatorColor = Color.Transparent,
                         cursorColor = schedule.color,
                     ),
-                maxLines = 3,
+                maxLines = 5,
             )
         }
 
@@ -290,19 +309,19 @@ fun CustomScheduleContent(
                 Text(
                     text = formattedStartYear,
                     fontSize = 14.sp,
-                    color = Gray
+                    color = Gray,
                 )
                 Text(
                     text = formattedStartDate,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Black
+                    color = Black,
                 )
                 Text(
                     text = formattedStartTime,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Black
+                    color = Black,
                 )
             }
 
@@ -331,19 +350,19 @@ fun CustomScheduleContent(
                 Text(
                     text = formattedEndYear,
                     fontSize = 14.sp,
-                    color = Gray
+                    color = Gray,
                 )
                 Text(
                     text = formattedEndDate,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Black
+                    color = Black,
                 )
                 Text(
                     text = formattedEndTime,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Black
+                    color = Black,
                 )
             }
         }
@@ -462,9 +481,10 @@ fun CustomScheduleContent(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val updated = initialDateTime
-                            .withHour(timeState.hour)
-                            .withMinute(timeState.minute)
+                        val updated =
+                            initialDateTime
+                                .withHour(timeState.hour)
+                                .withMinute(timeState.minute)
                         if (target == PickerTarget.START) {
                             startAt = updated
                             if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)

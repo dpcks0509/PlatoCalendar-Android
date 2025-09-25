@@ -59,6 +59,7 @@ fun NewScheduleContent(
 
         ActionButton(
             text = "저장",
+            enabled = title.isNotEmpty(),
             onClick = {
                 makeSchedule(
                     NewSchedule(
