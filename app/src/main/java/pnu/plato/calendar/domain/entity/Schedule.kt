@@ -17,6 +17,7 @@ sealed class Schedule {
         abstract val description: String?
         abstract val startAt: LocalDateTime
         abstract val endAt: LocalDateTime
+        abstract val isCompleted: Boolean
 
         data class CourseSchedule(
             override val id: Long,
@@ -24,6 +25,7 @@ sealed class Schedule {
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
+            override val isCompleted: Boolean,
             val courseCode: String,
         ) : PersonalSchedule()
 
@@ -33,6 +35,7 @@ sealed class Schedule {
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
+            override val isCompleted: Boolean,
         ) : PersonalSchedule()
     }
 

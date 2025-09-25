@@ -26,6 +26,7 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.White
@@ -51,7 +52,7 @@ fun ScheduleItem(
     } else {
         LazyColumn(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             items(items = schedules) { schedule ->
                 when (schedule) {
@@ -79,7 +80,7 @@ fun AcademicScheduleItem(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .background(schedule.color)
-                .clickable { onScheduleClick(schedule) }
+                .noRippleClickable { onScheduleClick(schedule) }
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(
@@ -102,7 +103,7 @@ private fun PersonalScheduleItem(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .background(schedule.color)
-                .clickable { onScheduleClick(schedule) }
+                .noRippleClickable { onScheduleClick(schedule) }
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(
@@ -145,6 +146,7 @@ fun ScheduleItemPreview() {
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
                     courseName = "운영체제",
+                    isCompleted = false,
                 ),
                 CourseScheduleUiModel(
                     id = 0L,
@@ -153,6 +155,7 @@ fun ScheduleItemPreview() {
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
                     courseName = "네트워크",
+                    isCompleted = false,
                 ),
                 CustomScheduleUiModel(
                     id = 0L,
@@ -160,6 +163,7 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
+                    isCompleted = false,
                 ),
                 CustomScheduleUiModel(
                     id = 0L,
@@ -167,6 +171,7 @@ fun ScheduleItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
+                    isCompleted = false,
                 ),
             )
 

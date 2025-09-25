@@ -176,8 +176,7 @@ fun CalendarContent(
             editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
             deleteSchedule = { id -> onEvent(DeleteCustomSchedule(id)) },
             onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
-            modifier = Modifier.fillMaxWidth()
-
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -201,6 +200,7 @@ fun CalendarScreenPreview() {
                     description = "",
                     startAt = LocalDateTime.of(2024, 1, 11, 14, 0),
                     endAt = LocalDateTime.of(2024, 1, 11, 16, 0),
+                    isCompleted = false,
                 ),
             )
 

@@ -1,6 +1,7 @@
 package pnu.plato.calendar.presentation.calendar.component.bottomsheet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.LightGray
+import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.Red
 import pnu.plato.calendar.presentation.common.theme.White
 import java.time.Instant
@@ -80,6 +82,7 @@ fun CustomScheduleContent(
     var description: String by remember { mutableStateOf(schedule.description.orEmpty()) }
     var startAt: LocalDateTime by remember { mutableStateOf(schedule.startAt) }
     var endAt: LocalDateTime by remember { mutableStateOf(schedule.endAt) }
+
     var showDeleteDialog: Boolean by remember { mutableStateOf(false) }
 
     var showStartDatePicker by remember { mutableStateOf(false) }
@@ -157,6 +160,7 @@ fun CustomScheduleContent(
                             description = description,
                             startAt = startAt,
                             endAt = endAt,
+                            isCompleted = schedule.isCompleted,
                         ),
                     )
                 }
@@ -172,7 +176,7 @@ fun CustomScheduleContent(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true)
+                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true, ambientColor = Black, spotColor = Black)
                 .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -230,7 +234,7 @@ fun CustomScheduleContent(
             Modifier
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true)
+                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true, ambientColor = Black, spotColor = Black)
                 .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -302,7 +306,7 @@ fun CustomScheduleContent(
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
                         .background(LightGray)
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 8.dp)
                         .noRippleClickable { showStartDatePicker = true },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -367,23 +371,80 @@ fun CustomScheduleContent(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
     }
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    Text(
-        text = "일정 삭제",
-        fontSize = 14.sp,
-        color = Red,
-        textAlign = TextAlign.Center,
+    Box(
+        modifier =
+            Modifier
+                .padding(12.dp)
+                .fillMaxWidth()
+                .height(80.dp)
+                .border(width = 1.dp, color = Black),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = "광고 공간", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Black)
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Box(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(36.dp)
-                .noRippleClickable { showDeleteDialog = true },
-    )
+                .height(36.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = if (schedule.isCompleted) "완료 해제" else "완료하기",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (schedule.isCompleted) Gray else PrimaryColor,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable {
+                        editSchedule(
+                            CustomSchedule(
+                                id = schedule.id,
+                                title = schedule.title,
+                                description = schedule.description,
+                                startAt = schedule.startAt,
+                                endAt = schedule.endAt,
+                                isCompleted = !schedule.isCompleted,
+                            ),
+                        )
+                    },
+        )
+    }
 
     Spacer(modifier = Modifier.height(12.dp))
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(36.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "일정 삭제",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Red,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable { showDeleteDialog = true },
+        )
+    }
+
+    Spacer(modifier = Modifier.height(18.dp))
 
     if (showDeleteDialog) {
         AlertDialog(

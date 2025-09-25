@@ -1,6 +1,7 @@
 package pnu.plato.calendar.data.remote.repository
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import pnu.plato.calendar.data.remote.service.AcademicScheduleService
 import pnu.plato.calendar.data.remote.service.PersonalScheduleService
@@ -18,6 +19,7 @@ import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.domain.repository.ScheduleRepository
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.Companion.COMPLETE
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import java.net.URLEncoder
 import java.time.LocalDate
@@ -50,10 +52,15 @@ class RemoteScheduleRepository
 
         override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> =
             coroutineScope {
-                val currentMonthSchedules = async { getCurrentMonthPersonalSchedules(sessKey) }.await()
-                val yearSchedules = async { getYearPersonalSchedules(sessKey) }.await()
+                val (currentMonthSchedules, yearSchedules) =
+                    awaitAll(
+                        async { getCurrentMonthPersonalSchedules(sessKey) },
+                        async { getYearPersonalSchedules(sessKey) },
+                    )
+
                 val personalSchedules =
-                    (currentMonthSchedules + yearSchedules).distinctBy { schedule -> schedule.id }
+                    (currentMonthSchedules + yearSchedules)
+                        .distinctBy { schedule -> schedule.id }
 
                 Result.success(personalSchedules)
             }
@@ -99,6 +106,7 @@ class RemoteScheduleRepository
 
             if (loginStatus is LoginStatus.Login) {
                 val sessKey = loginStatus.loginSession.sessKey
+                val title = if (personalSchedule.isCompleted) COMPLETE + personalSchedule.title else personalSchedule.title
 
                 val response =
                     personalScheduleService.updatePersonalSchedule(
@@ -108,7 +116,7 @@ class RemoteScheduleRepository
                                 id = personalSchedule.id,
                                 userId = loginStatus.loginSession.userId,
                                 sessKey = sessKey,
-                                name = personalSchedule.title,
+                                name = title,
                                 startDateTime = personalSchedule.startAt,
                                 endDateTime = personalSchedule.endAt,
                                 description = personalSchedule.description.orEmpty(),
@@ -251,6 +259,7 @@ class RemoteScheduleRepository
                         description = description,
                         startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime(),
                         endAt = fields["DTEND"].orEmpty().parseUtcToKstLocalDateTime(),
+                        isCompleted = fields["SUMMARY"].orEmpty().startsWith(COMPLETE),
                     )
                 } else {
                     CourseSchedule(
@@ -260,12 +269,13 @@ class RemoteScheduleRepository
                         startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime(),
                         endAt = fields["DTEND"].orEmpty().parseUtcToKstLocalDateTime(),
                         courseCode = fields["CATEGORIES"]?.split("_")[2].toString(),
+                        isCompleted = fields["SUMMARY"].orEmpty().startsWith(COMPLETE),
                     )
                 }
             }
 
-            private fun String.processIcsDescription(): String {
-                return this
+            private fun String.processIcsDescription(): String =
+                this
                     .replace(Regex("(\\\\n){2,}"), "\\\\n")
                     .replace(Regex("^(\\\\n)+"), "")
                     .replace(Regex("(\\\\n)+$"), "")
@@ -276,7 +286,6 @@ class RemoteScheduleRepository
                     .replace("\\;", ";")
                     .replace("\\,", ",")
                     .replace("\u0001", "\\")
-            }
 
             private fun String.parseUtcToKstLocalDateTime(): LocalDateTime {
                 val year = substring(0, 4).toInt()

@@ -102,11 +102,11 @@ fun DayItem(
             val daySchedules =
                 daySchedule.schedules
                     .filter { schedule ->
-                        !(schedule is PersonalScheduleUiModel && schedule.isComplete)
+                        !(schedule is PersonalScheduleUiModel && schedule.isCompleted)
                     }.sortedBy { schedule ->
                         when (schedule) {
                             is AcademicScheduleUiModel -> 0
-                            is PersonalScheduleUiModel -> if (!schedule.isComplete) 1 else 2
+                            is PersonalScheduleUiModel -> if (!schedule.isCompleted) 1 else 2
                         }
                     }.take(MAX_SCHEDULES_SIZE)
 
@@ -118,7 +118,7 @@ fun DayItem(
                     Box(
                         modifier =
                             Modifier
-                                .size(4.5.dp)
+                                .size(5.dp)
                                 .clip(CircleShape)
                                 .background(schedule.color.let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) }),
                     )
@@ -157,6 +157,7 @@ fun DayItemPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
+                    isCompleted = false,
                 ),
             )
 

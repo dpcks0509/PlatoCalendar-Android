@@ -6,9 +6,9 @@ import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.common.theme.CalendarFlamingo
-import pnu.plato.calendar.presentation.common.theme.CalendarGraphite
 import pnu.plato.calendar.presentation.common.theme.CalendarLavender
 import pnu.plato.calendar.presentation.common.theme.CalendarSage
+import pnu.plato.calendar.presentation.common.theme.MediumGray
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -34,12 +34,11 @@ sealed class ScheduleUiModel {
 
     sealed class PersonalScheduleUiModel : ScheduleUiModel() {
         abstract val id: Long
+        abstract override val title: String
         abstract val description: String?
         abstract val startAt: LocalDateTime
         abstract val endAt: LocalDateTime
-        abstract override val title: String
-
-        val isComplete: Boolean get() = title.startsWith(COMPLETE)
+        abstract val isCompleted: Boolean
 
         val deadLine: String
             get() = endAt.format(TIME_FORMATTER) + " 까지"
@@ -50,6 +49,7 @@ sealed class ScheduleUiModel {
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
+            override val isCompleted: Boolean,
             val courseName: String,
         ) : PersonalScheduleUiModel() {
             constructor(domain: PersonalSchedule.CourseSchedule, courseName: String) : this(
@@ -58,12 +58,13 @@ sealed class ScheduleUiModel {
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
+                isCompleted = domain.isCompleted,
                 courseName = courseName,
             )
 
             override val color: Color
                 @Composable get() =
-                    if (!isComplete) CalendarSage else CalendarGraphite
+                    if (!isCompleted) CalendarSage else MediumGray
         }
 
         data class CustomScheduleUiModel(
@@ -72,6 +73,7 @@ sealed class ScheduleUiModel {
             override val description: String?,
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
+            override val isCompleted: Boolean,
         ) : PersonalScheduleUiModel() {
             constructor(domain: CustomSchedule) : this(
                 id = domain.id,
@@ -79,11 +81,12 @@ sealed class ScheduleUiModel {
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
+                isCompleted = domain.isCompleted,
             )
 
             override val color: Color
                 @Composable get() =
-                    if (!isComplete) CalendarFlamingo else CalendarGraphite
+                    if (!isCompleted) CalendarFlamingo else MediumGray
         }
 
         companion object {

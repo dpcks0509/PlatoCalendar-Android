@@ -49,6 +49,7 @@ fun WeekItemPreview() {
                     description = "",
                     startAt = LocalDateTime.of(2024, 1, 7 + index, 10, 0),
                     endAt = LocalDateTime.of(2024, 1, 7 + index, 12, 0),
+                    isCompleted = false
                 )
             }
 

@@ -79,6 +79,7 @@ fun CalendarPreview() {
                     description = "",
                     startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
                     endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
+                    isCompleted = false
                 ),
             )
 

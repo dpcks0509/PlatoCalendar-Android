@@ -15,66 +15,66 @@ import javax.inject.Singleton
 
 @Singleton
 class LoginManager
-@Inject
-constructor(
-    private val loginRepository: LoginRepository,
-    private val loginCredentialsDataStore: LoginCredentialsDataStore,
-) {
-    private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Uninitialized)
-    val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
+    @Inject
+    constructor(
+        private val loginRepository: LoginRepository,
+        private val loginCredentialsDataStore: LoginCredentialsDataStore,
+    ) {
+        private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Uninitialized)
+        val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
-    suspend fun autoLogin(): Boolean {
-        val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
+        suspend fun autoLogin(): Boolean {
+            val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
-        if (loginCredentials != null) {
-            loginRepository
-                .login(loginCredentials)
-                .onSuccess { loginSession ->
-                    _loginStatus.update { LoginStatus.Login(loginSession) }
+            if (loginCredentials != null) {
+                loginRepository
+                    .login(loginCredentials)
+                    .onSuccess { loginSession ->
+                        _loginStatus.update { LoginStatus.Login(loginSession) }
 
-                    return true
-                }.onFailure { throwable ->
-                    ErrorEventBus.sendError(throwable.message)
-                }
-        } else {
-            _loginStatus.update { LoginStatus.Logout }
+                        return true
+                    }.onFailure { throwable ->
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+            } else {
+                _loginStatus.update { LoginStatus.Logout }
+            }
+
+            return false
         }
 
-        return false
-    }
+        suspend fun login(credentials: LoginCredentials): Boolean {
+            if (loginStatus.value !is LoginStatus.Login) {
+                loginRepository
+                    .login(credentials)
+                    .onSuccess { loginSession ->
+                        _loginStatus.update { LoginStatus.Login(loginSession) }
+                        loginCredentialsDataStore.saveLoginCredentials(credentials)
 
-    suspend fun login(credentials: LoginCredentials): Boolean {
-        if (loginStatus.value is LoginStatus.Logout) {
-            loginRepository
-                .login(credentials)
-                .onSuccess { loginSession ->
-                    _loginStatus.update { LoginStatus.Login(loginSession) }
-                    loginCredentialsDataStore.saveLoginCredentials(credentials)
-
-                    return true
-                }.onFailure { throwable ->
-                    ErrorEventBus.sendError(throwable.message)
-                }
-        }
-        return false
-    }
-
-    suspend fun logout(): Boolean {
-        val loginStatus = this@LoginManager.loginStatus.value
-
-        if (loginStatus is LoginStatus.Login) {
-            loginRepository
-                .logout(sessKey = loginStatus.loginSession.sessKey)
-                .onSuccess {
-                    _loginStatus.update { LoginStatus.Logout }
-                    loginCredentialsDataStore.deleteLoginCredentials()
-
-                    return true
-                }.onFailure { throwable ->
-                    ErrorEventBus.sendError(throwable.message)
-                }
+                        return true
+                    }.onFailure { throwable ->
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+            }
+            return false
         }
 
-        return false
+        suspend fun logout(): Boolean {
+            val loginStatus = this@LoginManager.loginStatus.value
+
+            if (loginStatus is LoginStatus.Login) {
+                loginRepository
+                    .logout(sessKey = loginStatus.loginSession.sessKey)
+                    .onSuccess {
+                        _loginStatus.update { LoginStatus.Logout }
+                        loginCredentialsDataStore.deleteLoginCredentials()
+
+                        return true
+                    }.onFailure { throwable ->
+                        ErrorEventBus.sendError(throwable.message)
+                    }
+            }
+
+            return false
+        }
     }
-}

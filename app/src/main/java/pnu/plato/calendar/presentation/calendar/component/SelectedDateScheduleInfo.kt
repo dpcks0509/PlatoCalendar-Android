@@ -119,6 +119,7 @@ fun SelectedDateScheduleInfoPreview() {
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
                     courseName = "CB20125",
+                    isCompleted = false
                 ),
                 CourseScheduleUiModel(
                     id = 0L,
@@ -127,6 +128,7 @@ fun SelectedDateScheduleInfoPreview() {
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
                     courseName = "DS20438",
+                    isCompleted = false
                 ),
                 CustomScheduleUiModel(
                     id = 0L,
@@ -134,6 +136,7 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
+                    isCompleted = false
                 ),
                 CustomScheduleUiModel(
                     id = 0L,
@@ -141,6 +144,7 @@ fun SelectedDateScheduleInfoPreview() {
                     description = "",
                     startAt = LocalDateTime.now(),
                     endAt = LocalDateTime.now(),
+                    isCompleted = false
                 ),
             )
 
