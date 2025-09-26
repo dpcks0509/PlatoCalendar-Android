@@ -37,4 +37,9 @@ sealed interface CalendarEvent : UiEvent {
     ) : CalendarEvent
 
     data object HideScheduleBottomSheet : CalendarEvent
+
+    data class TogglePersonalScheduleCompletion(
+        val id: Long,
+        val isCompleted: Boolean,
+    ) : CalendarEvent
 }

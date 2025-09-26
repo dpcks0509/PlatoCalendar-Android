@@ -53,6 +53,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideSchedul
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
@@ -214,6 +215,7 @@ fun CalendarContent(
             makeSchedule = { schedule -> onEvent(MakeCustomSchedule(schedule)) },
             editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
             deleteSchedule = { id -> onEvent(DeleteCustomSchedule(id)) },
+            toggleScheduleCompletion = { id, isCompleted -> onEvent(TogglePersonalScheduleCompletion(id, isCompleted)) },
             onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
             modifier = Modifier.fillMaxWidth(),
         )

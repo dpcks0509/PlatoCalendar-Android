@@ -78,6 +78,7 @@ fun CustomScheduleContent(
     adView: AdView,
     editSchedule: (CustomSchedule) -> Unit,
     deleteSchedule: (Long) -> Unit,
+    toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     var title: String by remember { mutableStateOf(schedule.title) }
@@ -412,16 +413,7 @@ fun CustomScheduleContent(
                 Modifier
                     .fillMaxWidth()
                     .noRippleClickable {
-                        editSchedule(
-                            CustomSchedule(
-                                id = schedule.id,
-                                title = schedule.title,
-                                description = schedule.description,
-                                startAt = schedule.startAt,
-                                endAt = schedule.endAt,
-                                isCompleted = !schedule.isCompleted,
-                            ),
-                        )
+                        toggleScheduleCompletion(schedule.id, !schedule.isCompleted)
                     },
         )
     }

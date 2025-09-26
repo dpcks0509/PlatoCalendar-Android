@@ -29,6 +29,7 @@ fun ScheduleBottomSheet(
     makeSchedule: (NewSchedule) -> Unit,
     editSchedule: (CustomSchedule) -> Unit,
     deleteSchedule: (Long) -> Unit,
+    toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -57,7 +58,7 @@ fun ScheduleBottomSheet(
                     CourseScheduleContent(
                         schedule = content.schedule,
                         adView = adView,
-                        editSchedule = editSchedule,
+                        toggleScheduleCompletion = toggleScheduleCompletion,
                         onDismissRequest = onDismissRequest,
                     )
 
@@ -67,6 +68,7 @@ fun ScheduleBottomSheet(
                         adView = adView,
                         editSchedule = editSchedule,
                         deleteSchedule = deleteSchedule,
+                        toggleScheduleCompletion = toggleScheduleCompletion,
                         onDismissRequest = onDismissRequest,
                     )
 

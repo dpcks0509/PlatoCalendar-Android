@@ -35,7 +35,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
-import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
@@ -53,7 +52,7 @@ private const val HAS_NO_DESCRIPTION = "설명 없음"
 fun CourseScheduleContent(
     schedule: CourseScheduleUiModel,
     adView: AdView,
-    editSchedule: (CustomSchedule) -> Unit,
+    toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
@@ -320,16 +319,7 @@ fun CourseScheduleContent(
                 Modifier
                     .fillMaxWidth()
                     .noRippleClickable {
-                        editSchedule(
-                            CustomSchedule(
-                                id = schedule.id,
-                                title = schedule.title,
-                                description = schedule.description,
-                                startAt = schedule.startAt,
-                                endAt = schedule.endAt,
-                                isCompleted = !schedule.isCompleted,
-                            ),
-                        )
+                        toggleScheduleCompletion(schedule.id, !schedule.isCompleted)
                     },
         )
     }

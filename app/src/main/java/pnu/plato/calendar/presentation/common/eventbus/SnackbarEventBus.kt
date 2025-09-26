@@ -1,11 +1,7 @@
 package pnu.plato.calendar.presentation.common.eventbus
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import pnu.plato.calendar.presentation.common.theme.PrimaryColor
-import pnu.plato.calendar.presentation.common.theme.Red
 
 object SnackbarEventBus {
     private val _snackbarMessage = MutableSharedFlow<SnackbarMessage>()

@@ -27,6 +27,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideSchedul
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
@@ -88,6 +89,8 @@ class CalendarViewModel
                 is EditCustomSchedule -> editCustomSchedule(event.schedule)
 
                 is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
+
+                is TogglePersonalScheduleCompletion -> togglePersonalScheduleCompletion(event.id, event.isCompleted)
 
                 is UpdateSelectedDate -> {
                     val previousSelectedDate = state.value.selectedDate
@@ -287,6 +290,68 @@ class CalendarViewModel
 
                     setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                     SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
+                }.onFailure { throwable ->
+                    SnackbarEventBus.sendError(throwable.message)
+                }
+        }
+
+        private suspend fun togglePersonalScheduleCompletion(
+            id: Long,
+            isCompleted: Boolean,
+        ) {
+            val currentSchedule =
+                state.value.schedules
+                    .filterIsInstance<PersonalScheduleUiModel>()
+                    .find { it.id == id } ?: return
+
+            val personalSchedule =
+                when (currentSchedule) {
+                    is CourseScheduleUiModel -> {
+                        val courseCode = courseRepository.getCourseCode(currentSchedule.courseName)
+
+                        CourseSchedule(
+                            id = currentSchedule.id,
+                            title = currentSchedule.title,
+                            description = currentSchedule.description,
+                            startAt = currentSchedule.startAt,
+                            endAt = currentSchedule.endAt,
+                            isCompleted = isCompleted,
+                            courseCode = courseCode,
+                        )
+                    }
+
+                    is CustomScheduleUiModel ->
+                        CustomSchedule(
+                            id = currentSchedule.id,
+                            title = currentSchedule.title,
+                            description = currentSchedule.description,
+                            startAt = currentSchedule.startAt,
+                            endAt = currentSchedule.endAt,
+                            isCompleted = isCompleted,
+                        )
+                }
+
+            scheduleRepository
+                .editPersonalSchedule(personalSchedule)
+                .onSuccess {
+                    setState {
+                        copy(
+                            schedules =
+                                schedules.map { schedule ->
+                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                                        when (schedule) {
+                                            is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                                            is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                                        }
+                                    } else {
+                                        schedule
+                                    }
+                                },
+                        )
+                    }
+
+                    setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
+                    SnackbarEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정 완료가 해제되었습니다.")
                 }.onFailure { throwable ->
                     SnackbarEventBus.sendError(throwable.message)
                 }

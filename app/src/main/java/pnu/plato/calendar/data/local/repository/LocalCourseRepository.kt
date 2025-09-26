@@ -31,4 +31,12 @@ class LocalCourseRepository
                     (course.key.substring(0, 4) + course.key.substring(6, 9) == courseCode)
                 }?.value
                 .orEmpty()
+
+        override fun getCourseCode(courseName: String): String =
+            courses.entries
+                .find { course ->
+                    course.value == courseName
+                }?.let { course ->
+                    course.key.substring(0, 4) + course.key.substring(6, 9)
+                }.orEmpty()
     }
