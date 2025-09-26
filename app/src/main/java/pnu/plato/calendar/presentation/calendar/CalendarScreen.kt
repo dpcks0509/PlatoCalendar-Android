@@ -16,20 +16,29 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import pnu.plato.calendar.BuildConfig.BANNER_AD_UNIT_ID
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
@@ -76,6 +85,28 @@ fun CalendarScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+    val adView =
+        remember {
+            AdView(context).apply {
+                adUnitId = BANNER_AD_UNIT_ID
+                val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, 360)
+                setAdSize(adSize)
+
+                adListener =
+                    object : AdListener() {
+                        override fun onAdLoaded() {}
+
+                        override fun onAdFailedToLoad(error: LoadAdError) {}
+
+                        override fun onAdImpression() {}
+
+                        override fun onAdClicked() {}
+                    }
+            }
+        }
+    val adRequest = AdRequest.Builder().build()
+
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
@@ -91,11 +122,17 @@ fun CalendarScreen(
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == SheetValue.Hidden) {
             viewModel.setEvent(HideScheduleBottomSheet)
+            adView.loadAd(adRequest)
         }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { adView.destroy() }
     }
 
     CalendarContent(
         state = state,
+        adView = adView,
         pagerState = pagerState,
         sheetState = sheetState,
         coroutineScope = coroutineScope,
@@ -109,6 +146,7 @@ fun CalendarScreen(
 @Composable
 fun CalendarContent(
     state: CalendarState,
+    adView: AdView,
     pagerState: PagerState,
     sheetState: SheetState,
     coroutineScope: CoroutineScope,
@@ -171,6 +209,7 @@ fun CalendarContent(
     if (state.isScheduleBottomSheetVisible) {
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
+            adView = adView,
             sheetState = sheetState,
             makeSchedule = { schedule -> onEvent(MakeCustomSchedule(schedule)) },
             editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
@@ -218,6 +257,8 @@ fun CalendarScreenPreview() {
                 }.toMutableStateList()
             }
 
+        val context = LocalContext.current
+
         CalendarContent(
             state =
                 CalendarState(
@@ -226,6 +267,7 @@ fun CalendarScreenPreview() {
                     isScheduleBottomSheetVisible = false,
                     scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
                 ),
+            adView = remember { AdView(context) },
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             sheetState = rememberModalBottomSheetState(),
             coroutineScope = rememberCoroutineScope(),

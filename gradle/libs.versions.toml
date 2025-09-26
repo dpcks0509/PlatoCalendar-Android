@@ -21,6 +21,7 @@ serialization = "1.6.3"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 retrofitKotlinxSerialization = "1.0.0"
+admob = "24.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +54,7 @@ retrofit-converter-kotlinx-serialization = { group = "com.jakewharton.retrofit",
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+google-admob = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

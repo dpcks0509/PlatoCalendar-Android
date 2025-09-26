@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
@@ -23,6 +24,7 @@ import pnu.plato.calendar.presentation.common.theme.White
 @Composable
 fun ScheduleBottomSheet(
     content: ScheduleBottomSheetContent?,
+    adView: AdView,
     sheetState: SheetState,
     makeSchedule: (NewSchedule) -> Unit,
     editSchedule: (CustomSchedule) -> Unit,
@@ -47,12 +49,14 @@ fun ScheduleBottomSheet(
                 is AcademicScheduleContent ->
                     AcademicScheduleContent(
                         schedule = content.schedule,
+                        adView = adView,
                         onDismissRequest = onDismissRequest,
                     )
 
                 is CourseScheduleContent ->
                     CourseScheduleContent(
                         schedule = content.schedule,
+                        adView = adView,
                         editSchedule = editSchedule,
                         onDismissRequest = onDismissRequest,
                     )
@@ -60,6 +64,7 @@ fun ScheduleBottomSheet(
                 is CustomScheduleContent ->
                     CustomScheduleContent(
                         schedule = content.schedule,
+                        adView = adView,
                         editSchedule = editSchedule,
                         deleteSchedule = deleteSchedule,
                         onDismissRequest = onDismissRequest,
@@ -67,6 +72,7 @@ fun ScheduleBottomSheet(
 
                 is NewScheduleContent ->
                     NewScheduleContent(
+                        adView = adView,
                         makeSchedule = makeSchedule,
                         onDismissRequest = onDismissRequest,
                     )

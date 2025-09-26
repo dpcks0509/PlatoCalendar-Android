@@ -1,7 +1,6 @@
 package pnu.plato.calendar.presentation.calendar.component.bottomsheet
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,9 +46,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
+import pnu.plato.calendar.presentation.common.advertisement.BannerAd
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
@@ -70,6 +71,7 @@ private const val DESCRIPTION = "설명"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewScheduleContent(
+    adView: AdView,
     makeSchedule: (NewSchedule) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -100,8 +102,7 @@ fun NewScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean =
-                    year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
             }
         }
 
@@ -152,7 +153,7 @@ fun NewScheduleContent(
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = White,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         ActionButton(
@@ -185,9 +186,8 @@ fun NewScheduleContent(
                     shape = RoundedCornerShape(16.dp),
                     clip = true,
                     ambientColor = Black,
-                    spotColor = Black
-                )
-                .background(White),
+                    spotColor = Black,
+                ).background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -249,9 +249,8 @@ fun NewScheduleContent(
                     shape = RoundedCornerShape(16.dp),
                     clip = true,
                     ambientColor = Black,
-                    spotColor = Black
-                )
-                .background(White)
+                    spotColor = Black,
+                ).background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -391,17 +390,10 @@ fun NewScheduleContent(
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    Box(
-        modifier =
-            Modifier
-                .padding(12.dp)
-                .fillMaxWidth()
-                .height(80.dp)
-                .border(width = 1.dp, color = Black),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = "광고 공간", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Black)
-    }
+    BannerAd(
+        adView = adView,
+        modifier = Modifier.fillMaxWidth(),
+    )
 
     Spacer(modifier = Modifier.height(24.dp))
 

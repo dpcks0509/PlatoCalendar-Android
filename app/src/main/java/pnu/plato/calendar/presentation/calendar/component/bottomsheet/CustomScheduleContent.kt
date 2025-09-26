@@ -1,7 +1,6 @@
 package pnu.plato.calendar.presentation.calendar.component.bottomsheet
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,10 +47,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pnu.plato.calendar.presentation.common.advertisement.BannerAd
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
@@ -74,6 +75,7 @@ private const val HAS_NO_DESCRIPTION = "설명 없음"
 @Composable
 fun CustomScheduleContent(
     schedule: CustomScheduleUiModel,
+    adView: AdView,
     editSchedule: (CustomSchedule) -> Unit,
     deleteSchedule: (Long) -> Unit,
     onDismissRequest: () -> Unit,
@@ -386,17 +388,10 @@ fun CustomScheduleContent(
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    Box(
-        modifier =
-            Modifier
-                .padding(12.dp)
-                .fillMaxWidth()
-                .height(80.dp)
-                .border(width = 1.dp, color = Black),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = "광고 공간", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Black)
-    }
+    BannerAd(
+        adView = adView,
+        modifier = Modifier.fillMaxWidth(),
+    )
 
     Spacer(modifier = Modifier.height(12.dp))
 

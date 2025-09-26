@@ -30,10 +30,17 @@ android {
 
         buildConfigField("String", "PLATO_BASE_URL", localProperties.getProperty("plato.base.url"))
         buildConfigField("String", "PNU_BASE_URL", localProperties.getProperty("pnu.base.url"))
+        buildConfigField("String", "ADMOB_APP_ID", localProperties.getProperty("admob.app.id"))
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BANNER_AD_UNIT_ID", localProperties.getProperty("banner.ad.sample.id"))
+        }
+
         release {
+            buildConfigField("String", "BANNER_AD_UNIT_ID", localProperties.getProperty("banner.ad.unit.id"))
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -73,6 +80,7 @@ dependencies {
     implementation(libs.bundles.network)
     implementation(libs.bundles.coil)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.google.admob)
 
     kapt(libs.bundles.hilt.kapt)
 }
