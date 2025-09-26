@@ -50,7 +50,7 @@ import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
-import pnu.plato.calendar.presentation.common.advertisement.BannerAd
+import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray

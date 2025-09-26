@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
-import pnu.plato.calendar.presentation.common.advertisement.BannerAd
+import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray

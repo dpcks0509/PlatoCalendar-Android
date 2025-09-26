@@ -7,18 +7,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
+import pnu.plato.calendar.presentation.common.component.AnimatedToast
+import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
@@ -58,25 +62,33 @@ class PlatoCalendarActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             LaunchedEffect(Unit) {
-                ErrorEventBus.errorMessage.collect {
-                    // TODO - Show Error Toast
+                SnackbarEventBus.snackbarMessage.collect { event ->
                 }
             }
 
             PlatoCalendarTheme {
-                Scaffold(
-                    bottomBar = {
-                        PlatoCalendarBottomBar(navController = navController)
-                    },
-                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
-                    modifier = Modifier.fillMaxSize(),
-                ) { paddingValues ->
-                    PlatoCalendarNavHost(
-                        navController = navController,
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Scaffold(
+                        bottomBar = {
+                            PlatoCalendarBottomBar(navController = navController)
+                        },
+                        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                        modifier = Modifier.fillMaxSize(),
+                    ) { paddingValues ->
+                        PlatoCalendarNavHost(
+                            navController = navController,
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(paddingValues),
+                        )
+                    }
+
+                    AnimatedToast(
                         modifier =
                             Modifier
-                                .fillMaxSize()
-                                .padding(paddingValues),
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter),
                     )
                 }
             }

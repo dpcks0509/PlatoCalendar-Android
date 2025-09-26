@@ -9,7 +9,7 @@ import pnu.plato.calendar.data.local.database.LoginCredentialsDataStore
 import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.repository.LoginRepository
-import pnu.plato.calendar.presentation.common.eventbus.ErrorEventBus
+import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,7 +34,7 @@ class LoginManager
 
                         return true
                     }.onFailure { throwable ->
-                        ErrorEventBus.sendError(throwable.message)
+                        SnackbarEventBus.sendError(throwable.message)
                     }
             } else {
                 _loginStatus.update { LoginStatus.Logout }
@@ -51,9 +51,10 @@ class LoginManager
                         _loginStatus.update { LoginStatus.Login(loginSession) }
                         loginCredentialsDataStore.saveLoginCredentials(credentials)
 
+                        SnackbarEventBus.sendSuccess("로그인에 성공했습니다.")
                         return true
                     }.onFailure { throwable ->
-                        ErrorEventBus.sendError(throwable.message)
+                        SnackbarEventBus.sendError(throwable.message)
                     }
             }
             return false
@@ -69,9 +70,10 @@ class LoginManager
                         _loginStatus.update { LoginStatus.Logout }
                         loginCredentialsDataStore.deleteLoginCredentials()
 
+                        SnackbarEventBus.sendSuccess("로그아웃에 성공했습니다.")
                         return true
                     }.onFailure { throwable ->
-                        ErrorEventBus.sendError(throwable.message)
+                        SnackbarEventBus.sendError(throwable.message)
                     }
             }
 

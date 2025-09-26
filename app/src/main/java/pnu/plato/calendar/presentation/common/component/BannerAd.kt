@@ -1,4 +1,4 @@
-package pnu.plato.calendar.presentation.common.advertisement
+package pnu.plato.calendar.presentation.common.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
