@@ -21,26 +21,23 @@ fun PlatoCalendarNavHost(
     NavHost(
         navController = navController,
         startDestination = CalendarScreen,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable<CalendarScreen> {
             CalendarScreen(
-                navController = navController,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
         composable<ToDoScreen> {
             ToDoScreen(
-                navController = navController,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
         composable<SettingScreen> {
             SettingScreen(
-                navController = navController,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
