@@ -125,15 +125,16 @@ private fun PersonalScheduleItem(
                 .noRippleClickable { onScheduleClick(schedule) }
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
+        val title = schedule.title.run {
+            if (schedule is CourseScheduleUiModel) {
+                if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
+            } else {
+                this
+            }
+        }
+
         Text(
-            text =
-                schedule.title.run {
-                    if (schedule is CourseScheduleUiModel) {
-                        if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
-                    } else {
-                        this
-                    }
-                },
+            text = title,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = White,
