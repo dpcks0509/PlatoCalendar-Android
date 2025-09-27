@@ -357,6 +357,45 @@ class CalendarViewModel
                 }
         }
 
+    private fun updateSchedules() {
+        val groupedByDate: Map<LocalDate, List<ScheduleUiModel>> =
+            state.value.schedules.groupBy { schedule ->
+                when (schedule) {
+                    is AcademicScheduleUiModel -> schedule.endAt
+                    is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
+                }
+            }
+
+        monthlySchedules.values.forEach { monthSchedule ->
+            monthSchedule.forEach { weekSchedule ->
+                weekSchedule.forEachIndexed { index, daySchedule ->
+                    val newSchedules = groupedByDate[daySchedule?.date].orEmpty()
+                    if (daySchedule?.schedules != newSchedules) {
+                        weekSchedule[index] = daySchedule?.copy(schedules = newSchedules)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deselectDate(date: LocalDate) {
+        monthlySchedules.values.flatten().forEach { weekSchedule ->
+            weekSchedule.find { it?.date == date }?.let { matched ->
+                val index = weekSchedule.indexOf(matched)
+                weekSchedule[index] = matched.copy(isSelected = false)
+            }
+        }
+    }
+
+    private fun selectDate(date: LocalDate) {
+        monthlySchedules.values.flatten().forEach { weekSchedule ->
+            weekSchedule.find { it?.date == date }?.let { matched ->
+                val index = weekSchedule.indexOf(matched)
+                weekSchedule[index] = matched.copy(isSelected = true)
+            }
+        }
+    }
+
         private fun getMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> =
             monthlyDates.getOrPut(yearMonth) {
                 generateMonthDate(yearMonth)
@@ -417,44 +456,5 @@ class CalendarViewModel
                 isInMonth = isInMonth,
                 schedules = daySchedules,
             )
-        }
-
-        private fun updateSchedules() {
-            val groupedByDate: Map<LocalDate, List<ScheduleUiModel>> =
-                state.value.schedules.groupBy { schedule ->
-                    when (schedule) {
-                        is AcademicScheduleUiModel -> schedule.endAt
-                        is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
-                    }
-                }
-
-            monthlySchedules.values.forEach { monthSchedule ->
-                monthSchedule.forEach { weekSchedule ->
-                    weekSchedule.forEachIndexed { index, daySchedule ->
-                        val newSchedules = groupedByDate[daySchedule?.date].orEmpty()
-                        if (daySchedule?.schedules != newSchedules) {
-                            weekSchedule[index] = daySchedule?.copy(schedules = newSchedules)
-                        }
-                    }
-                }
-            }
-        }
-
-        private fun deselectDate(date: LocalDate) {
-            monthlySchedules.values.flatten().forEach { weekSchedule ->
-                weekSchedule.find { it?.date == date }?.let { matched ->
-                    val index = weekSchedule.indexOf(matched)
-                    weekSchedule[index] = matched.copy(isSelected = false)
-                }
-            }
-        }
-
-        private fun selectDate(date: LocalDate) {
-            monthlySchedules.values.flatten().forEach { weekSchedule ->
-                weekSchedule.find { it?.date == date }?.let { matched ->
-                    val index = weekSchedule.indexOf(matched)
-                    weekSchedule[index] = matched.copy(isSelected = true)
-                }
-            }
         }
     }
