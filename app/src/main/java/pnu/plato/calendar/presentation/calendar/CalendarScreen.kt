@@ -65,7 +65,6 @@ import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
-import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -137,7 +136,7 @@ fun CalendarScreen(
         coroutineScope = coroutineScope,
         getMonthSchedule = viewModel::getMonthSchedule,
         onEvent = viewModel::setEvent,
-        modifier = modifier.background(White),
+        modifier = modifier,
     )
 }
 
@@ -213,7 +212,14 @@ fun CalendarContent(
             makeSchedule = { schedule -> onEvent(MakeCustomSchedule(schedule)) },
             editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
             deleteSchedule = { id -> onEvent(DeleteCustomSchedule(id)) },
-            toggleScheduleCompletion = { id, isCompleted -> onEvent(TogglePersonalScheduleCompletion(id, isCompleted)) },
+            toggleScheduleCompletion = { id, isCompleted ->
+                onEvent(
+                    TogglePersonalScheduleCompletion(
+                        id,
+                        isCompleted
+                    )
+                )
+            },
             onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
             modifier = Modifier.fillMaxWidth(),
         )

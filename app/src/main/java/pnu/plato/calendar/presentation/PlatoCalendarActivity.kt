@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
+import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -80,6 +82,7 @@ class PlatoCalendarActivity : ComponentActivity() {
                             modifier =
                                 Modifier
                                     .fillMaxSize()
+                                    .background(White)
                                     .padding(paddingValues),
                         )
                     }
