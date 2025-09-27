@@ -11,8 +11,7 @@ import pnu.plato.calendar.presentation.common.theme.CalendarSage
 import pnu.plato.calendar.presentation.common.theme.MediumGray
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 
 sealed class ScheduleUiModel {
     abstract val title: String
@@ -41,7 +40,7 @@ sealed class ScheduleUiModel {
         abstract val isCompleted: Boolean
 
         val deadLine: String
-            get() = endAt.format(TIME_FORMATTER) + " 까지"
+            get() = endAt.formatTimeWithMidnightSpecialCase() + " 까지"
 
         data class CourseScheduleUiModel(
             override val id: Long,
@@ -91,8 +90,6 @@ sealed class ScheduleUiModel {
 
         companion object {
             const val COMPLETE = "(완료) "
-            private val TIME_FORMATTER =
-                DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
         }
     }
 }

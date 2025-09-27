@@ -53,6 +53,7 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
+import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
@@ -124,11 +125,10 @@ fun CustomScheduleContent(
     }
 
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
-    val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
     val formattedStartDate = remember(startAt) { startAt.format(dateFormatter) }
-    val formattedStartTime = remember(startAt) { startAt.format(timeFormatter) }
+    val formattedStartTime = remember(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
     val formattedEndDate = remember(endAt) { endAt.format(dateFormatter) }
-    val formattedEndTime = remember(endAt) { endAt.format(timeFormatter) }
+    val formattedEndTime = remember(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
     val formattedStartYear = remember(startAt) { "${startAt.year}년" }
     val formattedEndYear = remember(endAt) { "${endAt.year}년" }
 
@@ -188,7 +188,13 @@ fun CustomScheduleContent(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true, ambientColor = Black, spotColor = Black)
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    clip = true,
+                    ambientColor = Black,
+                    spotColor = Black
+                )
                 .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -246,7 +252,13 @@ fun CustomScheduleContent(
             Modifier
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = true, ambientColor = Black, spotColor = Black)
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    clip = true,
+                    ambientColor = Black,
+                    spotColor = Black
+                )
                 .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

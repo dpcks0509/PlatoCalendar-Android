@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
+import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
@@ -56,11 +57,10 @@ fun CourseScheduleContent(
     onDismissRequest: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
-    val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
     val formattedStartDate = schedule.startAt.format(dateFormatter)
-    val formattedStartTime = schedule.startAt.format(timeFormatter)
+    val formattedStartTime = schedule.startAt.formatTimeWithMidnightSpecialCase()
     val formattedEndDate = schedule.endAt.format(dateFormatter)
-    val formattedEndTime = schedule.endAt.format(timeFormatter)
+    val formattedEndTime = schedule.endAt.formatTimeWithMidnightSpecialCase()
     val formattedStartYear = "${schedule.startAt.year}년"
     val formattedEndYear = "${schedule.endAt.year}년"
 
@@ -107,7 +107,8 @@ fun CourseScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -159,7 +160,8 @@ fun CourseScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

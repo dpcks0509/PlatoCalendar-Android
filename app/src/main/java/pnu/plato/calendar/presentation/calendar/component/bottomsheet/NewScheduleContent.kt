@@ -51,6 +51,7 @@ import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.common.component.BannerAd
+import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
@@ -119,11 +120,10 @@ fun NewScheduleContent(
     }
 
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
-    val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
     val formattedStartDate = remember(startAt) { startAt.format(dateFormatter) }
-    val formattedStartTime = remember(startAt) { startAt.format(timeFormatter) }
+    val formattedStartTime = remember(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
     val formattedEndDate = remember(endAt) { endAt.format(dateFormatter) }
-    val formattedEndTime = remember(endAt) { endAt.format(timeFormatter) }
+    val formattedEndTime = remember(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
     val formattedStartYear = remember(startAt) { "${startAt.year}년" }
     val formattedEndYear = remember(endAt) { "${endAt.year}년" }
 
@@ -187,7 +187,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -250,7 +251,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
