@@ -45,291 +45,296 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel
-    @Inject
-    constructor(
-        private val loginManager: LoginManager,
-        private val scheduleRepository: ScheduleRepository,
-        private val courseRepository: CourseRepository,
-        private val calendarScheduleManager: CalendarScheduleManager,
-    ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
-            initialState = CalendarState(isLoading = true),
-        ) {
-        init {
-            viewModelScope.launch {
-                launch {
-                    loginManager.loginStatus.collect { loginStatus ->
-                        getSchedules()
-                    }
+@Inject
+constructor(
+    private val loginManager: LoginManager,
+    private val scheduleRepository: ScheduleRepository,
+    private val courseRepository: CourseRepository,
+    private val calendarScheduleManager: CalendarScheduleManager,
+) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
+    initialState = CalendarState(isLoading = true),
+) {
+    init {
+        viewModelScope.launch {
+            launch {
+                loginManager.loginStatus.collect { loginStatus ->
+                    getSchedules()
                 }
+            }
 
-                launch {
-                    calendarScheduleManager.schedules.collect { schedules ->
-                        setState { copy(schedules = schedules) }
-                    }
+            launch {
+                calendarScheduleManager.schedules.collect { schedules ->
+                    setState { copy(schedules = schedules) }
                 }
             }
         }
+    }
 
-        override suspend fun handleEvent(event: CalendarEvent) {
-            when (event) {
-                MoveToToday -> {
-                    val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
+    override suspend fun handleEvent(event: CalendarEvent) {
+        when (event) {
+            MoveToToday -> {
+                val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
 
-                    calendarScheduleManager.updateSelectedDate(today)
+                calendarScheduleManager.updateSelectedDate(today)
 
-                    setState {
-                        copy(
-                            selectedDate = today,
-                            currentYearMonth = todayYearMonth,
-                        )
-                    }
+                setState {
+                    copy(
+                        selectedDate = today,
+                        currentYearMonth = todayYearMonth,
+                    )
                 }
-
-                is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
-
-                is EditCustomSchedule -> editCustomSchedule(event.schedule)
-
-                is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
-
-                is TogglePersonalScheduleCompletion -> togglePersonalScheduleCompletion(event.id, event.isCompleted)
-
-                is UpdateSelectedDate -> {
-                    calendarScheduleManager.updateSelectedDate(event.date)
-                    setState { copy(selectedDate = event.date) }
-                }
-
-                is UpdateCurrentYearMonth -> {
-                    setState { copy(currentYearMonth = event.yearMonth) }
-                }
-
-                is UpdateSchedules -> updateSchedules()
-
-                is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
-
-                is HideScheduleBottomSheet ->
-                    setState {
-                        copy(
-                            scheduleBottomSheetContent = null,
-                            isScheduleBottomSheetVisible = false,
-                        )
-                    }
             }
-        }
 
-        fun getMonthSchedule(yearMonth: YearMonth): List<List<DaySchedule?>> = calendarScheduleManager.getMonthSchedule(yearMonth)
+            is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
 
-        private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
-            scheduleRepository
-                .getAcademicSchedules()
-                .onSuccess {
-                    val academicSchedules = it.map(::AcademicScheduleUiModel)
+            is EditCustomSchedule -> editCustomSchedule(event.schedule)
 
-                    return academicSchedules
-                }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
+            is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
+
+            is TogglePersonalScheduleCompletion -> togglePersonalScheduleCompletion(
+                event.id,
+                event.isCompleted
+            )
+
+            is UpdateSelectedDate -> {
+                calendarScheduleManager.updateSelectedDate(event.date)
+                setState { copy(selectedDate = event.date) }
+            }
+
+            is UpdateCurrentYearMonth -> {
+                setState { copy(currentYearMonth = event.yearMonth) }
+            }
+
+            is UpdateSchedules -> updateSchedules()
+
+            is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
+
+            is HideScheduleBottomSheet ->
+                setState {
+                    copy(
+                        scheduleBottomSheetContent = null,
+                        isScheduleBottomSheetVisible = false,
+                    )
                 }
-
-            return emptyList()
         }
+    }
 
-        private suspend fun getPersonalSchedules(sessKey: String): List<ScheduleUiModel> {
-            scheduleRepository
-                .getPersonalSchedules(sessKey = sessKey)
-                .onSuccess {
-                    val personalSchedules =
-                        it.map { domain ->
-                            when (domain) {
-                                is CourseSchedule -> {
-                                    val courseName =
-                                        courseRepository.getCourseName(
-                                            domain.courseCode,
-                                        )
+    fun getMonthSchedule(yearMonth: YearMonth): List<List<DaySchedule?>> =
+        calendarScheduleManager.getMonthSchedule(yearMonth)
 
-                                    CourseScheduleUiModel(
-                                        domain = domain,
-                                        courseName = courseName,
+    private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
+        scheduleRepository
+            .getAcademicSchedules()
+            .onSuccess {
+                val academicSchedules = it.map(::AcademicScheduleUiModel)
+
+                return academicSchedules
+            }.onFailure { throwable ->
+                SnackbarEventBus.sendError(throwable.message)
+            }
+
+        return emptyList()
+    }
+
+    private suspend fun getPersonalSchedules(sessKey: String): List<ScheduleUiModel> {
+        scheduleRepository
+            .getPersonalSchedules(sessKey = sessKey)
+            .onSuccess {
+                val personalSchedules =
+                    it.map { domain ->
+                        when (domain) {
+                            is CourseSchedule -> {
+                                val courseName =
+                                    courseRepository.getCourseName(
+                                        domain.courseCode,
                                     )
-                                }
 
-                                is CustomSchedule -> CustomScheduleUiModel(domain)
+                                CourseScheduleUiModel(
+                                    domain = domain,
+                                    courseName = courseName,
+                                )
                             }
+
+                            is CustomSchedule -> CustomScheduleUiModel(domain)
                         }
-
-                    return personalSchedules
-                }.onFailure { throwable ->
-                    setState {
-                        copy(isLoading = false)
                     }
 
-                    SnackbarEventBus.sendError(throwable.message)
+                return personalSchedules
+            }.onFailure { throwable ->
+                setState {
+                    copy(isLoading = false)
                 }
 
-            return emptyList()
-        }
+                SnackbarEventBus.sendError(throwable.message)
+            }
 
-        private fun getSchedules() {
-            viewModelScope.launch {
-                when (val loginStatus = loginManager.loginStatus.value) {
-                    is LoginStatus.Login -> {
-                        setState { copy(isLoading = true) }
+        return emptyList()
+    }
 
-                        val (academicSchedules, personalSchedules) =
-                            awaitAll(
-                                async { getAcademicSchedules() },
-                                async { getPersonalSchedules(loginStatus.loginSession.sessKey) },
-                            )
+    private fun getSchedules() {
+        viewModelScope.launch {
+            when (val loginStatus = loginManager.loginStatus.value) {
+                is LoginStatus.Login -> {
+                    setState { copy(isLoading = true) }
 
-                        val schedules = academicSchedules + personalSchedules
+                    val (academicSchedules, personalSchedules) =
+                        awaitAll(
+                            async { getAcademicSchedules() },
+                            async { getPersonalSchedules(loginStatus.loginSession.sessKey) },
+                        )
 
-                        calendarScheduleManager.updateSchedules(schedules)
-                        setState { copy(isLoading = false) }
-                    }
+                    val schedules = academicSchedules + personalSchedules
 
-                    LoginStatus.Logout -> {
-                        setState { copy(isLoading = true) }
-
-                        val academicSchedules = getAcademicSchedules()
-
-                        calendarScheduleManager.updateSchedules(academicSchedules)
-                        setState { copy(isLoading = false) }
-                    }
-
-                    LoginStatus.Uninitialized -> Unit
+                    calendarScheduleManager.updateSchedules(schedules)
+                    setState { copy(isLoading = false) }
                 }
+
+                LoginStatus.Logout -> {
+                    setState { copy(isLoading = true) }
+
+                    val academicSchedules = getAcademicSchedules()
+
+                    calendarScheduleManager.updateSchedules(academicSchedules)
+                    setState { copy(isLoading = false) }
+                }
+
+                LoginStatus.Uninitialized -> Unit
             }
         }
+    }
 
-        private suspend fun makeCustomSchedule(newSchedule: NewSchedule) {
-            scheduleRepository
-                .makeCustomSchedule(newSchedule)
-                .onSuccess { id ->
-                    val customSchedule =
-                        CustomScheduleUiModel(
-                            id = id,
-                            title = newSchedule.title,
-                            description = newSchedule.description,
-                            startAt = newSchedule.startAt,
-                            endAt = newSchedule.endAt,
-                            isCompleted = false,
-                        )
-                    val updatedSchedules = state.value.schedules + customSchedule
-                    calendarScheduleManager.updateSchedules(updatedSchedules)
+    private suspend fun makeCustomSchedule(newSchedule: NewSchedule) {
+        scheduleRepository
+            .makeCustomSchedule(newSchedule)
+            .onSuccess { id ->
+                val customSchedule =
+                    CustomScheduleUiModel(
+                        id = id,
+                        title = newSchedule.title,
+                        description = newSchedule.description,
+                        startAt = newSchedule.startAt,
+                        endAt = newSchedule.endAt,
+                        isCompleted = false,
+                    )
+                val updatedSchedules = state.value.schedules + customSchedule
+                calendarScheduleManager.updateSchedules(updatedSchedules)
 
-                    setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
-                    SnackbarEventBus.sendSuccess("일정이 생성되었습니다.")
-                }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
-                }
-        }
+                setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
+                SnackbarEventBus.sendSuccess("일정이 생성되었습니다.")
+            }.onFailure { throwable ->
+                SnackbarEventBus.sendError(throwable.message)
+            }
+    }
 
-        private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
-            scheduleRepository
-                .editPersonalSchedule(customSchedule)
-                .onSuccess {
-                    val updatedSchedules =
-                        state.value.schedules.map { schedule ->
-                            if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
-                                schedule.copy(
-                                    title = customSchedule.title,
-                                    description = customSchedule.description,
-                                    startAt = customSchedule.startAt,
-                                    endAt = customSchedule.endAt,
-                                    isCompleted = customSchedule.isCompleted,
-                                )
-                            } else {
-                                schedule
-                            }
+    private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
+        scheduleRepository
+            .editPersonalSchedule(customSchedule)
+            .onSuccess {
+                val updatedSchedules =
+                    state.value.schedules.map { schedule ->
+                        if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
+                            schedule.copy(
+                                title = customSchedule.title,
+                                description = customSchedule.description,
+                                startAt = customSchedule.startAt,
+                                endAt = customSchedule.endAt,
+                                isCompleted = customSchedule.isCompleted,
+                            )
+                        } else {
+                            schedule
                         }
-                    calendarScheduleManager.updateSchedules(updatedSchedules)
-
-                    setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
-                    SnackbarEventBus.sendSuccess("일정이 수정되었습니다.")
-                }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
-                }
-        }
-
-        private suspend fun deleteCustomSchedule(id: Long) {
-            scheduleRepository
-                .deleteCustomSchedule(id)
-                .onSuccess {
-                    val updatedSchedules =
-                        state.value.schedules.filter { schedule ->
-                            !(schedule is PersonalScheduleUiModel && schedule.id == id)
-                        }
-                    calendarScheduleManager.updateSchedules(updatedSchedules)
-
-                    setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
-                    SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
-                }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
-                }
-        }
-
-        private suspend fun togglePersonalScheduleCompletion(
-            id: Long,
-            isCompleted: Boolean,
-        ) {
-            val currentSchedule =
-                state.value.schedules
-                    .filterIsInstance<PersonalScheduleUiModel>()
-                    .find { it.id == id } ?: return
-
-            val personalSchedule =
-                when (currentSchedule) {
-                    is CourseScheduleUiModel -> {
-                        val courseCode = courseRepository.getCourseCode(currentSchedule.courseName)
-
-                        CourseSchedule(
-                            id = currentSchedule.id,
-                            title = currentSchedule.title,
-                            description = currentSchedule.description,
-                            startAt = currentSchedule.startAt,
-                            endAt = currentSchedule.endAt,
-                            isCompleted = isCompleted,
-                            courseCode = courseCode,
-                        )
                     }
+                calendarScheduleManager.updateSchedules(updatedSchedules)
 
-                    is CustomScheduleUiModel ->
-                        CustomSchedule(
-                            id = currentSchedule.id,
-                            title = currentSchedule.title,
-                            description = currentSchedule.description,
-                            startAt = currentSchedule.startAt,
-                            endAt = currentSchedule.endAt,
-                            isCompleted = isCompleted,
-                        )
+                setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
+                SnackbarEventBus.sendSuccess("일정이 수정되었습니다.")
+            }.onFailure { throwable ->
+                SnackbarEventBus.sendError(throwable.message)
+            }
+    }
+
+    private suspend fun deleteCustomSchedule(id: Long) {
+        scheduleRepository
+            .deleteCustomSchedule(id)
+            .onSuccess {
+                val updatedSchedules =
+                    state.value.schedules.filter { schedule ->
+                        !(schedule is PersonalScheduleUiModel && schedule.id == id)
+                    }
+                calendarScheduleManager.updateSchedules(updatedSchedules)
+
+                setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
+                SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
+            }.onFailure { throwable ->
+                SnackbarEventBus.sendError(throwable.message)
+            }
+    }
+
+    private suspend fun togglePersonalScheduleCompletion(
+        id: Long,
+        isCompleted: Boolean,
+    ) {
+        val currentSchedule =
+            state.value.schedules
+                .filterIsInstance<PersonalScheduleUiModel>()
+                .find { it.id == id } ?: return
+
+        val personalSchedule =
+            when (currentSchedule) {
+                is CourseScheduleUiModel -> {
+                    val courseCode = courseRepository.getCourseCode(currentSchedule.courseName)
+
+                    CourseSchedule(
+                        id = currentSchedule.id,
+                        title = currentSchedule.title,
+                        description = currentSchedule.description,
+                        startAt = currentSchedule.startAt,
+                        endAt = currentSchedule.endAt,
+                        isCompleted = isCompleted,
+                        courseCode = courseCode,
+                    )
                 }
 
-            scheduleRepository
-                .editPersonalSchedule(personalSchedule)
-                .onSuccess {
-                    val updatedSchedules =
-                        state.value.schedules.map { schedule ->
-                            if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                                when (schedule) {
-                                    is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                    is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                }
-                            } else {
-                                schedule
+                is CustomScheduleUiModel ->
+                    CustomSchedule(
+                        id = currentSchedule.id,
+                        title = currentSchedule.title,
+                        description = currentSchedule.description,
+                        startAt = currentSchedule.startAt,
+                        endAt = currentSchedule.endAt,
+                        isCompleted = isCompleted,
+                    )
+            }
+
+        scheduleRepository
+            .editPersonalSchedule(personalSchedule)
+            .onSuccess {
+                val updatedSchedules =
+                    state.value.schedules.map { schedule ->
+                        if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                            when (schedule) {
+                                is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                                is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
                             }
+                        } else {
+                            schedule
                         }
-                    calendarScheduleManager.updateSchedules(updatedSchedules)
+                    }
+                calendarScheduleManager.updateSchedules(updatedSchedules)
 
-                    setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
-                    SnackbarEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
-                }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
-                }
-        }
+                setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
+                SnackbarEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
+            }.onFailure { throwable ->
+                SnackbarEventBus.sendError(throwable.message)
+            }
+    }
 
-        private fun updateSchedules() {
-            calendarScheduleManager.updateSchedules(state.value.schedules)
-        }
+    private fun updateSchedules() {
+        calendarScheduleManager.updateSchedules(state.value.schedules)
+    }
 
-        private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
+    private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
+        if (loginManager.loginStatus.value is LoginStatus.Login) {
             val content: ScheduleBottomSheetContent =
                 when (val schedule = event.schedule) {
                     is CourseScheduleUiModel -> CourseScheduleContent(schedule)
@@ -344,5 +349,8 @@ class CalendarViewModel
                     isScheduleBottomSheetVisible = true,
                 )
             }
+        } else {
+            // TODO 로그인
         }
     }
+}
