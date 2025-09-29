@@ -129,7 +129,7 @@ fun ToDoScreen(
             selectedDate = selectedDateForSheet,
             adView = adView,
             sheetState = sheetState,
-            makeSchedule = { /* not used in ToDo */ },
+            makeSchedule = { Unit },
             editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },
             deleteSchedule = { id -> viewModel.setEvent(DeleteCustomSchedule(id)) },
             toggleScheduleCompletion = { id, completed ->

@@ -12,7 +12,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -129,23 +128,41 @@ fun CalendarScreen(
 
     CalendarContent(
         state = state,
-        adView = adView,
         pagerState = pagerState,
-        sheetState = sheetState,
         coroutineScope = coroutineScope,
         getMonthSchedule = viewModel::getMonthSchedule,
         onEvent = viewModel::setEvent,
         modifier = modifier,
     )
+
+    if (state.isScheduleBottomSheetVisible) {
+        ScheduleBottomSheet(
+            content = state.scheduleBottomSheetContent,
+            selectedDate = state.selectedDate,
+            adView = adView,
+            sheetState = sheetState,
+            makeSchedule = { schedule -> viewModel.setEvent(MakeCustomSchedule(schedule)) },
+            editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },
+            deleteSchedule = { id -> viewModel.setEvent(DeleteCustomSchedule(id)) },
+            toggleScheduleCompletion = { id, isCompleted ->
+                viewModel.setEvent(
+                    TogglePersonalScheduleCompletion(
+                        id,
+                        isCompleted,
+                    ),
+                )
+            },
+            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarContent(
     state: CalendarState,
-    adView: AdView,
     pagerState: PagerState,
-    sheetState: SheetState,
     coroutineScope: CoroutineScope,
     getMonthSchedule: (YearMonth) -> List<List<DaySchedule?>>,
     onEvent: (CalendarEvent) -> Unit,
@@ -202,28 +219,6 @@ fun CalendarContent(
             )
         }
     }
-
-    if (state.isScheduleBottomSheetVisible) {
-        ScheduleBottomSheet(
-            content = state.scheduleBottomSheetContent,
-            selectedDate = state.selectedDate,
-            adView = adView,
-            sheetState = sheetState,
-            makeSchedule = { schedule -> onEvent(MakeCustomSchedule(schedule)) },
-            editSchedule = { schedule -> onEvent(EditCustomSchedule(schedule)) },
-            deleteSchedule = { id -> onEvent(DeleteCustomSchedule(id)) },
-            toggleScheduleCompletion = { id, isCompleted ->
-                onEvent(
-                    TogglePersonalScheduleCompletion(
-                        id,
-                        isCompleted,
-                    ),
-                )
-            },
-            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -263,8 +258,6 @@ fun CalendarScreenPreview() {
                 }.toMutableStateList()
             }
 
-        val context = LocalContext.current
-
         CalendarContent(
             state =
                 CalendarState(
@@ -273,9 +266,7 @@ fun CalendarScreenPreview() {
                     isScheduleBottomSheetVisible = false,
                     scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
                 ),
-            adView = remember { AdView(context) },
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            sheetState = rememberModalBottomSheetState(),
             coroutineScope = rememberCoroutineScope(),
             getMonthSchedule = { yearMonth -> monthSchedule },
             onEvent = {},
