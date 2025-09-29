@@ -35,6 +35,7 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -130,11 +131,22 @@ fun ToDoScheduleItem(
 private fun dateRange(schedule: ScheduleUiModel): String =
     when (schedule) {
         is AcademicScheduleUiModel -> formatDateRange(schedule.startAt, schedule.endAt)
-        is PersonalScheduleUiModel -> formatDateRange(
-            schedule.startAt.toLocalDate(),
-            schedule.endAt.toLocalDate()
-        )
+        is PersonalScheduleUiModel -> remainingTimePersonal(schedule.endAt)
     }
+
+private fun remainingTimePersonal(
+    endAt: LocalDateTime,
+): String {
+    val duration = Duration.between(LocalDateTime.now(), endAt)
+    val totalHours = duration.toHours()
+    val days = totalHours / 24
+    val hours = totalHours % 24
+    val minutes = duration.toMinutes() % 60
+    return if (duration.isNegative) "마감 지남"
+    else if (days > 0) "${days}일 ${hours}시간 남음"
+    else if (hours > 0) "${hours}시간 ${minutes}분 남음"
+    else "${minutes}분 남음"
+}
 
 private fun formatDateRange(startAt: LocalDate, endAt: LocalDate): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
