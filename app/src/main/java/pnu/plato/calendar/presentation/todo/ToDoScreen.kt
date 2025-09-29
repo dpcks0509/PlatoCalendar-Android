@@ -9,9 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -48,7 +47,6 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.todo.component.ExpandableSection
-import pnu.plato.calendar.presentation.todo.component.Section
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
@@ -57,6 +55,7 @@ import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomS
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect
 import pnu.plato.calendar.presentation.todo.intent.ToDoState
+import pnu.plato.calendar.presentation.todo.model.ToDoSection
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -153,9 +152,12 @@ fun ToDoContent(
     val customSchedules = state.customSchedules
     val academicSchedules = state.academicSchedules
 
-    var expandedSection by rememberSaveable { mutableStateOf<Section?>(Section.WITHIN_7_DAYS) }
+    var expandedToDoSection by rememberSaveable { mutableStateOf<ToDoSection?>(ToDoSection.WITHIN_7_DAYS) }
+    val coroutineScope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
 
     LazyColumn(
+        state = lazyListState,
         modifier =
             modifier
                 .padding(horizontal = 16.dp)
@@ -181,78 +183,28 @@ fun ToDoContent(
             }
         }
 
-        item {
+        items(ToDoSection.entries.toList()) { section ->
+            val schedules = when (section) {
+                ToDoSection.WITHIN_7_DAYS -> within7Days
+                ToDoSection.COMPLETED -> completedSchedules
+                ToDoSection.COURSE -> courseSchedules
+                ToDoSection.CUSTOM -> customSchedules
+                ToDoSection.ACADEMIC -> academicSchedules
+            }
+
             ExpandableSection(
-                section = Section.WITHIN_7_DAYS,
-                icon = Icons.Default.DateRange,
-                items = within7Days,
-                isExpanded = expandedSection == Section.WITHIN_7_DAYS,
-                onSectionClick = { section ->
-                    expandedSection = if (expandedSection == section) null else section
+                toDoSection = section,
+                items = schedules,
+                isExpanded = expandedToDoSection == section,
+                onSectionClick = { clickedSection ->
+                    expandedToDoSection =
+                        if (expandedToDoSection == clickedSection) null else {
+                            coroutineScope.launch { lazyListState.scrollToItem(0) }
+                            clickedSection
+                        }
                 },
                 toggleCompletion = { id, completed ->
                     onEvent(TogglePersonalScheduleCompletion(id, completed))
-                },
-                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-            )
-        }
-
-        item {
-            ExpandableSection(
-                section = Section.COMPLETED,
-                icon = Icons.Default.CheckCircle,
-                items = completedSchedules,
-                isExpanded = expandedSection == Section.COMPLETED,
-                onSectionClick = { section ->
-                    expandedSection = if (expandedSection == section) null else section
-                },
-                toggleCompletion = { id, completed ->
-                    onEvent(TogglePersonalScheduleCompletion(id, completed))
-                },
-                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-            )
-        }
-
-        item {
-            ExpandableSection(
-                section = Section.COURSE,
-                icon = Icons.Default.DateRange,
-                items = courseSchedules,
-                isExpanded = expandedSection == Section.COURSE,
-                onSectionClick = { section ->
-                    expandedSection = if (expandedSection == section) null else section
-                },
-                toggleCompletion = { id, completed ->
-                    onEvent(TogglePersonalScheduleCompletion(id, completed))
-                },
-                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-            )
-        }
-
-        item {
-            ExpandableSection(
-                section = Section.CUSTOM,
-                icon = Icons.Default.DateRange,
-                items = customSchedules,
-                isExpanded = expandedSection == Section.CUSTOM,
-                onSectionClick = { section ->
-                    expandedSection = if (expandedSection == section) null else section
-                },
-                toggleCompletion = { id, completed ->
-                    onEvent(TogglePersonalScheduleCompletion(id, completed))
-                },
-                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-            )
-        }
-
-        item {
-            ExpandableSection(
-                section = Section.ACADEMIC,
-                icon = Icons.Default.DateRange,
-                items = academicSchedules,
-                isExpanded = expandedSection == Section.ACADEMIC,
-                onSectionClick = { section ->
-                    expandedSection = if (expandedSection == section) null else section
                 },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )

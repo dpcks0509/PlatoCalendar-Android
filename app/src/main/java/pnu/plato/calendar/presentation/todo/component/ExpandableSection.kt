@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,24 +29,16 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
+import pnu.plato.calendar.presentation.todo.model.ToDoSection
 
 private const val HAS_NO_SCHEDULE = "일정 없음"
 
-enum class Section(val displayName: String) {
-    WITHIN_7_DAYS("7일 이내"),
-    COMPLETED("완료"),
-    COURSE("강의 일정"),
-    CUSTOM("개인 일정"),
-    ACADEMIC("학사 일정"),
-}
-
 @Composable
 fun ExpandableSection(
-    section: Section,
-    icon: ImageVector,
+    toDoSection: ToDoSection,
     items: List<ScheduleUiModel>,
     isExpanded: Boolean,
-    onSectionClick: (Section) -> Unit,
+    onSectionClick: (ToDoSection) -> Unit,
     toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
     onScheduleClick: (ScheduleUiModel) -> Unit = {},
 ) {
@@ -63,14 +54,14 @@ fun ExpandableSection(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .noRippleClickable { onSectionClick(section) }
+                    .noRippleClickable { onSectionClick(toDoSection) }
                     .padding(horizontal = 16.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = PrimaryColor)
+            Icon(imageVector = toDoSection.icon, contentDescription = null, tint = PrimaryColor)
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = section.displayName,
+                text = toDoSection.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = PrimaryColor,
