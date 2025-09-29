@@ -1,10 +1,6 @@
 package pnu.plato.calendar.presentation.todo
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,17 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -36,8 +26,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,15 +42,13 @@ import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
-import pnu.plato.calendar.presentation.common.theme.White
-import pnu.plato.calendar.presentation.todo.component.ToDoScheduleItem
+import pnu.plato.calendar.presentation.todo.component.ExpandableSection
+import pnu.plato.calendar.presentation.todo.component.Section
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
@@ -73,8 +59,6 @@ import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect
 import pnu.plato.calendar.presentation.todo.intent.ToDoState
 import java.time.LocalDate
 import java.time.LocalDateTime
-
-private const val HAS_NO_SCHEDULE = "일정 없음"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,7 +153,7 @@ fun ToDoContent(
     val customSchedules = state.customSchedules
     val academicSchedules = state.academicSchedules
 
-    var expandedSection by rememberSaveable { mutableStateOf<String?>(null) }
+    var expandedSection by rememberSaveable { mutableStateOf<Section?>(Section.WITHIN_7_DAYS) }
 
     LazyColumn(
         modifier =
@@ -199,12 +183,12 @@ fun ToDoContent(
 
         item {
             ExpandableSection(
-                title = "7일 이내",
+                section = Section.WITHIN_7_DAYS,
                 icon = Icons.Default.DateRange,
                 items = within7Days,
-                isExpanded = expandedSection == "7일 이내",
-                onHeaderClick = { title ->
-                    expandedSection = if (expandedSection == title) null else title
+                isExpanded = expandedSection == Section.WITHIN_7_DAYS,
+                onSectionClick = { section ->
+                    expandedSection = if (expandedSection == section) null else section
                 },
                 toggleCompletion = { id, completed ->
                     onEvent(TogglePersonalScheduleCompletion(id, completed))
@@ -215,12 +199,12 @@ fun ToDoContent(
 
         item {
             ExpandableSection(
-                title = "완료",
+                section = Section.COMPLETED,
                 icon = Icons.Default.CheckCircle,
                 items = completedSchedules,
-                isExpanded = expandedSection == "완료",
-                onHeaderClick = { title ->
-                    expandedSection = if (expandedSection == title) null else title
+                isExpanded = expandedSection == Section.COMPLETED,
+                onSectionClick = { section ->
+                    expandedSection = if (expandedSection == section) null else section
                 },
                 toggleCompletion = { id, completed ->
                     onEvent(TogglePersonalScheduleCompletion(id, completed))
@@ -231,12 +215,12 @@ fun ToDoContent(
 
         item {
             ExpandableSection(
-                title = "강의 일정",
+                section = Section.COURSE,
                 icon = Icons.Default.DateRange,
                 items = courseSchedules,
-                isExpanded = expandedSection == "강의 일정",
-                onHeaderClick = { title ->
-                    expandedSection = if (expandedSection == title) null else title
+                isExpanded = expandedSection == Section.COURSE,
+                onSectionClick = { section ->
+                    expandedSection = if (expandedSection == section) null else section
                 },
                 toggleCompletion = { id, completed ->
                     onEvent(TogglePersonalScheduleCompletion(id, completed))
@@ -247,12 +231,12 @@ fun ToDoContent(
 
         item {
             ExpandableSection(
-                title = "개인 일정",
+                section = Section.CUSTOM,
                 icon = Icons.Default.DateRange,
                 items = customSchedules,
-                isExpanded = expandedSection == "개인 일정",
-                onHeaderClick = { title ->
-                    expandedSection = if (expandedSection == title) null else title
+                isExpanded = expandedSection == Section.CUSTOM,
+                onSectionClick = { section ->
+                    expandedSection = if (expandedSection == section) null else section
                 },
                 toggleCompletion = { id, completed ->
                     onEvent(TogglePersonalScheduleCompletion(id, completed))
@@ -263,98 +247,18 @@ fun ToDoContent(
 
         item {
             ExpandableSection(
-                title = "학사 일정",
+                section = Section.ACADEMIC,
                 icon = Icons.Default.DateRange,
                 items = academicSchedules,
-                isExpanded = expandedSection == "학사 일정",
-                onHeaderClick = { title ->
-                    expandedSection = if (expandedSection == title) null else title
+                isExpanded = expandedSection == Section.ACADEMIC,
+                onSectionClick = { section ->
+                    expandedSection = if (expandedSection == section) null else section
                 },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
         item { Spacer(modifier = Modifier.height(24.dp)) }
-    }
-}
-
-@Composable
-private fun ExpandableSection(
-    title: String,
-    icon: ImageVector,
-    items: List<ScheduleUiModel>,
-    isExpanded: Boolean,
-    onHeaderClick: (String) -> Unit,
-    toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
-    onScheduleClick: (ScheduleUiModel) -> Unit = {},
-) {
-    val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .noRippleClickable { onHeaderClick(title) }
-                    .padding(horizontal = 16.dp, vertical = 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(imageVector = icon, contentDescription = null, tint = PrimaryColor)
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = PrimaryColor,
-                modifier = Modifier.weight(1f),
-            )
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
-                tint = PrimaryColor,
-                modifier = Modifier.rotate(rotation),
-            )
-        }
-
-        AnimatedVisibility(visible = isExpanded) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                if (items.isEmpty()) {
-                    Text(
-                        text = HAS_NO_SCHEDULE,
-                        modifier = Modifier.padding(start = 18.dp, bottom = 18.dp),
-                        fontSize = 14.sp,
-                        color = PrimaryColor,
-                    )
-                } else {
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
-                    ) {
-                        items.forEach { schedule ->
-                            ToDoScheduleItem(
-                                schedule = schedule,
-                                toggleCompletion = { id, isCompleted ->
-                                    toggleCompletion(id, isCompleted)
-                                },
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(IntrinsicSize.Min)
-                                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                                        .noRippleClickable { onScheduleClick(schedule) },
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
