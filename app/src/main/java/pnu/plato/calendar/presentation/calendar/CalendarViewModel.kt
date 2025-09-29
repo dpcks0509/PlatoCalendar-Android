@@ -16,6 +16,7 @@ import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBo
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
@@ -103,21 +104,7 @@ class CalendarViewModel
 
                 is UpdateSchedules -> updateSchedules()
 
-                is ShowScheduleBottomSheet ->
-                    setState {
-                        val scheduleBottomSheetContent =
-                            when (event.schedule) {
-                                is AcademicScheduleUiModel -> AcademicScheduleContent(event.schedule)
-                                is CourseScheduleUiModel -> CourseScheduleContent(event.schedule)
-                                is CustomScheduleUiModel -> CustomScheduleContent(event.schedule)
-                                else -> ScheduleBottomSheetContent.NewScheduleContent
-                            }
-
-                        copy(
-                            scheduleBottomSheetContent = scheduleBottomSheetContent,
-                            isScheduleBottomSheetVisible = true,
-                        )
-                    }
+                is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
 
                 is HideScheduleBottomSheet ->
                     setState {
@@ -340,5 +327,22 @@ class CalendarViewModel
 
         private fun updateSchedules() {
             calendarScheduleManager.updateSchedules(state.value.schedules)
+        }
+
+        private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
+            val content: ScheduleBottomSheetContent =
+                when (val schedule = event.schedule) {
+                    is CourseScheduleUiModel -> CourseScheduleContent(schedule)
+                    is CustomScheduleUiModel -> CustomScheduleContent(schedule)
+                    is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
+                    null -> NewScheduleContent
+                }
+
+            setState {
+                copy(
+                    scheduleBottomSheetContent = content,
+                    isScheduleBottomSheetVisible = true,
+                )
+            }
         }
     }

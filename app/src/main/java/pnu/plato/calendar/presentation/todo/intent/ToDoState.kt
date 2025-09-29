@@ -5,6 +5,7 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.common.base.UiState
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -12,6 +13,8 @@ import java.time.temporal.ChronoUnit
 
 data class ToDoState(
     val schedules: List<ScheduleUiModel> = emptyList(),
+    val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
+    val isScheduleBottomSheetVisible: Boolean = false,
 ) : UiState {
     private val currentTime = LocalDateTime.now()
     private val today = LocalDate.now()

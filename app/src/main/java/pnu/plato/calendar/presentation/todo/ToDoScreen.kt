@@ -39,6 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import pnu.plato.calendar.BuildConfig
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
@@ -49,12 +57,26 @@ import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import pnu.plato.calendar.presentation.todo.component.ToDoScheduleItem
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
+import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
+import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
+import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.HideScheduleBottomSheet
+import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
+import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
+import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect
 import pnu.plato.calendar.presentation.todo.intent.ToDoState
 import java.time.LocalDate
 import java.time.LocalDateTime
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SheetValue
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 private const val HAS_NO_SCHEDULE = "일정 없음"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToDoScreen(
     modifier: Modifier = Modifier,
@@ -62,11 +84,44 @@ fun ToDoScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val adView =
+        remember {
+            AdView(context).apply {
+                adUnitId = BuildConfig.BANNER_AD_UNIT_ID
+                val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, 360)
+                setAdSize(adSize)
+
+                adListener =
+                    object : AdListener() {
+                        override fun onAdLoaded() {}
+
+                        override fun onAdFailedToLoad(error: LoadAdError) {}
+
+                        override fun onAdImpression() {}
+
+                        override fun onAdClicked() {}
+                    }
+            }
+        }
+    val adRequest = remember { AdRequest.Builder().build() }
+
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
-                else -> Unit // TODO
+                ToDoSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
+                else -> Unit
             }
+        }
+    }
+
+    LaunchedEffect(sheetState.currentValue) {
+        if (sheetState.currentValue == SheetValue.Hidden) {
+            viewModel.setEvent(HideScheduleBottomSheet)
+            adView.loadAd(adRequest)
         }
     }
 
@@ -75,6 +130,31 @@ fun ToDoScreen(
         onEvent = viewModel::setEvent,
         modifier = modifier,
     )
+
+    if (state.isScheduleBottomSheetVisible) {
+        val selectedDateForSheet =
+            when (val c = state.scheduleBottomSheetContent) {
+                is ScheduleBottomSheetContent.AcademicScheduleContent -> c.schedule.endAt
+                is ScheduleBottomSheetContent.CourseScheduleContent -> c.schedule.endAt.toLocalDate()
+                is ScheduleBottomSheetContent.CustomScheduleContent -> c.schedule.endAt.toLocalDate()
+                else -> LocalDate.now()
+            }
+
+        ScheduleBottomSheet(
+            content = state.scheduleBottomSheetContent,
+            selectedDate = selectedDateForSheet,
+            adView = adView,
+            sheetState = sheetState,
+            makeSchedule = { /* not used in ToDo */ },
+            editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },
+            deleteSchedule = { id -> viewModel.setEvent(DeleteCustomSchedule(id)) },
+            toggleScheduleCompletion = { id, completed ->
+                viewModel.setEvent(TogglePersonalScheduleCompletion(id, completed))
+            },
+            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
 
 @Composable
@@ -124,6 +204,7 @@ fun ToDoContent(
                     onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
                 },
                 initiallyExpanded = true,
+                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
@@ -135,6 +216,7 @@ fun ToDoContent(
                 toggleCompletion = { id, completed ->
                     onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
                 },
+                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
@@ -146,6 +228,7 @@ fun ToDoContent(
                 toggleCompletion = { id, completed ->
                     onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
                 },
+                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
@@ -157,6 +240,7 @@ fun ToDoContent(
                 toggleCompletion = { id, completed ->
                     onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
                 },
+                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
@@ -165,6 +249,7 @@ fun ToDoContent(
                 title = "학사 일정",
                 icon = Icons.Default.DateRange,
                 items = academicSchedules,
+                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
@@ -181,6 +266,7 @@ private fun ExpandableSection(
     items: List<ScheduleUiModel>,
     toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
     initiallyExpanded: Boolean = false,
+    onScheduleClick: (ScheduleUiModel) -> Unit = {},
 ) {
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
     val rotation by animateFloatAsState(if (expanded) 180f else 0f, label = "rotation")
@@ -245,7 +331,8 @@ private fun ExpandableSection(
                                     Modifier
                                         .fillMaxWidth()
                                         .height(IntrinsicSize.Min)
-                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                                        .noRippleClickable { onScheduleClick(schedule) },
                             )
                         }
                     }
