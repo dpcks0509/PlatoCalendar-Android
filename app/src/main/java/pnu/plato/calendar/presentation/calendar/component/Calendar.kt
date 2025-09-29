@@ -8,7 +8,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +31,7 @@ const val MAX_DAY_SIZE = 7
 @Composable
 fun Calendar(
     pagerState: PagerState,
-    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule?>>,
+    getMonthSchedule: (YearMonth) -> List<List<DaySchedule?>>,
     onDateClick: (LocalDate) -> Unit,
     onMonthSwipe: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
@@ -46,8 +48,8 @@ fun Calendar(
         beyondViewportPageCount = 1,
         modifier = modifier,
     ) { page ->
-        val yearMonth = baseYearMonth.plusMonths(page)
-        val monthSchedule = getMonthSchedule(yearMonth)
+        val yearMonth by remember(page) { mutableStateOf(baseYearMonth.plusMonths(page)) }
+        val monthSchedule by remember(yearMonth) { mutableStateOf(getMonthSchedule(yearMonth)) }
 
         Column {
             DayOfWeekHeader(modifier = Modifier.padding(top = 4.dp))
@@ -79,7 +81,7 @@ fun CalendarPreview() {
                     description = "",
                     startAt = LocalDateTime.of(2024, 1, 3, 14, 0),
                     endAt = LocalDateTime.of(2024, 1, 3, 16, 0),
-                    isCompleted = false
+                    isCompleted = false,
                 ),
             )
 

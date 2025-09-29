@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
@@ -39,10 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
@@ -51,14 +49,17 @@ import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import pnu.plato.calendar.presentation.todo.component.ToDoScheduleItem
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
-import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.todo.intent.ToDoState
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
+
+private const val HAS_NO_SCHEDULE = "일정 없음"
 
 @Composable
-fun ToDoScreen(modifier: Modifier = Modifier, viewModel: ToDoViewModel = hiltViewModel()) {
+fun ToDoScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ToDoViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.sideEffect) {
@@ -72,106 +73,104 @@ fun ToDoScreen(modifier: Modifier = Modifier, viewModel: ToDoViewModel = hiltVie
     ToDoContent(
         state = state,
         onEvent = viewModel::setEvent,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
 @Composable
-fun ToDoContent(state: ToDoState, onEvent: (ToDoEvent) -> Unit, modifier: Modifier = Modifier) {
-    val schedules = state.schedules
-    val within7Days = schedules.filter { schedule ->
-        val daysUntilEnd = when (schedule) {
-            is AcademicScheduleUiModel -> ChronoUnit.DAYS.between(
-                today,
-                schedule.endAt
-            )
+fun ToDoContent(
+    state: ToDoState,
+    onEvent: (ToDoEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val within7Days = state.within7Days
+    val completedSchedules = state.completedSchedules
+    val courseSchedules = state.courseSchedules
+    val customSchedules = state.customSchedules
+    val academicSchedules = state.academicSchedules
 
-            is PersonalScheduleUiModel -> ChronoUnit.DAYS.between(
-                today,
-                schedule.endAt.toLocalDate()
-            )
-        }
-        daysUntilEnd in 0..7
-    }
-    val courseSchedules =
-        schedules.filterIsInstance<CourseScheduleUiModel>()
-    val customSchedules =
-        schedules.filterIsInstance<CustomScheduleUiModel>()
-    val academicSchedules = schedules.filterIsInstance<AcademicScheduleUiModel>()
-
-    Column(modifier = modifier.padding(horizontal = 16.dp)) {
-        Row(
-            modifier = Modifier
-                .statusBarsPadding()
-                .padding(vertical = 12.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "할일",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = PrimaryColor,
-            )
+    LazyColumn(
+        modifier =
+            modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            Row(
+                modifier =
+                    Modifier
+                        .statusBarsPadding()
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "할일",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PrimaryColor,
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        item {
+            ExpandableSection(
+                title = "7일 이내",
+                icon = Icons.Default.DateRange,
+                items = within7Days,
+                toggleCompletion = { id, completed ->
+                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                },
+                initiallyExpanded = true,
+            )
+        }
 
-        ExpandableSection(
-            title = "7일 이내",
-            icon = Icons.Default.DateRange,
-            items = within7Days,
-            toggleCompletion = { id, completed ->
-                onEvent(
-                    TogglePersonalScheduleCompletion(
-                        id,
-                        completed
-                    )
-                )
-            },
-            initiallyExpanded = true
-        )
+        item {
+            ExpandableSection(
+                title = "완료",
+                icon = Icons.Default.CheckCircle,
+                items = completedSchedules,
+                toggleCompletion = { id, completed ->
+                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                },
+            )
+        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        item {
+            ExpandableSection(
+                title = "강의 일정",
+                icon = Icons.Default.DateRange,
+                items = courseSchedules,
+                toggleCompletion = { id, completed ->
+                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                },
+            )
+        }
 
-        ExpandableSection(
-            title = "강의 일정",
-            icon = Icons.Default.DateRange,
-            items = courseSchedules,
-            toggleCompletion = { id, completed ->
-                onEvent(
-                    TogglePersonalScheduleCompletion(
-                        id,
-                        completed
-                    )
-                )
-            },
-        )
+        item {
+            ExpandableSection(
+                title = "개인 일정",
+                icon = Icons.Default.DateRange,
+                items = customSchedules,
+                toggleCompletion = { id, completed ->
+                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                },
+            )
+        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        item {
+            ExpandableSection(
+                title = "학사 일정",
+                icon = Icons.Default.DateRange,
+                items = academicSchedules,
+            )
+        }
 
-        ExpandableSection(
-            title = "개인 일정",
-            icon = Icons.Default.DateRange,
-            items = customSchedules,
-            toggleCompletion = { id, completed ->
-                onEvent(
-                    TogglePersonalScheduleCompletion(
-                        id,
-                        completed
-                    )
-                )
-            },
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        ExpandableSection(
-            title = "학사 일정",
-            icon = Icons.Default.DateRange,
-            items = academicSchedules,
-        )
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
 
@@ -207,7 +206,7 @@ private fun ExpandableSection(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = PrimaryColor,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -221,30 +220,32 @@ private fun ExpandableSection(
             Column(modifier = Modifier.fillMaxWidth()) {
                 if (items.isEmpty()) {
                     Text(
-                        text = "일정 없음",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                        text = HAS_NO_SCHEDULE,
+                        modifier = Modifier.padding(start = 18.dp, bottom = 18.dp),
                         fontSize = 14.sp,
                         color = PrimaryColor,
                     )
                 } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
                     ) {
-                        items(items = items) { schedule ->
+                        items.forEach { schedule ->
                             ToDoScheduleItem(
                                 schedule = schedule,
                                 toggleCompletion = { id, isCompleted ->
                                     toggleCompletion(
                                         id,
-                                        isCompleted
+                                        isCompleted,
                                     )
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(IntrinsicSize.Min)
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(IntrinsicSize.Min)
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
                             )
                         }
                     }
@@ -259,32 +260,52 @@ private fun ExpandableSection(
 fun ToDoScreenPreview() {
     PlatoCalendarTheme {
         ToDoContent(
-            state = ToDoState(
-                listOf(
-                    AcademicScheduleUiModel(
-                        title = "신정",
-                        startAt = LocalDate.of(2024, 1, 11),
-                        endAt = LocalDate.now().plusDays(2),
+            state =
+                ToDoState(
+                    listOf(
+                        AcademicScheduleUiModel(
+                            title = "신정",
+                            startAt = LocalDate.of(2024, 1, 11),
+                            endAt = LocalDate.now().plusDays(2),
+                        ),
+                        CustomScheduleUiModel(
+                            id = 1L,
+                            title = "새해 계획 세우기",
+                            description = "",
+                            startAt = LocalDateTime.of(2024, 1, 11, 14, 0),
+                            endAt = LocalDateTime.now().plusDays(2).plusHours(3),
+                            isCompleted = false,
+                        ),
+                        CourseScheduleUiModel(
+                            id = 7592,
+                            title = "과제1",
+                            description = "",
+                            startAt = LocalDateTime.now(),
+                            endAt = LocalDateTime.now().plusDays(3).plusHours(7),
+                            isCompleted = false,
+                            courseName = "운영체제",
+                        ),
+                        CustomScheduleUiModel(
+                            id = 2L,
+                            title = "완료된 과제",
+                            description = "",
+                            startAt = LocalDateTime.now().minusDays(3),
+                            endAt = LocalDateTime.now().minusDays(1),
+                            isCompleted = true,
+                        ),
+                        CourseScheduleUiModel(
+                            id = 7593,
+                            title = "완료된 강의 과제",
+                            description = "",
+                            startAt = LocalDateTime.now().minusDays(5),
+                            endAt = LocalDateTime.now().minusDays(2),
+                            isCompleted = true,
+                            courseName = "데이터베이스",
+                        ),
                     ),
-                    CustomScheduleUiModel(
-                        id = 1L,
-                        title = "새해 계획 세우기",
-                        description = "",
-                        startAt = LocalDateTime.of(2024, 1, 11, 14, 0),
-                        endAt = LocalDateTime.now().plusDays(2).plusHours(3),
-                        isCompleted = false,
-                    ),
-                    CourseScheduleUiModel(
-                        id = 7592,
-                        title = "과제1",
-                        description = "",
-                        startAt = LocalDateTime.now(),
-                        endAt = LocalDateTime.now().plusDays(3).plusHours(7),
-                        isCompleted = false,
-                        courseName = "운영체제"
-                    )
-                )
-            ), onEvent = {}, modifier = Modifier.fillMaxSize()
+                ),
+            onEvent = {},
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }

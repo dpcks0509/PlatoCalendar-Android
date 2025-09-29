@@ -61,6 +61,7 @@ import pnu.plato.calendar.presentation.common.theme.White
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -72,17 +73,27 @@ private const val DESCRIPTION = "설명"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewScheduleContent(
+    selectedDate: LocalDate,
     adView: AdView,
     makeSchedule: (NewSchedule) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val now = LocalDateTime.now()
     val color = PrimaryColor
 
     var title: String by remember { mutableStateOf("") }
     var description: String by remember { mutableStateOf("") }
-    var startAt: LocalDateTime by remember { mutableStateOf(now) }
-    var endAt: LocalDateTime by remember { mutableStateOf(now.plusHours(1)) }
+
+    val initialStartTime =
+        remember(selectedDate) {
+            if (selectedDate == today) {
+                LocalDateTime.now()
+            } else {
+                LocalDateTime.of(selectedDate, LocalTime.of(9, 0))
+            }
+        }
+
+    var startAt: LocalDateTime by remember { mutableStateOf(initialStartTime) }
+    var endAt: LocalDateTime by remember { mutableStateOf(initialStartTime.plusHours(1)) }
 
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -187,8 +198,7 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                )
-                .background(White),
+                ).background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -251,8 +261,7 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                )
-                .background(White)
+                ).background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

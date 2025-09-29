@@ -19,11 +19,13 @@ import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBo
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
 import pnu.plato.calendar.presentation.common.theme.White
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleBottomSheet(
     content: ScheduleBottomSheetContent?,
+    selectedDate: LocalDate,
     adView: AdView,
     sheetState: SheetState,
     makeSchedule: (NewSchedule) -> Unit,
@@ -75,6 +77,7 @@ fun ScheduleBottomSheet(
                 is NewScheduleContent ->
                     NewScheduleContent(
                         adView = adView,
+                        selectedDate = selectedDate,
                         makeSchedule = makeSchedule,
                         onDismissRequest = onDismissRequest,
                     )

@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -148,7 +147,7 @@ fun CalendarContent(
     pagerState: PagerState,
     sheetState: SheetState,
     coroutineScope: CoroutineScope,
-    getMonthSchedule: (YearMonth) -> List<SnapshotStateList<DaySchedule?>>,
+    getMonthSchedule: (YearMonth) -> List<List<DaySchedule?>>,
     onEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -207,6 +206,7 @@ fun CalendarContent(
     if (state.isScheduleBottomSheetVisible) {
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
+            selectedDate = state.selectedDate,
             adView = adView,
             sheetState = sheetState,
             makeSchedule = { schedule -> onEvent(MakeCustomSchedule(schedule)) },
@@ -216,8 +216,8 @@ fun CalendarContent(
                 onEvent(
                     TogglePersonalScheduleCompletion(
                         id,
-                        isCompleted
-                    )
+                        isCompleted,
+                    ),
                 )
             },
             onDismissRequest = { coroutineScope.launch { sheetState.hide() } },

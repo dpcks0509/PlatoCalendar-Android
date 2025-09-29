@@ -19,10 +19,28 @@ data class CalendarState(
 ) : UiState {
     val selectedDateSchedules: List<ScheduleUiModel>
         get() =
-            schedules.filter { schedule ->
-                when (schedule) {
-                    is AcademicScheduleUiModel -> schedule.endAt == selectedDate
-                    is PersonalScheduleUiModel -> schedule.endAt.toLocalDate() == selectedDate
-                }
-            }
+            schedules
+                .filter { schedule ->
+                    when (schedule) {
+                        is AcademicScheduleUiModel -> schedule.endAt == selectedDate
+                        is PersonalScheduleUiModel -> schedule.endAt.toLocalDate() == selectedDate
+                    }
+                }.sortedWith(
+                    compareBy(
+                        { if (it is AcademicScheduleUiModel) 0 else 1 },
+                        { if (it is PersonalScheduleUiModel) it.isCompleted else false },
+                        {
+                            when (it) {
+                                is AcademicScheduleUiModel -> it.endAt.atStartOfDay()
+                                is PersonalScheduleUiModel -> it.endAt
+                            }
+                        },
+                        {
+                            when (it) {
+                                is AcademicScheduleUiModel -> it.startAt.atStartOfDay()
+                                else -> null
+                            }
+                        },
+                    ),
+                )
 }

@@ -55,25 +55,11 @@ fun ScheduleItem(
             )
         }
     } else {
-        val sortedSchedule =
-            schedules.sortedWith(
-                compareBy(
-                    { if (it is AcademicScheduleUiModel) 0 else 1 },
-                    { if (it is PersonalScheduleUiModel) it.isCompleted else false },
-                    {
-                        when (it) {
-                            is AcademicScheduleUiModel -> it.endAt.atStartOfDay()
-                            is PersonalScheduleUiModel -> it.endAt
-                        }
-                    },
-                ),
-            )
-
         LazyColumn(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            items(items = sortedSchedule) { schedule ->
+            items(items = schedules) { schedule ->
                 when (schedule) {
                     is AcademicScheduleUiModel -> {
                         AcademicScheduleItem(schedule = schedule, onScheduleClick = onScheduleClick)
@@ -125,13 +111,14 @@ private fun PersonalScheduleItem(
                 .noRippleClickable { onScheduleClick(schedule) }
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
-        val title = schedule.title.run {
-            if (schedule is CourseScheduleUiModel) {
-                if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
-            } else {
-                this
+        val title =
+            schedule.title.run {
+                if (schedule is CourseScheduleUiModel) {
+                    if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
+                } else {
+                    this
+                }
             }
-        }
 
         Text(
             text = title,

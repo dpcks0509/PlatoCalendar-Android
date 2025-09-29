@@ -1,7 +1,5 @@
 package pnu.plato.calendar.presentation.calendar
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -14,8 +12,6 @@ import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
-import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
-import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
@@ -42,8 +38,8 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
+import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,16 +49,22 @@ class CalendarViewModel
         private val loginManager: LoginManager,
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
+        private val calendarScheduleManager: CalendarScheduleManager,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
             initialState = CalendarState(isLoading = true),
         ) {
-        private val monthlyDates = mutableMapOf<YearMonth, List<List<LocalDate?>>>()
-        private val monthlySchedules = mutableMapOf<YearMonth, List<SnapshotStateList<DaySchedule?>>>()
-
         init {
             viewModelScope.launch {
-                loginManager.loginStatus.collect { loginStatus ->
-                    getSchedules()
+                launch {
+                    loginManager.loginStatus.collect { loginStatus ->
+                        getSchedules()
+                    }
+                }
+
+                launch {
+                    calendarScheduleManager.schedules.collect { schedules ->
+                        setState { copy(schedules = schedules) }
+                    }
                 }
             }
         }
@@ -70,11 +72,9 @@ class CalendarViewModel
         override suspend fun handleEvent(event: CalendarEvent) {
             when (event) {
                 MoveToToday -> {
-                    val previousSelectedDate = state.value.selectedDate
                     val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
 
-                    deselectDate(date = previousSelectedDate)
-                    selectDate(date = today)
+                    calendarScheduleManager.updateSelectedDate(today)
 
                     setState {
                         copy(
@@ -93,11 +93,7 @@ class CalendarViewModel
                 is TogglePersonalScheduleCompletion -> togglePersonalScheduleCompletion(event.id, event.isCompleted)
 
                 is UpdateSelectedDate -> {
-                    val previousSelectedDate = state.value.selectedDate
-
-                    deselectDate(date = previousSelectedDate)
-                    selectDate(date = event.date)
-
+                    calendarScheduleManager.updateSelectedDate(event.date)
                     setState { copy(selectedDate = event.date) }
                 }
 
@@ -133,10 +129,7 @@ class CalendarViewModel
             }
         }
 
-        fun getMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule?>> =
-            monthlySchedules.getOrPut(yearMonth) {
-                generateMonthSchedule(yearMonth)
-            }
+        fun getMonthSchedule(yearMonth: YearMonth): List<List<DaySchedule?>> = calendarScheduleManager.getMonthSchedule(yearMonth)
 
         private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
             scheduleRepository
@@ -201,9 +194,8 @@ class CalendarViewModel
 
                         val schedules = academicSchedules + personalSchedules
 
-                        setState {
-                            copy(schedules = schedules, isLoading = false)
-                        }
+                        calendarScheduleManager.updateSchedules(schedules)
+                        setState { copy(isLoading = false) }
                     }
 
                     LoginStatus.Logout -> {
@@ -211,9 +203,8 @@ class CalendarViewModel
 
                         val academicSchedules = getAcademicSchedules()
 
-                        setState {
-                            copy(schedules = academicSchedules, isLoading = false)
-                        }
+                        calendarScheduleManager.updateSchedules(academicSchedules)
+                        setState { copy(isLoading = false) }
                     }
 
                     LoginStatus.Uninitialized -> Unit
@@ -234,9 +225,8 @@ class CalendarViewModel
                             endAt = newSchedule.endAt,
                             isCompleted = false,
                         )
-                    setState {
-                        copy(schedules = schedules + customSchedule)
-                    }
+                    val updatedSchedules = state.value.schedules + customSchedule
+                    calendarScheduleManager.updateSchedules(updatedSchedules)
 
                     setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                     SnackbarEventBus.sendSuccess("일정이 생성되었습니다.")
@@ -249,24 +239,21 @@ class CalendarViewModel
             scheduleRepository
                 .editPersonalSchedule(customSchedule)
                 .onSuccess {
-                    setState {
-                        copy(
-                            schedules =
-                                schedules.map { schedule ->
-                                    if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
-                                        schedule.copy(
-                                            title = customSchedule.title,
-                                            description = customSchedule.description,
-                                            startAt = customSchedule.startAt,
-                                            endAt = customSchedule.endAt,
-                                            isCompleted = customSchedule.isCompleted,
-                                        )
-                                    } else {
-                                        schedule
-                                    }
-                                },
-                        )
-                    }
+                    val updatedSchedules =
+                        state.value.schedules.map { schedule ->
+                            if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
+                                schedule.copy(
+                                    title = customSchedule.title,
+                                    description = customSchedule.description,
+                                    startAt = customSchedule.startAt,
+                                    endAt = customSchedule.endAt,
+                                    isCompleted = customSchedule.isCompleted,
+                                )
+                            } else {
+                                schedule
+                            }
+                        }
+                    calendarScheduleManager.updateSchedules(updatedSchedules)
 
                     setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                     SnackbarEventBus.sendSuccess("일정이 수정되었습니다.")
@@ -279,14 +266,11 @@ class CalendarViewModel
             scheduleRepository
                 .deleteCustomSchedule(id)
                 .onSuccess {
-                    setState {
-                        copy(
-                            schedules =
-                                schedules.filter { schedule ->
-                                    !(schedule is PersonalScheduleUiModel && schedule.id == id)
-                                },
-                        )
-                    }
+                    val updatedSchedules =
+                        state.value.schedules.filter { schedule ->
+                            !(schedule is PersonalScheduleUiModel && schedule.id == id)
+                        }
+                    calendarScheduleManager.updateSchedules(updatedSchedules)
 
                     setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                     SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
@@ -334,127 +318,27 @@ class CalendarViewModel
             scheduleRepository
                 .editPersonalSchedule(personalSchedule)
                 .onSuccess {
-                    setState {
-                        copy(
-                            schedules =
-                                schedules.map { schedule ->
-                                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                                        when (schedule) {
-                                            is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                            is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                        }
-                                    } else {
-                                        schedule
-                                    }
-                                },
-                        )
-                    }
+                    val updatedSchedules =
+                        state.value.schedules.map { schedule ->
+                            if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                                when (schedule) {
+                                    is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                                    is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                                }
+                            } else {
+                                schedule
+                            }
+                        }
+                    calendarScheduleManager.updateSchedules(updatedSchedules)
 
                     setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
-                    SnackbarEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정 완료가 해제되었습니다.")
+                    SnackbarEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
                 }.onFailure { throwable ->
                     SnackbarEventBus.sendError(throwable.message)
                 }
         }
 
-    private fun updateSchedules() {
-        val groupedByDate: Map<LocalDate, List<ScheduleUiModel>> =
-            state.value.schedules.groupBy { schedule ->
-                when (schedule) {
-                    is AcademicScheduleUiModel -> schedule.endAt
-                    is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
-                }
-            }
-
-        monthlySchedules.values.forEach { monthSchedule ->
-            monthSchedule.forEach { weekSchedule ->
-                weekSchedule.forEachIndexed { index, daySchedule ->
-                    val newSchedules = groupedByDate[daySchedule?.date].orEmpty()
-                    if (daySchedule?.schedules != newSchedules) {
-                        weekSchedule[index] = daySchedule?.copy(schedules = newSchedules)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun deselectDate(date: LocalDate) {
-        monthlySchedules.values.flatten().forEach { weekSchedule ->
-            weekSchedule.find { it?.date == date }?.let { matched ->
-                val index = weekSchedule.indexOf(matched)
-                weekSchedule[index] = matched.copy(isSelected = false)
-            }
-        }
-    }
-
-    private fun selectDate(date: LocalDate) {
-        monthlySchedules.values.flatten().forEach { weekSchedule ->
-            weekSchedule.find { it?.date == date }?.let { matched ->
-                val index = weekSchedule.indexOf(matched)
-                weekSchedule[index] = matched.copy(isSelected = true)
-            }
-        }
-    }
-
-        private fun getMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> =
-            monthlyDates.getOrPut(yearMonth) {
-                generateMonthDate(yearMonth)
-            }
-
-        private fun generateMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> {
-            val baseDate = LocalDate.of(yearMonth.year, yearMonth.month, 1)
-            val dayOfWeekValue = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
-            val firstDateOfMonth = baseDate.minusDays(dayOfWeekValue.toLong())
-
-            val rangeEnd = today.plusYears(1).minusDays(1)
-
-            val firstMonth = YearMonth(year = today.year, month = today.monthValue)
-            val lastMonth = firstMonth.plusMonths(12)
-
-            val firstMonthStart: LocalDate? =
-                if (yearMonth == firstMonth) LocalDate.of(today.year, today.monthValue, 1) else null
-            val lastMonthEnd: LocalDate? = if (yearMonth == lastMonth) rangeEnd else null
-
-            return List(MAX_WEEK_SIZE) { weekOffset ->
-                List(MAX_DAY_SIZE) { dayOffset ->
-                    val date =
-                        firstDateOfMonth.plusDays((weekOffset * MAX_DAY_SIZE + dayOffset).toLong())
-                    val beforeStart = firstMonthStart?.let { date.isBefore(it) } ?: false
-                    val afterEnd = lastMonthEnd?.let { date.isAfter(it) } ?: false
-                    if (beforeStart || afterEnd) null else date
-                }
-            }
-        }
-
-        private fun generateMonthSchedule(yearMonth: YearMonth): List<SnapshotStateList<DaySchedule?>> =
-            getMonthDate(yearMonth).map { week ->
-                week
-                    .map { date -> if (date != null) createDay(date, yearMonth) else null }
-                    .toMutableStateList()
-            }
-
-        private fun createDay(
-            date: LocalDate,
-            yearMonth: YearMonth,
-        ): DaySchedule {
-            val isToday = date == today
-            val isSelected = date == state.value.selectedDate
-            val isInMonth =
-                date.year == yearMonth.year && date.monthValue == yearMonth.month
-            val daySchedules =
-                state.value.schedules.filter { schedule ->
-                    when (schedule) {
-                        is AcademicScheduleUiModel -> date == schedule.endAt
-                        is PersonalScheduleUiModel -> date == schedule.endAt.toLocalDate()
-                    }
-                }
-
-            return DaySchedule(
-                date = date,
-                isToday = isToday,
-                isSelected = isSelected,
-                isInMonth = isInMonth,
-                schedules = daySchedules,
-            )
+        private fun updateSchedules() {
+            calendarScheduleManager.updateSchedules(state.value.schedules)
         }
     }

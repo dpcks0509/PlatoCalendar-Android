@@ -5,13 +5,13 @@ import androidx.compose.ui.graphics.Color
 import pnu.plato.calendar.domain.entity.Schedule.AcademicSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.theme.CalendarFlamingo
 import pnu.plato.calendar.presentation.common.theme.CalendarLavender
 import pnu.plato.calendar.presentation.common.theme.CalendarSage
 import pnu.plato.calendar.presentation.common.theme.MediumGray
 import java.time.LocalDate
 import java.time.LocalDateTime
-import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 
 sealed class ScheduleUiModel {
     abstract val title: String

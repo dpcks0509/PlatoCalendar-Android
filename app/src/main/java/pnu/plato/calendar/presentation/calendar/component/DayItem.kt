@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.theme.Black
 import pnu.plato.calendar.presentation.common.theme.Gray
@@ -37,8 +36,6 @@ import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.Red
 import java.time.LocalDate
 import java.time.LocalDateTime
-
-private const val MAX_SCHEDULES_SIZE = 5
 
 @Composable
 fun DayItem(
@@ -99,22 +96,11 @@ fun DayItem(
                 )
             }
 
-            val daySchedules =
-                daySchedule.schedules
-                    .filter { schedule ->
-                        !(schedule is PersonalScheduleUiModel && schedule.isCompleted)
-                    }.sortedBy { schedule ->
-                        when (schedule) {
-                            is AcademicScheduleUiModel -> 0
-                            is PersonalScheduleUiModel -> if (!schedule.isCompleted) 1 else 2
-                        }
-                    }.take(MAX_SCHEDULES_SIZE)
-
             Row(
                 modifier = Modifier.padding(horizontal = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.5.dp, Alignment.CenterHorizontally),
             ) {
-                daySchedules.forEach { schedule ->
+                daySchedule.visibleSchedules.forEach { schedule ->
                     Box(
                         modifier =
                             Modifier
