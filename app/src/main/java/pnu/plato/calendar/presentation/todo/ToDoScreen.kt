@@ -21,18 +21,24 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +50,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
@@ -66,13 +73,6 @@ import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect
 import pnu.plato.calendar.presentation.todo.intent.ToDoState
 import java.time.LocalDate
 import java.time.LocalDateTime
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.material3.SheetValue
-import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalContext
 
 private const val HAS_NO_SCHEDULE = "일정 없음"
 
@@ -169,6 +169,8 @@ fun ToDoContent(
     val customSchedules = state.customSchedules
     val academicSchedules = state.academicSchedules
 
+    var expandedSection by rememberSaveable { mutableStateOf<String?>(null) }
+
     LazyColumn(
         modifier =
             modifier
@@ -200,10 +202,13 @@ fun ToDoContent(
                 title = "7일 이내",
                 icon = Icons.Default.DateRange,
                 items = within7Days,
-                toggleCompletion = { id, completed ->
-                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                isExpanded = expandedSection == "7일 이내",
+                onHeaderClick = { title ->
+                    expandedSection = if (expandedSection == title) null else title
                 },
-                initiallyExpanded = true,
+                toggleCompletion = { id, completed ->
+                    onEvent(TogglePersonalScheduleCompletion(id, completed))
+                },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
@@ -213,8 +218,12 @@ fun ToDoContent(
                 title = "완료",
                 icon = Icons.Default.CheckCircle,
                 items = completedSchedules,
+                isExpanded = expandedSection == "완료",
+                onHeaderClick = { title ->
+                    expandedSection = if (expandedSection == title) null else title
+                },
                 toggleCompletion = { id, completed ->
-                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                    onEvent(TogglePersonalScheduleCompletion(id, completed))
                 },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
@@ -225,8 +234,12 @@ fun ToDoContent(
                 title = "강의 일정",
                 icon = Icons.Default.DateRange,
                 items = courseSchedules,
+                isExpanded = expandedSection == "강의 일정",
+                onHeaderClick = { title ->
+                    expandedSection = if (expandedSection == title) null else title
+                },
                 toggleCompletion = { id, completed ->
-                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                    onEvent(TogglePersonalScheduleCompletion(id, completed))
                 },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
@@ -237,8 +250,12 @@ fun ToDoContent(
                 title = "개인 일정",
                 icon = Icons.Default.DateRange,
                 items = customSchedules,
+                isExpanded = expandedSection == "개인 일정",
+                onHeaderClick = { title ->
+                    expandedSection = if (expandedSection == title) null else title
+                },
                 toggleCompletion = { id, completed ->
-                    onEvent(ToDoEvent.TogglePersonalScheduleCompletion(id, completed))
+                    onEvent(TogglePersonalScheduleCompletion(id, completed))
                 },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
@@ -249,13 +266,15 @@ fun ToDoContent(
                 title = "학사 일정",
                 icon = Icons.Default.DateRange,
                 items = academicSchedules,
+                isExpanded = expandedSection == "학사 일정",
+                onHeaderClick = { title ->
+                    expandedSection = if (expandedSection == title) null else title
+                },
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
             )
         }
 
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
+        item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
@@ -264,12 +283,12 @@ private fun ExpandableSection(
     title: String,
     icon: ImageVector,
     items: List<ScheduleUiModel>,
+    isExpanded: Boolean,
+    onHeaderClick: (String) -> Unit,
     toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
-    initiallyExpanded: Boolean = false,
     onScheduleClick: (ScheduleUiModel) -> Unit = {},
 ) {
-    var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
-    val rotation by animateFloatAsState(if (expanded) 180f else 0f, label = "rotation")
+    val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -281,7 +300,7 @@ private fun ExpandableSection(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .noRippleClickable { expanded = !expanded }
+                    .noRippleClickable { onHeaderClick(title) }
                     .padding(horizontal = 16.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -302,7 +321,7 @@ private fun ExpandableSection(
             )
         }
 
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(visible = isExpanded) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 if (items.isEmpty()) {
                     Text(
@@ -322,10 +341,7 @@ private fun ExpandableSection(
                             ToDoScheduleItem(
                                 schedule = schedule,
                                 toggleCompletion = { id, isCompleted ->
-                                    toggleCompletion(
-                                        id,
-                                        isCompleted,
-                                    )
+                                    toggleCompletion(id, isCompleted)
                                 },
                                 modifier =
                                     Modifier
