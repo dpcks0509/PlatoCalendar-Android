@@ -29,7 +29,9 @@ import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.White
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 private const val HAS_NO_SCHEDULE = "일정 없음"
 
@@ -94,6 +96,13 @@ fun AcademicScheduleItem(
             fontWeight = FontWeight.SemiBold,
             color = White,
         )
+
+        Text(
+            text = formatDateRange(schedule.startAt, schedule.endAt),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = White,
+        )
     }
 }
 
@@ -126,6 +135,7 @@ private fun PersonalScheduleItem(
             fontWeight = FontWeight.SemiBold,
             color = White,
         )
+
         Text(
             text = schedule.deadLine,
             fontSize = 14.sp,
@@ -133,6 +143,11 @@ private fun PersonalScheduleItem(
             color = White,
         )
     }
+}
+
+private fun formatDateRange(startAt: LocalDate, endAt: LocalDate): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+    return "${startAt.format(formatter)} ~ ${endAt.format(formatter)}"
 }
 
 @Preview(showBackground = true)
