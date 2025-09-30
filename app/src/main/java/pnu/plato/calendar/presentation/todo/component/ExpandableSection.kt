@@ -80,8 +80,9 @@ fun ExpandableSection(
                 if (items.isEmpty()) {
                     Text(
                         text = HAS_NO_SCHEDULE,
-                        modifier = Modifier.padding(start = 18.dp, bottom = 18.dp),
+                        modifier = Modifier.padding(start = 18.dp, bottom = 18.dp, top = 6.dp),
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = PrimaryColor,
                     )
                 } else {
