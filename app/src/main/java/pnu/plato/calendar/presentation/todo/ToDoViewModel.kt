@@ -24,9 +24,9 @@ import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.HideScheduleBottomS
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect
-import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect.HideScheduleBottomSheet as ToDoHideSheet
 import pnu.plato.calendar.presentation.todo.intent.ToDoState
 import javax.inject.Inject
+import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect.HideScheduleBottomSheet as ToDoHideSheet
 
 @HiltViewModel
 class ToDoViewModel
@@ -180,10 +180,10 @@ class ToDoViewModel
                         }
                     calendarScheduleManager.updateSchedules(updatedSchedules)
 
-                setSideEffect { ToDoHideSheet }
-                SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
-            }.onFailure { throwable ->
-                SnackbarEventBus.sendError(throwable.message)
-            }
-    }
+                    setSideEffect { ToDoHideSheet }
+                    SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
+                }.onFailure { throwable ->
+                    SnackbarEventBus.sendError(throwable.message)
+                }
+        }
     }

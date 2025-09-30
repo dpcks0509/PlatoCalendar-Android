@@ -39,8 +39,8 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig
+import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -115,17 +115,9 @@ fun ToDoScreen(
     )
 
     if (state.isScheduleBottomSheetVisible) {
-        val selectedDateForSheet =
-            when (val c = state.scheduleBottomSheetContent) {
-                is ScheduleBottomSheetContent.AcademicScheduleContent -> c.schedule.endAt
-                is ScheduleBottomSheetContent.CourseScheduleContent -> c.schedule.endAt.toLocalDate()
-                is ScheduleBottomSheetContent.CustomScheduleContent -> c.schedule.endAt.toLocalDate()
-                else -> LocalDate.now()
-            }
-
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
-            selectedDate = selectedDateForSheet,
+            selectedDate = today,
             adView = adView,
             sheetState = sheetState,
             makeSchedule = { Unit },
@@ -184,13 +176,14 @@ fun ToDoContent(
         }
 
         items(ToDoSection.entries.toList()) { section ->
-            val schedules = when (section) {
-                ToDoSection.WITHIN_7_DAYS -> within7Days
-                ToDoSection.COMPLETED -> completedSchedules
-                ToDoSection.COURSE -> courseSchedules
-                ToDoSection.CUSTOM -> customSchedules
-                ToDoSection.ACADEMIC -> academicSchedules
-            }
+            val schedules =
+                when (section) {
+                    ToDoSection.WITHIN_7_DAYS -> within7Days
+                    ToDoSection.COMPLETED -> completedSchedules
+                    ToDoSection.COURSE -> courseSchedules
+                    ToDoSection.CUSTOM -> customSchedules
+                    ToDoSection.ACADEMIC -> academicSchedules
+                }
 
             ExpandableSection(
                 toDoSection = section,
@@ -198,7 +191,9 @@ fun ToDoContent(
                 isExpanded = expandedToDoSection == section,
                 onSectionClick = { clickedSection ->
                     expandedToDoSection =
-                        if (expandedToDoSection == clickedSection) null else {
+                        if (expandedToDoSection == clickedSection) {
+                            null
+                        } else {
                             coroutineScope.launch { lazyListState.scrollToItem(0) }
                             clickedSection
                         }

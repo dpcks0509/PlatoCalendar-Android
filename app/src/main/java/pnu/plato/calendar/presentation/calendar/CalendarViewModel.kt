@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
@@ -20,11 +21,13 @@ import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBo
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideLoginDialog
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TryLogin
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
@@ -87,6 +90,11 @@ class CalendarViewModel
 
                 is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
 
+                is TryLogin -> {
+                    val isLoginSuccess = loginManager.login(event.loginCredentials)
+                    if (isLoginSuccess) setState { copy(isLoginDialogVisible = false) }
+                }
+
                 is EditCustomSchedule -> editCustomSchedule(event.schedule)
 
                 is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
@@ -106,17 +114,19 @@ class CalendarViewModel
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
 
-                is UpdateSchedules -> updateSchedules()
+                UpdateSchedules -> updateSchedules()
 
                 is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
 
-                is HideScheduleBottomSheet ->
+                HideScheduleBottomSheet ->
                     setState {
                         copy(
                             scheduleBottomSheetContent = null,
                             isScheduleBottomSheetVisible = false,
                         )
                     }
+
+                HideLoginDialog -> setState { copy(isLoginDialogVisible = false) }
             }
         }
 
@@ -348,7 +358,13 @@ class CalendarViewModel
                     )
                 }
             } else {
-                // TODO 로그인
+                setState { copy(isLoginDialogVisible = true) }
             }
+        }
+
+        suspend fun tryLogin(credentials: LoginCredentials): Boolean {
+            val isLoginSuccess = loginManager.login(credentials)
+            if (isLoginSuccess) setState { copy(isLoginDialogVisible = false) }
+            return isLoginSuccess
         }
     }

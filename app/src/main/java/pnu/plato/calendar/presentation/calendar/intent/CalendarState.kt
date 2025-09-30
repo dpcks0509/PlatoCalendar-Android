@@ -15,6 +15,7 @@ data class CalendarState(
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val isScheduleBottomSheetVisible: Boolean = false,
+    val isLoginDialogVisible: Boolean = false,
 ) : UiState {
     val selectedDateSchedules: List<ScheduleUiModel>
         get() =

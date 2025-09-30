@@ -1,8 +1,8 @@
 package pnu.plato.calendar.presentation.todo.intent
 
-import pnu.plato.calendar.presentation.common.base.UiEvent
-import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
+import pnu.plato.calendar.presentation.common.base.UiEvent
 
 sealed interface ToDoEvent : UiEvent {
     data class TogglePersonalScheduleCompletion(
@@ -20,5 +20,7 @@ sealed interface ToDoEvent : UiEvent {
         val schedule: CustomSchedule,
     ) : ToDoEvent
 
-    data class DeleteCustomSchedule(val id: Long) : ToDoEvent
+    data class DeleteCustomSchedule(
+        val id: Long,
+    ) : ToDoEvent
 }

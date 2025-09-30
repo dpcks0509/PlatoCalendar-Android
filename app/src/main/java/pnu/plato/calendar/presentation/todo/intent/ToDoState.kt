@@ -1,11 +1,11 @@
 package pnu.plato.calendar.presentation.todo.intent
 
+import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.common.base.UiState
 import java.time.LocalDate
 import java.time.LocalDateTime

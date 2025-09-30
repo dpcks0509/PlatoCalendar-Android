@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.calendar.intent
 
+import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
@@ -12,6 +13,10 @@ sealed interface CalendarEvent : UiEvent {
 
     data class MakeCustomSchedule(
         val schedule: NewSchedule,
+    ) : CalendarEvent
+
+    data class TryLogin(
+        val loginCredentials: LoginCredentials,
     ) : CalendarEvent
 
     data class EditCustomSchedule(
@@ -32,14 +37,16 @@ sealed interface CalendarEvent : UiEvent {
 
     data object UpdateSchedules : CalendarEvent
 
+    data class TogglePersonalScheduleCompletion(
+        val id: Long,
+        val isCompleted: Boolean,
+    ) : CalendarEvent
+
     data class ShowScheduleBottomSheet(
         val schedule: ScheduleUiModel? = null,
     ) : CalendarEvent
 
     data object HideScheduleBottomSheet : CalendarEvent
 
-    data class TogglePersonalScheduleCompletion(
-        val id: Long,
-        val isCompleted: Boolean,
-    ) : CalendarEvent
+    data object HideLoginDialog : CalendarEvent
 }

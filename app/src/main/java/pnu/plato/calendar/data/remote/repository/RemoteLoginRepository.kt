@@ -1,5 +1,6 @@
 package pnu.plato.calendar.data.remote.repository
 
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import pnu.plato.calendar.data.remote.service.LoginService
 import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.LoginSession
@@ -19,16 +20,19 @@ class RemoteLoginRepository
                 )
 
             if (response.code() == REDIRECT_CODE) {
-                val requestUrl = response.raw().request.url
-                when (requestUrl.queryParameter("errorcode")) {
+                val redirectLocation =
+                    response.headers()["Location"]
+                        ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+                val redirectUrl = redirectLocation.toHttpUrlOrNull()
+
+                when (redirectUrl?.queryParameter("errorcode")) {
                     "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
                     "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
                 }
 
-                val redirectLocation =
-                    response.headers()["Location"]
+                val userId =
+                    redirectUrl?.queryParameter("testsession")
                         ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-                val userId = redirectLocation.split("testsession=")[1]
 
                 val redirectResponse = loginService.loginRedirect()
 

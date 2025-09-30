@@ -43,6 +43,7 @@ import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBo
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideLoginDialog
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
@@ -57,6 +58,7 @@ import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
+import pnu.plato.calendar.presentation.common.component.LoginDialog
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
@@ -153,7 +155,12 @@ fun CalendarScreen(
         )
     }
 
-    // Loading overlay moved to Activity to cover whole screen (including bottom bar)
+    if (state.isLoginDialogVisible) {
+        LoginDialog(
+            onDismissRequest = { viewModel.setEvent(HideLoginDialog) },
+            onLoginRequest = { loginCredentials -> viewModel.tryLogin(loginCredentials) },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
