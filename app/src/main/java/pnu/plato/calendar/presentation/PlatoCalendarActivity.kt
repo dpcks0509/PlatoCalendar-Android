@@ -91,12 +91,7 @@ class PlatoCalendarActivity : ComponentActivity() {
                         )
                     }
 
-                    AnimatedToast(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.TopCenter),
-                    )
+                    AnimatedToast()
 
                     if (isLoading) {
                         Box(
