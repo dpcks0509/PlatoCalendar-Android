@@ -1,7 +1,6 @@
 package pnu.plato.calendar.presentation.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -21,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,7 +57,6 @@ import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
-import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
@@ -156,6 +152,8 @@ fun CalendarScreen(
             modifier = Modifier.fillMaxWidth(),
         )
     }
+
+    // Loading overlay moved to Activity to cover whole screen (including bottom bar)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -204,20 +202,6 @@ fun CalendarContent(
                     .weight(1f)
                     .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 8.dp),
         )
-    }
-
-    if (state.isLoading) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .noRippleClickable(),
-        ) {
-            CircularProgressIndicator(
-                color = PrimaryColor,
-                modifier = Modifier.align(Alignment.Center),
-            )
-        }
     }
 }
 

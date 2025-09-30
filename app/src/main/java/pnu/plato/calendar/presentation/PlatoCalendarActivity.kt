@@ -12,22 +12,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.presentation.common.component.AnimatedToast
-import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
+import pnu.plato.calendar.presentation.common.extension.noRippleClickable
+import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
+import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,6 +41,9 @@ import javax.inject.Inject
 class PlatoCalendarActivity : ComponentActivity() {
     @Inject
     lateinit var loginManager: LoginManager
+
+    @Inject
+    lateinit var calendarScheduleManager: CalendarScheduleManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,11 +70,7 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-
-            LaunchedEffect(Unit) {
-                SnackbarEventBus.snackbarMessage.collect { event ->
-                }
-            }
+            val isLoading by calendarScheduleManager.isLoading.collectAsStateWithLifecycle()
 
             PlatoCalendarTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -93,6 +97,21 @@ class PlatoCalendarActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .align(Alignment.TopCenter),
                     )
+
+                    if (isLoading) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .navigationBarsPadding()
+                                    .noRippleClickable(),
+                        ) {
+                            CircularProgressIndicator(
+                                color = PrimaryColor,
+                                modifier = Modifier.align(Alignment.Center),
+                            )
+                        }
+                    }
                 }
             }
         }

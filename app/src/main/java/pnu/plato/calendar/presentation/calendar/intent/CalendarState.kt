@@ -13,7 +13,6 @@ data class CalendarState(
     val selectedDate: LocalDate = today,
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),
-    val isLoading: Boolean = false,
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val isScheduleBottomSheetVisible: Boolean = false,
 ) : UiState {
