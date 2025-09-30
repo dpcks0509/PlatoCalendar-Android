@@ -45,8 +45,15 @@ class RemoteLoginRepository
                         ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
                             ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
 
+                    val fullName =
+                        Regex(
+                            pattern = """class="fullname"[^>]*title="([^"]+)"""",
+                        ).find(redirectResponseBody)?.groupValues?.getOrNull(1) ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+
                     return Result.success(
                         LoginSession(
+                            userName = credentials.userName,
+                            fullName = fullName,
                             userId = userId,
                             sessKey = sessKey,
                         ),

@@ -61,7 +61,7 @@ class LoginManager
         }
 
         suspend fun logout(): Boolean {
-            val loginStatus = this@LoginManager.loginStatus.value
+            val loginStatus = loginStatus.value
 
             if (loginStatus is LoginStatus.Login) {
                 loginRepository
