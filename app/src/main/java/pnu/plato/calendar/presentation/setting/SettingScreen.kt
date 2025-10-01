@@ -120,7 +120,7 @@ fun SettingContent(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
@@ -141,7 +141,7 @@ fun SettingContent(
                         modifier =
                             Modifier
                                 .width(76.dp)
-                                .height(36.dp)
+                                .height(38.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(PrimaryColor)
                                 .clickable {
