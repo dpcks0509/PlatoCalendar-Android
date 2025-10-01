@@ -7,6 +7,7 @@ import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import pnu.plato.calendar.presentation.common.manager.SettingsManager
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.HideLoginDialog
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.ShowLoginDialog
@@ -19,6 +20,7 @@ class SettingViewModel
     @Inject
     constructor(
         val loginManager: LoginManager,
+        private val settingsManager: SettingsManager,
     ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(SettingState()) {
         init {
             viewModelScope.launch {
@@ -32,6 +34,19 @@ class SettingViewModel
                     }
                 }
             }
+
+            viewModelScope.launch {
+                settingsManager.appSettings.collect { appSettings ->
+                    setState {
+                        copy(
+                            notificationsEnabled = appSettings.notificationsEnabled,
+                            academicScheduleEnabled = appSettings.academicScheduleEnabled,
+                            firstReminderTime = appSettings.firstReminderTime,
+                            secondReminderTime = appSettings.secondReminderTime,
+                        )
+                    }
+                }
+            }
         }
 
         override suspend fun handleEvent(event: SettingEvent) {
@@ -40,6 +55,21 @@ class SettingViewModel
                 HideLoginDialog -> setState { copy(isLoginDialogVisible = false) }
                 SettingEvent.Logout -> {
                     loginManager.logout()
+                }
+                is SettingEvent.SetNotificationsEnabled -> {
+                    settingsManager.setNotificationsEnabled(event.enabled)
+                }
+
+                is SettingEvent.SetAcademicScheduleEnabled -> {
+                    settingsManager.setAcademicScheduleEnabled(event.enabled)
+                }
+
+                is SettingEvent.SetFirstReminderTime -> {
+                    settingsManager.setFirstReminderTime(event.time)
+                }
+
+                is SettingEvent.SetSecondReminderTime -> {
+                    settingsManager.setSecondReminderTime(event.time)
                 }
             }
         }

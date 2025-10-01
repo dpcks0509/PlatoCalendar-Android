@@ -114,10 +114,8 @@ fun SettingContent(
 
         item {
             SettingSection(title = "알림") {
-                var notificationsEnabled by remember { mutableStateOf(false) }
-                var academicScheduleNotificationsEnabled by remember { mutableStateOf(false) }
-                var isDropdownExpanded by remember { mutableStateOf(false) }
-                var selectedNotificationTime by remember { mutableStateOf(NotificationTime.ONE_HOUR) }
+                var isFirstReminderDropdownExpanded by remember { mutableStateOf(false) }
+                var isSecondReminderDropdownExpanded by remember { mutableStateOf(false) }
 
                 Row(
                     modifier =
@@ -134,8 +132,10 @@ fun SettingContent(
                         modifier = Modifier.weight(1f),
                     )
                     Switch(
-                        checked = notificationsEnabled,
-                        onCheckedChange = { notificationsEnabled = it },
+                        checked = state.notificationsEnabled,
+                        onCheckedChange = { enabled ->
+                            onEvent(SettingEvent.SetNotificationsEnabled(enabled))
+                        },
                         colors =
                             SwitchDefaults.colors(
                                 checkedTrackColor = PrimaryColor,
@@ -165,8 +165,10 @@ fun SettingContent(
                         modifier = Modifier.weight(1f),
                     )
                     Switch(
-                        checked = academicScheduleNotificationsEnabled,
-                        onCheckedChange = { academicScheduleNotificationsEnabled = it },
+                        checked = state.academicScheduleEnabled,
+                        onCheckedChange = { enabled ->
+                            onEvent(SettingEvent.SetAcademicScheduleEnabled(enabled))
+                        },
                         colors =
                             SwitchDefaults.colors(
                                 checkedTrackColor = PrimaryColor,
@@ -191,7 +193,7 @@ fun SettingContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "알림 시점",
+                        text = "첫 번째 알림",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
@@ -199,10 +201,12 @@ fun SettingContent(
 
                     Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                         Row(
-                            modifier = Modifier.noRippleClickable { isDropdownExpanded = true },
+                            modifier = Modifier.noRippleClickable {
+                                isFirstReminderDropdownExpanded = true
+                            },
                         ) {
                             Text(
-                                text = selectedNotificationTime.label,
+                                text = state.firstReminderTime.label,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Gray,
@@ -218,15 +222,69 @@ fun SettingContent(
                         }
 
                         DropdownMenu(
-                            expanded = isDropdownExpanded,
-                            onDismissRequest = { isDropdownExpanded = false },
+                            expanded = isFirstReminderDropdownExpanded,
+                            onDismissRequest = { isFirstReminderDropdownExpanded = false },
                         ) {
                             NotificationTime.entries.forEach { option ->
                                 DropdownMenuItem(
                                     text = { Text(option.label) },
                                     onClick = {
-                                        selectedNotificationTime = option
-                                        isDropdownExpanded = false
+                                        onEvent(SettingEvent.SetFirstReminderTime(option))
+                                        isFirstReminderDropdownExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "두 번째 알림",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f),
+                    )
+
+                    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                        Row(
+                            modifier = Modifier.noRippleClickable {
+                                isSecondReminderDropdownExpanded = true
+                            },
+                        ) {
+                            Text(
+                                text = state.secondReminderTime.label,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Gray,
+                            )
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = MediumGray,
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = isSecondReminderDropdownExpanded,
+                            onDismissRequest = { isSecondReminderDropdownExpanded = false },
+                        ) {
+                            NotificationTime.entries.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option.label) },
+                                    onClick = {
+                                        onEvent(SettingEvent.SetSecondReminderTime(option))
+                                        isSecondReminderDropdownExpanded = false
                                     },
                                 )
                             }
@@ -335,7 +393,7 @@ private fun Account(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(54.dp)
                 .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -355,14 +413,19 @@ private fun Account(
         Box(
             modifier =
                 Modifier
-                    .width(72.dp)
-                    .height(34.dp)
+                    .width(76.dp)
+                    .height(38.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(PrimaryColor)
                     .clickable { onClickLoginLogout() },
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = buttonText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = White)
+            Text(
+                text = buttonText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = White
+            )
         }
     }
 }

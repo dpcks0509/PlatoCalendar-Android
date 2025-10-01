@@ -3,6 +3,7 @@ package pnu.plato.calendar.presentation.setting.model
 enum class NotificationTime(
     val label: String,
 ) {
+    NONE("없음"),
     ONE_HOUR("1시간 전"),
     TWO_HOURS("2시간 전"),
     ONE_DAY("1일 전"),
