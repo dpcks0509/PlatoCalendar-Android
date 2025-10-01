@@ -63,10 +63,8 @@ fun PlatoCalendarNavHost(
     }
 }
 
-private const val NAV_ANIMATION_DURATION_MS = 250
-
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.computeOrdinalSlideDirection():
-        AnimatedContentTransitionScope.SlideDirection? {
+    AnimatedContentTransitionScope.SlideDirection? {
     val fromIndex =
         BottomBarItem.entries.indexOfFirst { it.route::class.qualifiedName == initialState.destination.route }
     val toIndex =
@@ -81,10 +79,10 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.computeOrdinalSlid
 
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.ordinalSlideEnter(): EnterTransition? {
     val direction = computeOrdinalSlideDirection() ?: return null
-    return slideIntoContainer(direction, animationSpec = tween(NAV_ANIMATION_DURATION_MS))
+    return slideIntoContainer(direction, animationSpec = tween())
 }
 
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.ordinalSlideExit(): ExitTransition? {
     val direction = computeOrdinalSlideDirection() ?: return null
-    return slideOutOfContainer(direction, animationSpec = tween(NAV_ANIMATION_DURATION_MS))
+    return slideOutOfContainer(direction, animationSpec = tween())
 }
