@@ -23,7 +23,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,14 +50,6 @@ fun SettingScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
-
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                else -> Unit // TODO
-            }
-        }
-    }
 
     SettingContent(
         state = state,
@@ -101,6 +92,13 @@ fun SettingContent(
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 colors = CardDefaults.cardColors(containerColor = White),
             ) {
+                val isLoggedIn = state.userInfo != null
+                val userName = if (isLoggedIn) state.userInfo else LOGIN_REQUIRED
+                val buttonText = if (isLoggedIn) "로그아웃" else "로그인"
+                val onButtonClick = {
+                    onEvent(if (isLoggedIn) SettingEvent.Logout else SettingEvent.ShowLoginDialog)
+                }
+
                 Row(
                     modifier =
                         Modifier
@@ -117,7 +115,6 @@ fun SettingContent(
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    val userName = state.userInfo ?: LOGIN_REQUIRED
                     Text(text = userName, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -130,15 +127,11 @@ fun SettingContent(
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(PrimaryColor)
                                 .clickable {
-                                    if (state.userInfo != null) {
-                                        onEvent(SettingEvent.Logout)
-                                    } else {
-                                        onEvent(SettingEvent.ShowLoginDialog)
-                                    }
+                                    onButtonClick()
                                 },
                         contentAlignment = Alignment.Center,
                     ) {
-                        val text = if (state.userInfo != null) "로그아웃" else "로그인"
+                        val text = buttonText
                         Text(text = text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = White)
                     }
                 }

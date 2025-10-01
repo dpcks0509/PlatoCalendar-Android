@@ -35,7 +35,6 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
-import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
@@ -335,18 +334,21 @@ class CalendarViewModel
         }
 
         private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
-            if (loginManager.loginStatus.value is LoginStatus.Login) {
-                val content: ScheduleBottomSheetContent =
-                    when (val schedule = event.schedule) {
-                        is CourseScheduleUiModel -> CourseScheduleContent(schedule)
-                        is CustomScheduleUiModel -> CustomScheduleContent(schedule)
-                        is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
-                        null -> NewScheduleContent
-                    }
+            val schedule = event.schedule
+            val isLoggedIn = loginManager.loginStatus.value is LoginStatus.Login
 
+            val bottomSheetContent =
+                when (schedule) {
+                    is CourseScheduleUiModel -> CourseScheduleContent(schedule)
+                    is CustomScheduleUiModel -> CustomScheduleContent(schedule)
+                    is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
+                    null -> NewScheduleContent
+                }
+
+            if (isLoggedIn || schedule is AcademicScheduleUiModel) {
                 setState {
                     copy(
-                        scheduleBottomSheetContent = content,
+                        scheduleBottomSheetContent = bottomSheetContent,
                         isScheduleBottomSheetVisible = true,
                     )
                 }
