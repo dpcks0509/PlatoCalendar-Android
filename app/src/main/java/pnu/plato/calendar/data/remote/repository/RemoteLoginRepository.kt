@@ -28,6 +28,7 @@ class RemoteLoginRepository
                 when (redirectUrl?.queryParameter("errorcode")) {
                     "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
                     "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
+                    "5" -> return Result.failure(Exception(ACCOUNT_LOCKED_ERROR))
                     null -> Unit
                     else -> return Result.failure(Exception(LOGIN_FAILED_ERROR))
                 }
@@ -94,6 +95,9 @@ class RemoteLoginRepository
             private const val REDIRECT_CODE = 303
             private const val INVALID_CREDENTIALS_ERROR = "아이디 또는 패스워드가 잘못 입력되었습니다."
             private const val SESSION_EXPIRED_ERROR = "세션이 종료 되었습니다. 다시 로그인 하십시오."
+            private const val ACCOUNT_LOCKED_ERROR =
+                "로그인 시도 5회 실패로 인해 계정이 일시적으로 잠겼습니다.\n" +
+                    "30분 후 다시 시도해 주세요."
             private const val LOGIN_FAILED_ERROR = "로그인에 실패했습니다."
             private const val LOGOUT_FAILED_ERROR = "로그아웃에 실패했습니다."
         }
