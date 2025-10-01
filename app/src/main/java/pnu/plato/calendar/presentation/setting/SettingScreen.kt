@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pnu.plato.calendar.presentation.common.component.LoginDialog
+import pnu.plato.calendar.presentation.common.component.TopBar
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
@@ -91,22 +92,7 @@ fun SettingContent(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Row(
-                modifier =
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "설정",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryColor,
-                )
-            }
+            TopBar(title = "설정")
         }
 
         item {

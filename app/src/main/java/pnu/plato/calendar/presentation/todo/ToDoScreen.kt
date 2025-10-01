@@ -44,6 +44,7 @@ import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBo
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pnu.plato.calendar.presentation.common.component.TopBar
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.todo.component.ExpandableSection
@@ -157,22 +158,7 @@ fun ToDoContent(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Row(
-                modifier =
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "할일",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryColor,
-                )
-            }
+            TopBar(title = "할일")
         }
 
         items(ToDoSection.entries.toList()) { section ->
