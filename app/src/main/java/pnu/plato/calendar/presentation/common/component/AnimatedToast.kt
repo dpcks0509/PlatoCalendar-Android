@@ -69,7 +69,6 @@ fun AnimatedToast() {
                     usePlatformDefaultWidth = false,
                     dismissOnClickOutside = false,
                     dismissOnBackPress = false,
-                    decorFitsSystemWindows = false,
                 ),
         ) {
             val parentView = LocalView.current.parent
