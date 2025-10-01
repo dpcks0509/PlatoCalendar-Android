@@ -28,13 +28,15 @@ class RemoteLoginRepository
                 when (redirectUrl?.queryParameter("errorcode")) {
                     "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
                     "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
+                    null -> Unit
+                    else -> return Result.failure(Exception(LOGIN_FAILED_ERROR))
                 }
 
                 val userId =
                     redirectUrl?.queryParameter("testsession")
                         ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
 
-                val redirectResponse = loginService.loginRedirect()
+                val redirectResponse = loginService.redirect()
 
                 if (redirectResponse.isSuccessful) {
                     val redirectResponseBody = redirectResponse.body()?.string() ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
@@ -67,7 +69,21 @@ class RemoteLoginRepository
         override suspend fun logout(sessKey: String): Result<Unit> {
             val response = loginService.logout(sessKey = sessKey)
 
-            return if (response.isSuccessful) {
+            if (response.code() == REDIRECT_CODE) {
+                val redirectLocation =
+                    response.headers()["Location"]
+                        ?: return Result.failure(Exception(LOGOUT_FAILED_ERROR))
+                val redirectUrl = redirectLocation.toHttpUrlOrNull()
+
+                when (redirectUrl?.queryParameter("errorcode")) {
+                    null -> Unit
+                    else -> return Result.failure(Exception(LOGOUT_FAILED_ERROR))
+                }
+            }
+
+            val redirectResponse = loginService.redirect()
+
+            return if (redirectResponse.isSuccessful) {
                 Result.success(Unit)
             } else {
                 Result.failure(Exception(LOGOUT_FAILED_ERROR))

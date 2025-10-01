@@ -16,11 +16,11 @@ interface LoginService {
         @Field("password") password: String,
     ): Response<Unit>
 
-    @GET("/")
-    suspend fun loginRedirect(): Response<ResponseBody>
-
     @GET("/login/logout.php")
     suspend fun logout(
         @Query("sesskey") sessKey: String,
     ): Response<Unit>
+
+    @GET("/")
+    suspend fun redirect(): Response<ResponseBody>
 }
