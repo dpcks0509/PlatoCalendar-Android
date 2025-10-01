@@ -1,12 +1,12 @@
 package pnu.plato.calendar.presentation.calendar.intent
 
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.base.UiState
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
 import java.time.LocalDate
 
 data class CalendarState(

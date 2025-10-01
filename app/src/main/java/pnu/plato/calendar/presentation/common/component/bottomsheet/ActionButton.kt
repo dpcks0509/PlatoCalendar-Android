@@ -1,4 +1,4 @@
-package pnu.plato.calendar.presentation.calendar.component.bottomsheet
+package pnu.plato.calendar.presentation.common.component.bottomsheet
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues

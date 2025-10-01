@@ -13,11 +13,6 @@ import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
@@ -40,6 +35,11 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
 import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager

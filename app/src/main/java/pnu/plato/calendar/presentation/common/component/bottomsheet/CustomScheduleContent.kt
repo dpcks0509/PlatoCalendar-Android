@@ -1,4 +1,4 @@
-package pnu.plato.calendar.presentation.calendar.component.bottomsheet
+package pnu.plato.calendar.presentation.common.component.bottomsheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -193,9 +193,8 @@ fun CustomScheduleContent(
                     shape = RoundedCornerShape(16.dp),
                     clip = true,
                     ambientColor = Black,
-                    spotColor = Black
-                )
-                .background(White),
+                    spotColor = Black,
+                ).background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -257,9 +256,8 @@ fun CustomScheduleContent(
                     shape = RoundedCornerShape(16.dp),
                     clip = true,
                     ambientColor = Black,
-                    spotColor = Black
-                )
-                .background(White)
+                    spotColor = Black,
+                ).background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

@@ -34,11 +34,11 @@ import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig
 import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.TopBar
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.todo.component.ExpandableSection
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent

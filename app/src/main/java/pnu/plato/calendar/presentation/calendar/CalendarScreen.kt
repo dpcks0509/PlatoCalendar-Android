@@ -38,8 +38,6 @@ import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
 import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
 import pnu.plato.calendar.presentation.calendar.component.SelectedDateScheduleInfo
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheet
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
@@ -58,6 +56,8 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.component.LoginDialog
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate

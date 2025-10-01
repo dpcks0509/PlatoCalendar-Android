@@ -1,4 +1,4 @@
-package pnu.plato.calendar.presentation.calendar.component.bottomsheet
+package pnu.plato.calendar.presentation.common.component.bottomsheet
 
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel

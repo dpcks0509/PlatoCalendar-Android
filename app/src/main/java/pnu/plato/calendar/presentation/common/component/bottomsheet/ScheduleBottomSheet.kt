@@ -1,4 +1,4 @@
-package pnu.plato.calendar.presentation.calendar.component.bottomsheet
+package pnu.plato.calendar.presentation.common.component.bottomsheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
-import pnu.plato.calendar.presentation.calendar.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
+import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
 import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
 
