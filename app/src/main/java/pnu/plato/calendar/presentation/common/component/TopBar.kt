@@ -20,7 +20,7 @@ fun TopBar(title: String) {
         modifier =
             Modifier
                 .statusBarsPadding()
-                .padding(vertical = 12.dp)
+                .padding(top = 18.dp, bottom = 12.dp)
                 .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
