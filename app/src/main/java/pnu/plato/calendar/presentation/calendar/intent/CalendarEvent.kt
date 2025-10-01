@@ -35,8 +35,6 @@ sealed interface CalendarEvent : UiEvent {
         val yearMonth: YearMonth,
     ) : CalendarEvent
 
-    data object UpdateSchedules : CalendarEvent
-
     data class TogglePersonalScheduleCompletion(
         val id: Long,
         val isCompleted: Boolean,

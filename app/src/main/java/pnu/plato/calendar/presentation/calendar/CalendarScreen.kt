@@ -50,7 +50,6 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
@@ -107,10 +106,6 @@ fun CalendarScreen(
                 CalendarSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
             }
         }
-    }
-
-    LaunchedEffect(state.schedules) {
-        viewModel.setEvent(UpdateSchedules)
     }
 
     LaunchedEffect(sheetState.currentValue) {

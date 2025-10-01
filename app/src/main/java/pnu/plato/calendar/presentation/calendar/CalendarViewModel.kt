@@ -29,7 +29,6 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowSchedul
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TryLogin
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
-import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSchedules
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
@@ -113,8 +112,6 @@ class CalendarViewModel
                 is UpdateCurrentYearMonth -> {
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
-
-                UpdateSchedules -> updateSchedules()
 
                 is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
 
@@ -335,10 +332,6 @@ class CalendarViewModel
                 }.onFailure { throwable ->
                     SnackbarEventBus.sendError(throwable.message)
                 }
-        }
-
-        private fun updateSchedules() {
-            calendarScheduleManager.updateSchedules(state.value.schedules)
         }
 
         private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
