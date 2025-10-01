@@ -13,6 +13,7 @@ import pnu.plato.calendar.presentation.setting.intent.SettingEvent.HideLoginDial
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.ShowLoginDialog
 import pnu.plato.calendar.presentation.setting.intent.SettingSideEffect
 import pnu.plato.calendar.presentation.setting.intent.SettingState
+import pnu.plato.calendar.presentation.setting.model.NotificationTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,11 +66,35 @@ class SettingViewModel
                 }
 
                 is SettingEvent.SetFirstReminderTime -> {
-                    settingsManager.setFirstReminderTime(event.time)
+                    val currentSecondReminderTime = state.value.secondReminderTime
+                    val desiredFirstReminderTime = event.time
+
+                    val (normalizedFirstReminderTime, normalizedSecondReminderTime) =
+                        normalizeReminderTimes(
+                            firstReminderCandidate = desiredFirstReminderTime,
+                            secondReminderCandidate = currentSecondReminderTime,
+                        )
+
+                    updateReminderTimes(
+                        updatedFirstReminderTime = normalizedFirstReminderTime,
+                        updatedSecondReminderTime = normalizedSecondReminderTime,
+                    )
                 }
 
                 is SettingEvent.SetSecondReminderTime -> {
-                    settingsManager.setSecondReminderTime(event.time)
+                    val currentFirstReminderTime = state.value.firstReminderTime
+                    val desiredSecondReminderTime = event.time
+
+                    val (normalizedFirstReminderTime, normalizedSecondReminderTime) =
+                        normalizeReminderTimes(
+                            firstReminderCandidate = currentFirstReminderTime,
+                            secondReminderCandidate = desiredSecondReminderTime,
+                        )
+
+                    updateReminderTimes(
+                        updatedFirstReminderTime = normalizedFirstReminderTime,
+                        updatedSecondReminderTime = normalizedSecondReminderTime,
+                    )
                 }
             }
         }
@@ -80,4 +105,46 @@ class SettingViewModel
 
             return isLoginSuccess
         }
+
+    private fun normalizeReminderTimes(
+        firstReminderCandidate: NotificationTime,
+        secondReminderCandidate: NotificationTime,
+    ): Pair<NotificationTime, NotificationTime> {
+        if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
+            return NotificationTime.NONE to NotificationTime.NONE
+        }
+
+        if (firstReminderCandidate == NotificationTime.NONE) {
+            return secondReminderCandidate to NotificationTime.NONE
+        }
+
+        if (secondReminderCandidate == NotificationTime.NONE) {
+            return firstReminderCandidate to NotificationTime.NONE
+        }
+
+        if (firstReminderCandidate == secondReminderCandidate) {
+            return firstReminderCandidate to NotificationTime.NONE
+        }
+
+        return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
+            firstReminderCandidate to secondReminderCandidate
+        } else {
+            secondReminderCandidate to firstReminderCandidate
+        }
     }
+
+    private suspend fun updateReminderTimes(
+        updatedFirstReminderTime: NotificationTime,
+        updatedSecondReminderTime: NotificationTime,
+    ) {
+        settingsManager.setFirstReminderTime(updatedFirstReminderTime)
+        settingsManager.setSecondReminderTime(updatedSecondReminderTime)
+
+        setState {
+            copy(
+                firstReminderTime = updatedFirstReminderTime,
+                secondReminderTime = updatedSecondReminderTime,
+            )
+        }
+    }
+}

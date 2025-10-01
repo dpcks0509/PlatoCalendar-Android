@@ -193,7 +193,7 @@ fun SettingContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "첫 번째 알림",
+                        text = "알림",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
