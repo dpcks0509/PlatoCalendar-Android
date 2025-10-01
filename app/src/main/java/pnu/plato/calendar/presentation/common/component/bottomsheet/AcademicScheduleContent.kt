@@ -93,7 +93,7 @@ fun AcademicScheduleContent(
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
                 .shadow(
-                    elevation = 2.dp,
+                    elevation = 3.dp,
                     shape = RoundedCornerShape(16.dp),
                     clip = true,
                     ambientColor = Black,
@@ -145,7 +145,7 @@ fun AcademicScheduleContent(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
                 .shadow(
-                    elevation = 2.dp,
+                    elevation = 3.dp,
                     shape = RoundedCornerShape(16.dp),
                     clip = true,
                     ambientColor = Black,
