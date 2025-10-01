@@ -107,7 +107,13 @@ class CalendarScheduleManager
             val lastMonth = firstMonth.plusMonths(12)
 
             val firstMonthStart: LocalDate? =
-                if (yearMonth == firstMonth) LocalDate.of(today.year, today.monthValue, 1) else null
+                if (yearMonth == firstMonth) {
+                    val monthFirstDay = LocalDate.of(today.year, today.monthValue, 1)
+                    val fiveDaysBefore = today.minusDays(5)
+                    if (fiveDaysBefore.isBefore(monthFirstDay)) fiveDaysBefore else monthFirstDay
+                } else {
+                    null
+                }
             val lastMonthEnd: LocalDate? = if (yearMonth == lastMonth) rangeEnd else null
 
             return List(MAX_WEEK_SIZE) { weekOffset ->
