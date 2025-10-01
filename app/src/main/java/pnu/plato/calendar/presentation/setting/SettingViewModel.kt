@@ -25,8 +25,7 @@ class SettingViewModel
                 loginManager.loginStatus.collect { loginStatus ->
                     when (loginStatus) {
                         is LoginStatus.Login -> {
-                            val userName = "${loginStatus.loginSession.userName} (${loginStatus.loginSession.fullName})"
-                            setState { copy(userInfo = userName) }
+                            setState { copy(userInfo = loginStatus.loginSession.userInfo) }
                         }
 
                         else -> setState { copy(userInfo = null) }

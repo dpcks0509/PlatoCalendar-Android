@@ -5,4 +5,6 @@ data class LoginSession(
     val fullName: String,
     val userId: String,
     val sessKey: String,
-)
+) {
+    val userInfo: String get() = "$userName ($fullName)"
+}
