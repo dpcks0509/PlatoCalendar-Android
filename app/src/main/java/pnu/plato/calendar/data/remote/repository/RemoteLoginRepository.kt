@@ -26,6 +26,8 @@ class RemoteLoginRepository
                 val redirectUrl = redirectLocation.toHttpUrlOrNull()
 
                 when (redirectUrl?.queryParameter("errorcode")) {
+                    "1" -> return Result.failure(Exception(COOKIES_DISABLED_ERROR))
+                    "2" -> return Result.failure(Exception(INVALID_USERNAME_FORMAT_ERROR))
                     "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
                     "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
                     "5" -> return Result.failure(Exception(ACCOUNT_LOCKED_ERROR))
@@ -93,6 +95,9 @@ class RemoteLoginRepository
 
         companion object {
             private const val REDIRECT_CODE = 303
+            private const val COOKIES_DISABLED_ERROR = "현재, 브라우저의 쿠키가 작동하지 않습니다."
+            private const val INVALID_USERNAME_FORMAT_ERROR =
+                "사용자 아이디: 이이디에는 영어소문자, 숫자, 밑줄( _ ), 하이폰( - ), 마침표( . ) 또는 @ 기호만을 쓸 수 있습니다."
             private const val INVALID_CREDENTIALS_ERROR = "아이디 또는 패스워드가 잘못 입력되었습니다."
             private const val SESSION_EXPIRED_ERROR = "세션이 종료 되었습니다. 다시 로그인 하십시오."
             private const val ACCOUNT_LOCKED_ERROR =
