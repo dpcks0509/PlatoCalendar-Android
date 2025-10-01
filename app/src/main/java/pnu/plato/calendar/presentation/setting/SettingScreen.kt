@@ -54,6 +54,7 @@ import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingState
+import pnu.plato.calendar.presentation.setting.model.NotificationTime
 
 private const val LOGIN_REQUIRED = "로그인이 필요합니다."
 
@@ -114,8 +115,9 @@ fun SettingContent(
         item {
             SettingSection(title = "알림") {
                 var notificationsEnabled by remember { mutableStateOf(false) }
+                var academicScheduleNotificationsEnabled by remember { mutableStateOf(false) }
                 var isDropdownExpanded by remember { mutableStateOf(false) }
-                var selectedNotificationTime by remember { mutableStateOf("1시간 전") }
+                var selectedNotificationTime by remember { mutableStateOf(NotificationTime.ONE_HOUR) }
 
                 Row(
                     modifier =
@@ -134,6 +136,37 @@ fun SettingContent(
                     Switch(
                         checked = notificationsEnabled,
                         onCheckedChange = { notificationsEnabled = it },
+                        colors =
+                            SwitchDefaults.colors(
+                                checkedTrackColor = PrimaryColor,
+                            ),
+                    )
+                }
+                Spacer(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(MediumGray),
+                )
+
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "학사 일정 알림받기",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(
+                        checked = academicScheduleNotificationsEnabled,
+                        onCheckedChange = { academicScheduleNotificationsEnabled = it },
                         colors =
                             SwitchDefaults.colors(
                                 checkedTrackColor = PrimaryColor,
@@ -169,7 +202,7 @@ fun SettingContent(
                             modifier = Modifier.noRippleClickable { isDropdownExpanded = true },
                         ) {
                             Text(
-                                text = selectedNotificationTime,
+                                text = selectedNotificationTime.label,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Gray,
@@ -188,9 +221,9 @@ fun SettingContent(
                             expanded = isDropdownExpanded,
                             onDismissRequest = { isDropdownExpanded = false },
                         ) {
-                            listOf("1시간 전", "2시간 전", "1일 전", "2일 전", "1주 전").forEach { option ->
+                            NotificationTime.entries.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(option.label) },
                                     onClick = {
                                         selectedNotificationTime = option
                                         isDropdownExpanded = false
