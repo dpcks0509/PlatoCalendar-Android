@@ -97,12 +97,14 @@ class PlatoCalendarActivity : ComponentActivity() {
                             modifier =
                                 Modifier
                                     .fillMaxSize()
-                                    .navigationBarsPadding()
                                     .noRippleClickable(),
                         ) {
                             CircularProgressIndicator(
                                 color = PrimaryColor,
-                                modifier = Modifier.align(Alignment.Center),
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.Center)
+                                        .navigationBarsPadding(),
                             )
                         }
                     }

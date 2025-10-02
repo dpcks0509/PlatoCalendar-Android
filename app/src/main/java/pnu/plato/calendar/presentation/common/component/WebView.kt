@@ -1,6 +1,7 @@
 package pnu.plato.calendar.presentation.common.component
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -9,16 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebView(
     url: String,
     modifier: Modifier = Modifier,
 ) {
     AndroidView(
-        factory = {
-            WebView(it).apply {
+        modifier = modifier,
+        factory = { context ->
+            WebView(context).apply {
                 settings.apply {
-                    @SuppressLint("SetJavaScriptEnabled")
                     javaScriptEnabled = true
                     domStorageEnabled = true
                 }
@@ -29,12 +31,28 @@ fun WebView(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                     )
 
-                webViewClient = WebViewClient()
-                webChromeClient = WebChromeClient()
+                webViewClient =
+                    object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(
+                            view: WebView?,
+                            request: android.webkit.WebResourceRequest?,
+                        ): Boolean {
+                            val loadingUrl = request?.url.toString()
+                            println(loadingUrl)
+                            return if (loadingUrl.startsWith("intent://")) {
+                                val intent = Intent.parseUri(loadingUrl, Intent.URI_INTENT_SCHEME)
+                                context.startActivity(intent)
 
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    }
+
+                webChromeClient = WebChromeClient()
                 loadUrl(url)
             }
         },
-        modifier = modifier,
     )
 }

@@ -5,16 +5,21 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import pnu.plato.calendar.presentation.calendar.CalendarScreen
+import pnu.plato.calendar.presentation.common.component.WebView
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.CalendarScreen
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.SettingScreen
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.ToDoScreen
+import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen.WebView
 import pnu.plato.calendar.presentation.setting.SettingScreen
 import pnu.plato.calendar.presentation.todo.ToDoScreen
 
@@ -57,7 +62,17 @@ fun PlatoCalendarNavHost(
             popExitTransition = { ordinalSlideExit() },
         ) {
             SettingScreen(
+                navigateToWebView = { url -> navController.navigate(WebView(url)) },
                 modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        composable<WebView> {
+            val url = it.toRoute<WebView>().url
+
+            WebView(
+                url = url,
+                modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
             )
         }
     }

@@ -31,6 +31,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,8 @@ import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
+import pnu.plato.calendar.presentation.setting.intent.SettingSideEffect
 import pnu.plato.calendar.presentation.setting.intent.SettingState
 import pnu.plato.calendar.presentation.setting.model.NotificationTime
 
@@ -60,11 +63,20 @@ private const val LOGIN_REQUIRED = "로그인이 필요합니다."
 
 @Composable
 fun SettingScreen(
+    navigateToWebView: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                is SettingSideEffect.NavigateToWebView -> navigateToWebView(sideEffect.url)
+            }
+        }
+    }
 
     SettingContent(
         state = state,
@@ -306,7 +318,7 @@ fun SettingContent(
 
         item {
             SettingSection(title = "고객 지원") {
-                SettingItem(text = "공지") {}
+                SettingItem(text = "공지") { url -> onEvent(NavigateToWebView(url)) }
 
                 Spacer(
                     modifier =
@@ -316,13 +328,13 @@ fun SettingContent(
                             .background(MediumGray),
                 )
 
-                SettingItem(text = "문의하기") {}
+                SettingItem(text = "문의하기") { _ -> }
             }
         }
 
         item {
             SettingSection(title = "이용 안내") {
-                SettingItem(text = "서비스 이용약관") {}
+                SettingItem(text = "서비스 이용약관") { _ -> }
 
                 Spacer(
                     modifier =
@@ -332,7 +344,7 @@ fun SettingContent(
                             .background(MediumGray),
                 )
 
-                SettingItem(text = "개인정보 처리방침") {}
+                SettingItem(text = "개인정보 처리방침") { _ -> }
             }
         }
 
@@ -369,14 +381,14 @@ private fun SettingSection(
 @Composable
 private fun SettingItem(
     text: String,
-    onClick: () -> Unit,
+    navigateToWebView: (String) -> Unit,
 ) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .clickable { onClick() }
+                .clickable { navigateToWebView("https://glaze-mustang-7cf.notion.site/28057846cad680089524ea45cb9afce1?source=copy_link") }
                 .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

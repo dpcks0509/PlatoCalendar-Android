@@ -57,6 +57,7 @@ class SettingViewModel
                 SettingEvent.Logout -> {
                     loginManager.logout()
                 }
+
                 is SettingEvent.SetNotificationsEnabled -> {
                     settingsManager.setNotificationsEnabled(event.enabled)
                 }
@@ -96,6 +97,10 @@ class SettingViewModel
                         updatedSecondReminderTime = normalizedSecondReminderTime,
                     )
                 }
+
+                is SettingEvent.NavigateToWebView -> {
+                    setSideEffect { SettingSideEffect.NavigateToWebView(event.url) }
+                }
             }
         }
 
@@ -106,45 +111,45 @@ class SettingViewModel
             return isLoginSuccess
         }
 
-    private fun normalizeReminderTimes(
-        firstReminderCandidate: NotificationTime,
-        secondReminderCandidate: NotificationTime,
-    ): Pair<NotificationTime, NotificationTime> {
-        if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
-            return NotificationTime.NONE to NotificationTime.NONE
+        private fun normalizeReminderTimes(
+            firstReminderCandidate: NotificationTime,
+            secondReminderCandidate: NotificationTime,
+        ): Pair<NotificationTime, NotificationTime> {
+            if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
+                return NotificationTime.NONE to NotificationTime.NONE
+            }
+
+            if (firstReminderCandidate == NotificationTime.NONE) {
+                return secondReminderCandidate to NotificationTime.NONE
+            }
+
+            if (secondReminderCandidate == NotificationTime.NONE) {
+                return firstReminderCandidate to NotificationTime.NONE
+            }
+
+            if (firstReminderCandidate == secondReminderCandidate) {
+                return firstReminderCandidate to NotificationTime.NONE
+            }
+
+            return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
+                firstReminderCandidate to secondReminderCandidate
+            } else {
+                secondReminderCandidate to firstReminderCandidate
+            }
         }
 
-        if (firstReminderCandidate == NotificationTime.NONE) {
-            return secondReminderCandidate to NotificationTime.NONE
-        }
+        private suspend fun updateReminderTimes(
+            updatedFirstReminderTime: NotificationTime,
+            updatedSecondReminderTime: NotificationTime,
+        ) {
+            settingsManager.setFirstReminderTime(updatedFirstReminderTime)
+            settingsManager.setSecondReminderTime(updatedSecondReminderTime)
 
-        if (secondReminderCandidate == NotificationTime.NONE) {
-            return firstReminderCandidate to NotificationTime.NONE
-        }
-
-        if (firstReminderCandidate == secondReminderCandidate) {
-            return firstReminderCandidate to NotificationTime.NONE
-        }
-
-        return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
-            firstReminderCandidate to secondReminderCandidate
-        } else {
-            secondReminderCandidate to firstReminderCandidate
+            setState {
+                copy(
+                    firstReminderTime = updatedFirstReminderTime,
+                    secondReminderTime = updatedSecondReminderTime,
+                )
+            }
         }
     }
-
-    private suspend fun updateReminderTimes(
-        updatedFirstReminderTime: NotificationTime,
-        updatedSecondReminderTime: NotificationTime,
-    ) {
-        settingsManager.setFirstReminderTime(updatedFirstReminderTime)
-        settingsManager.setSecondReminderTime(updatedSecondReminderTime)
-
-        setState {
-            copy(
-                firstReminderTime = updatedFirstReminderTime,
-                secondReminderTime = updatedSecondReminderTime,
-            )
-        }
-    }
-}

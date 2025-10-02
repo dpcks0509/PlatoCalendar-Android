@@ -44,7 +44,15 @@ fun PlatoCalendarBottomBar(navController: NavController) {
     CompositionLocalProvider(LocalRippleConfiguration provides noRippleConfiguration) {
         NavigationBar {
             BottomBarItem.entries.forEach { item ->
-                val isSelected = currentRoute == item.route::class.qualifiedName
+                val isSelected =
+                    when (item.route) {
+                        is PlatoCalendarScreen.SettingScreen ->
+                            currentRoute == PlatoCalendarScreen.SettingScreen::class.qualifiedName ||
+                                currentRoute?.removeSuffix("/{url}") == PlatoCalendarScreen.WebView::class.qualifiedName
+
+                        else ->
+                            currentRoute == item.route::class.qualifiedName
+                    }
 
                 NavigationBarItem(
                     icon = {

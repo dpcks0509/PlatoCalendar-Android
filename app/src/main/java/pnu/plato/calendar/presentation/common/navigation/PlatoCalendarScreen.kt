@@ -11,4 +11,9 @@ sealed interface PlatoCalendarScreen {
 
     @Serializable
     data object SettingScreen : PlatoCalendarScreen
+
+    @Serializable
+    data class WebView(
+        val url: String,
+    ) : PlatoCalendarScreen
 }
