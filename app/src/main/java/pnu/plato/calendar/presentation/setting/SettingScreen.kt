@@ -100,40 +100,44 @@ fun SettingContent(
 
                         SettingMenu.NOTIFICATIONS -> {
                             menu.items.forEachIndexed { index, content ->
-                                if (content == SettingMenu.SettingContent.NOTIFICATIONS_ENABLED) {
-                                    NotificationToggleItem(
-                                        label = content.getLabel(),
-                                        checked = state.notificationsEnabled,
-                                        onCheckedChange = { enabled -> onEvent(SettingEvent.SetNotificationsEnabled(enabled)) },
-                                    )
-                                } else if (content == SettingMenu.SettingContent.ACADEMIC_SCHEDULE_ENABLED) {
-                                    NotificationToggleItem(
-                                        label = content.getLabel(),
-                                        checked = state.academicScheduleEnabled,
-                                        onCheckedChange = { enabled -> onEvent(SettingEvent.SetAcademicScheduleEnabled(enabled)) },
-                                    )
-                                } else if (content == SettingMenu.SettingContent.FIRST_REMINDER) {
-                                    ReminderDropdownItem(
-                                        label = content.getLabel(),
-                                        selectedLabel = state.firstReminderTime.label,
-                                        onSelect = { option -> onEvent(SettingEvent.SetFirstReminderTime(option)) },
-                                    )
-                                } else if (content == SettingMenu.SettingContent.SECOND_REMINDER) {
-                                    ReminderDropdownItem(
-                                        label = content.getLabel(),
-                                        selectedLabel = state.secondReminderTime.label,
-                                        onSelect = { option -> onEvent(SettingEvent.SetSecondReminderTime(option)) },
-                                    )
-                                }
-
-                                if (index != menu.items.lastIndex) {
-                                    Spacer(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .background(MediumGray),
-                                    )
+                                when {
+                                    content == SettingMenu.SettingContent.NOTIFICATIONS_ENABLED -> {
+                                        NotificationToggleItem(
+                                            label = content.getLabel(),
+                                            checked = state.notificationsEnabled,
+                                            onCheckedChange = { enabled -> onEvent(SettingEvent.SetNotificationsEnabled(enabled)) },
+                                        )
+                                    }
+                                    content == SettingMenu.SettingContent.ACADEMIC_SCHEDULE_ENABLED -> {
+                                        NotificationToggleItem(
+                                            label = content.getLabel(),
+                                            checked = state.academicScheduleEnabled,
+                                            onCheckedChange = { enabled -> onEvent(SettingEvent.SetAcademicScheduleEnabled(enabled)) },
+                                        )
+                                    }
+                                    content == SettingMenu.SettingContent.FIRST_REMINDER -> {
+                                        ReminderDropdownItem(
+                                            label = content.getLabel(),
+                                            selectedLabel = state.firstReminderTime.label,
+                                            onSelect = { option -> onEvent(SettingEvent.SetFirstReminderTime(option)) },
+                                        )
+                                    }
+                                    content == SettingMenu.SettingContent.SECOND_REMINDER -> {
+                                        ReminderDropdownItem(
+                                            label = content.getLabel(),
+                                            selectedLabel = state.secondReminderTime.label,
+                                            onSelect = { option -> onEvent(SettingEvent.SetSecondReminderTime(option)) },
+                                        )
+                                    }
+                                    index != menu.items.lastIndex -> {
+                                        Spacer(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(1.dp)
+                                                    .background(MediumGray),
+                                        )
+                                    }
                                 }
                             }
                         }
