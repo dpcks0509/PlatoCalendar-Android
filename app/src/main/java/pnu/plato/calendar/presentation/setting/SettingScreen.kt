@@ -201,9 +201,10 @@ fun SettingContent(
 
                     Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                         Row(
-                            modifier = Modifier.noRippleClickable {
-                                isFirstReminderDropdownExpanded = true
-                            },
+                            modifier =
+                                Modifier.noRippleClickable {
+                                    isFirstReminderDropdownExpanded = true
+                                },
                         ) {
                             Text(
                                 text = state.firstReminderTime.label,
@@ -238,6 +239,14 @@ fun SettingContent(
                     }
                 }
 
+                Spacer(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(MediumGray),
+                )
+
                 Row(
                     modifier =
                         Modifier
@@ -255,9 +264,10 @@ fun SettingContent(
 
                     Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                         Row(
-                            modifier = Modifier.noRippleClickable {
-                                isSecondReminderDropdownExpanded = true
-                            },
+                            modifier =
+                                Modifier.noRippleClickable {
+                                    isSecondReminderDropdownExpanded = true
+                                },
                         ) {
                             Text(
                                 text = state.secondReminderTime.label,
@@ -324,6 +334,10 @@ fun SettingContent(
 
                 SettingItem(text = "개인정보 처리방침") {}
             }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -424,7 +438,7 @@ private fun Account(
                 text = buttonText,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = White
+                color = White,
             )
         }
     }
