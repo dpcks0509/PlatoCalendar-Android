@@ -2,6 +2,7 @@ package pnu.plato.calendar.presentation.setting
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -27,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pnu.plato.calendar.presentation.common.component.LoginDialog
 import pnu.plato.calendar.presentation.common.component.TopBar
@@ -40,10 +43,11 @@ import pnu.plato.calendar.presentation.setting.component.SettingItem
 import pnu.plato.calendar.presentation.setting.component.SettingSection
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
-import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetAcademicScheduleEnabled
-import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetFirstReminderTime
-import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetNotificationsEnabled
-import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetSecondReminderTime
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateAcademicScheduleEnabled
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateFirstReminderTime
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateNotificationPermission
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateNotificationsEnabled
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateSecondReminderTime
 import pnu.plato.calendar.presentation.setting.intent.SettingSideEffect
 import pnu.plato.calendar.presentation.setting.intent.SettingState
 import pnu.plato.calendar.presentation.setting.model.SettingMenu
@@ -69,14 +73,19 @@ fun SettingScreen(
     val notificationPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             when {
-                isGranted -> viewModel.setEvent(SetNotificationsEnabled(true))
+                isGranted -> viewModel.setEvent(UpdateNotificationsEnabled(true))
                 activity?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) == false -> {
                     viewModel.setEvent(SettingEvent.ShowNotificationPermissionSettingsDialog)
                 }
 
-                else -> viewModel.setEvent(SetNotificationsEnabled(false))
+                else -> viewModel.setEvent(UpdateNotificationsEnabled(false))
             }
         }
+
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+        val granted = checkNotificationPermission(context)
+        viewModel.setEvent(UpdateNotificationPermission(granted))
+    }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { sideEffect ->
@@ -88,22 +97,26 @@ fun SettingScreen(
 
     val handleSettingEvent: (SettingEvent) -> Unit = { event ->
         when (event) {
-            is SetNotificationsEnabled -> {
-                when {
-                    !event.enabled -> viewModel.setEvent(event)
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU -> viewModel.setEvent(event)
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS,
-                    ) == PackageManager.PERMISSION_GRANTED -> viewModel.setEvent(event)
-
-                    else -> notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            is UpdateNotificationsEnabled -> {
+                if (!event.enabled) {
+                    viewModel.setEvent(event)
+                } else {
+                    if (checkNotificationPermission(context)) {
+                        viewModel.setEvent(event)
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            viewModel.setEvent(event)
+                        }
+                    }
                 }
             }
 
             else -> viewModel.setEvent(event)
         }
     }
+
 
     SettingContent(
         state = state,
@@ -175,7 +188,11 @@ fun SettingContent(
                                         NotificationToggleItem(
                                             label = content.getLabel(),
                                             checked = state.notificationsEnabled,
-                                            onCheckedChange = { enabled -> onEvent(SetNotificationsEnabled(enabled)) },
+                                            onCheckedChange = { enabled ->
+                                                onEvent(
+                                                    UpdateNotificationsEnabled(enabled)
+                                                )
+                                            },
                                         )
                                     }
 
@@ -183,7 +200,12 @@ fun SettingContent(
                                         NotificationToggleItem(
                                             label = content.getLabel(),
                                             checked = state.academicScheduleEnabled,
-                                            onCheckedChange = { enabled -> onEvent(SetAcademicScheduleEnabled(enabled)) },
+                                            enabled = state.hasNotificationPermission,
+                                            onCheckedChange = { enabled ->
+                                                onEvent(
+                                                    UpdateAcademicScheduleEnabled(enabled)
+                                                )
+                                            },
                                         )
                                     }
 
@@ -191,7 +213,14 @@ fun SettingContent(
                                         ReminderDropdownItem(
                                             label = content.getLabel(),
                                             selectedLabel = state.firstReminderTime.label,
-                                            onSelect = { option -> onEvent(SetFirstReminderTime(option)) },
+                                            enabled = state.hasNotificationPermission,
+                                            onSelect = { option ->
+                                                onEvent(
+                                                    UpdateFirstReminderTime(
+                                                        option
+                                                    )
+                                                )
+                                            },
                                         )
                                     }
 
@@ -199,7 +228,14 @@ fun SettingContent(
                                         ReminderDropdownItem(
                                             label = content.getLabel(),
                                             selectedLabel = state.secondReminderTime.label,
-                                            onSelect = { option -> onEvent(SetSecondReminderTime(option)) },
+                                            onSelect = { option ->
+                                                onEvent(
+                                                    UpdateSecondReminderTime(
+                                                        option
+                                                    )
+                                                )
+                                            },
+                                            enabled = state.hasNotificationPermission,
                                         )
                                     }
 
@@ -220,7 +256,13 @@ fun SettingContent(
                             menu.items.forEachIndexed { index, content ->
                                 SettingItem(
                                     content = content,
-                                    navigateToWebView = { navigateUrl -> onEvent(NavigateToWebView(navigateUrl)) },
+                                    navigateToWebView = { navigateUrl ->
+                                        onEvent(
+                                            NavigateToWebView(
+                                                navigateUrl
+                                            )
+                                        )
+                                    },
                                 )
 
                                 if (index != menu.items.lastIndex) {
@@ -242,6 +284,17 @@ fun SettingContent(
         item {
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+}
+
+private fun checkNotificationPermission(context: Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
     }
 }
 

@@ -10,20 +10,24 @@ sealed interface SettingEvent : UiEvent {
 
     data object Logout : SettingEvent
 
-    data class SetNotificationsEnabled(
+    data class UpdateNotificationsEnabled(
         val enabled: Boolean,
     ) : SettingEvent
 
-    data class SetAcademicScheduleEnabled(
+    data class UpdateAcademicScheduleEnabled(
         val enabled: Boolean,
     ) : SettingEvent
 
-    data class SetFirstReminderTime(
+    data class UpdateFirstReminderTime(
         val time: NotificationTime,
     ) : SettingEvent
 
-    data class SetSecondReminderTime(
+    data class UpdateSecondReminderTime(
         val time: NotificationTime,
+    ) : SettingEvent
+
+    data class UpdateNotificationPermission(
+        val granted: Boolean,
     ) : SettingEvent
 
     data class NavigateToWebView(

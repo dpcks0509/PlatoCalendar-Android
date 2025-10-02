@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +34,7 @@ import pnu.plato.calendar.presentation.setting.model.NotificationTime
 fun ReminderDropdownItem(
     label: String,
     selectedLabel: String,
+    enabled: Boolean,
     onSelect: (NotificationTime) -> Unit,
 ) {
     var isDropdownExpanded by remember { mutableStateOf(false) }
@@ -42,7 +44,8 @@ fun ReminderDropdownItem(
             Modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .alpha(if (enabled) 1f else 0.6f),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -56,7 +59,9 @@ fun ReminderDropdownItem(
             Row(
                 modifier =
                     Modifier.noRippleClickable {
-                        isDropdownExpanded = true
+                        if (enabled) {
+                            isDropdownExpanded = true
+                        }
                     },
             ) {
                 Text(

@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,14 +20,16 @@ import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 fun NotificationToggleItem(
     label: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .alpha(if (enabled) 1f else 0.6f),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -38,6 +41,7 @@ fun NotificationToggleItem(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            enabled = enabled,
             colors = SwitchDefaults.colors(checkedTrackColor = PrimaryColor),
         )
     }
