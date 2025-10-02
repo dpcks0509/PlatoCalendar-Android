@@ -38,7 +38,7 @@ fun WebView(
                             request: android.webkit.WebResourceRequest?,
                         ): Boolean {
                             val loadingUrl = request?.url.toString()
-                            println(loadingUrl)
+
                             return if (loadingUrl.startsWith("intent://")) {
                                 val intent = Intent.parseUri(loadingUrl, Intent.URI_INTENT_SCHEME)
                                 context.startActivity(intent)
