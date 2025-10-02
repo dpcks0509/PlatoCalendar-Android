@@ -202,7 +202,7 @@ class CalendarViewModel
                         calendarScheduleManager.updateLoading(false)
                     }
 
-                    LoginStatus.Uninitialized -> Unit
+                    LoginStatus.Uninitialized -> calendarScheduleManager.updateLoading(true)
                 }
             }
         }

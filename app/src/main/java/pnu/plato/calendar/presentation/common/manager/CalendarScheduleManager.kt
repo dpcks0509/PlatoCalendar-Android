@@ -28,7 +28,7 @@ class CalendarScheduleManager
         private val _schedules = MutableStateFlow<List<ScheduleUiModel>>(emptyList())
         val schedules: StateFlow<List<ScheduleUiModel>> = _schedules.asStateFlow()
 
-        private val _isLoading = MutableStateFlow(true)
+        private val _isLoading = MutableStateFlow(false)
         val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
         fun updateSchedules(schedules: List<ScheduleUiModel>) {
