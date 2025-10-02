@@ -10,4 +10,7 @@ data class SettingState(
     val academicScheduleEnabled: Boolean = false,
     val firstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
     val secondReminderTime: NotificationTime = NotificationTime.NONE,
+    val isNotificationPermissionSettingsDialogVisible: Boolean = false,
+    val shouldPromptNotificationPermission: Boolean = false,
+    val hasNotificationPermission: Boolean = false,
 ) : UiState

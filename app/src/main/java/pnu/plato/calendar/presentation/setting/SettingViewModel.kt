@@ -10,7 +10,9 @@ import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.manager.SettingsManager
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.HideLoginDialog
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.HideNotificationPermissionSettingsDialog
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.ShowLoginDialog
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.ShowNotificationPermissionSettingsDialog
 import pnu.plato.calendar.presentation.setting.intent.SettingSideEffect
 import pnu.plato.calendar.presentation.setting.intent.SettingState
 import pnu.plato.calendar.presentation.setting.model.NotificationTime
@@ -54,6 +56,15 @@ class SettingViewModel
             when (event) {
                 ShowLoginDialog -> setState { copy(isLoginDialogVisible = true) }
                 HideLoginDialog -> setState { copy(isLoginDialogVisible = false) }
+                ShowNotificationPermissionSettingsDialog ->
+                    setState {
+                        copy(isNotificationPermissionSettingsDialogVisible = true)
+                    }
+
+                HideNotificationPermissionSettingsDialog ->
+                    setState {
+                        copy(isNotificationPermissionSettingsDialogVisible = false)
+                    }
                 SettingEvent.Logout -> {
                     loginManager.logout()
                 }

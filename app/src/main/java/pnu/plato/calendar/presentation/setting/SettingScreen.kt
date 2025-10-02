@@ -1,5 +1,13 @@
 package pnu.plato.calendar.presentation.setting
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pnu.plato.calendar.presentation.common.component.LoginDialog
@@ -23,15 +33,28 @@ import pnu.plato.calendar.presentation.common.component.TopBar
 import pnu.plato.calendar.presentation.common.theme.MediumGray
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.setting.component.Account
+import pnu.plato.calendar.presentation.setting.component.NotificationPermissionSettingsDialog
 import pnu.plato.calendar.presentation.setting.component.NotificationToggleItem
 import pnu.plato.calendar.presentation.setting.component.ReminderDropdownItem
 import pnu.plato.calendar.presentation.setting.component.SettingItem
 import pnu.plato.calendar.presentation.setting.component.SettingSection
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetAcademicScheduleEnabled
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetFirstReminderTime
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetNotificationsEnabled
+import pnu.plato.calendar.presentation.setting.intent.SettingEvent.SetSecondReminderTime
 import pnu.plato.calendar.presentation.setting.intent.SettingSideEffect
 import pnu.plato.calendar.presentation.setting.intent.SettingState
 import pnu.plato.calendar.presentation.setting.model.SettingMenu
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.ACCOUNT
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.NOTIFICATIONS
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.ACADEMIC_SCHEDULE_ENABLED
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.USAGE_GUIDE
+import pnu.plato.calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
 
 @Composable
 fun SettingScreen(
@@ -41,6 +64,19 @@ fun SettingScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            when {
+                isGranted -> viewModel.setEvent(SetNotificationsEnabled(true))
+                activity?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) == false -> {
+                    viewModel.setEvent(SettingEvent.ShowNotificationPermissionSettingsDialog)
+                }
+
+                else -> viewModel.setEvent(SetNotificationsEnabled(false))
+            }
+        }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { sideEffect ->
@@ -50,10 +86,29 @@ fun SettingScreen(
         }
     }
 
+    val handleSettingEvent: (SettingEvent) -> Unit = { event ->
+        when (event) {
+            is SetNotificationsEnabled -> {
+                when {
+                    !event.enabled -> viewModel.setEvent(event)
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU -> viewModel.setEvent(event)
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ) == PackageManager.PERMISSION_GRANTED -> viewModel.setEvent(event)
+
+                    else -> notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+
+            else -> viewModel.setEvent(event)
+        }
+    }
+
     SettingContent(
         state = state,
         lazyListState = lazyListState,
-        onEvent = viewModel::setEvent,
+        onEvent = handleSettingEvent,
         modifier = modifier,
     )
 
@@ -61,6 +116,21 @@ fun SettingScreen(
         LoginDialog(
             onDismissRequest = { viewModel.setEvent(SettingEvent.HideLoginDialog) },
             onLoginRequest = { loginCredentials -> viewModel.tryLogin(loginCredentials) },
+        )
+    }
+
+    if (state.isNotificationPermissionSettingsDialogVisible) {
+        NotificationPermissionSettingsDialog(
+            onDismissRequest = { viewModel.setEvent(SettingEvent.HideNotificationPermissionSettingsDialog) },
+            onNavigateToSettings = {
+                viewModel.setEvent(SettingEvent.HideNotificationPermissionSettingsDialog)
+                val intent =
+                    Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                context.startActivity(intent)
+            },
         )
     }
 }
@@ -88,7 +158,7 @@ fun SettingContent(
             item {
                 SettingSection(title = menu.title) {
                     when (menu) {
-                        SettingMenu.ACCOUNT -> {
+                        ACCOUNT -> {
                             Account(
                                 state = state,
                                 onClickLoginLogout = {
@@ -98,37 +168,41 @@ fun SettingContent(
                             )
                         }
 
-                        SettingMenu.NOTIFICATIONS -> {
+                        NOTIFICATIONS -> {
                             menu.items.forEachIndexed { index, content ->
                                 when {
-                                    content == SettingMenu.SettingContent.NOTIFICATIONS_ENABLED -> {
+                                    content == NOTIFICATIONS_ENABLED -> {
                                         NotificationToggleItem(
                                             label = content.getLabel(),
                                             checked = state.notificationsEnabled,
-                                            onCheckedChange = { enabled -> onEvent(SettingEvent.SetNotificationsEnabled(enabled)) },
+                                            onCheckedChange = { enabled -> onEvent(SetNotificationsEnabled(enabled)) },
                                         )
                                     }
-                                    content == SettingMenu.SettingContent.ACADEMIC_SCHEDULE_ENABLED -> {
+
+                                    content == ACADEMIC_SCHEDULE_ENABLED -> {
                                         NotificationToggleItem(
                                             label = content.getLabel(),
                                             checked = state.academicScheduleEnabled,
-                                            onCheckedChange = { enabled -> onEvent(SettingEvent.SetAcademicScheduleEnabled(enabled)) },
+                                            onCheckedChange = { enabled -> onEvent(SetAcademicScheduleEnabled(enabled)) },
                                         )
                                     }
-                                    content == SettingMenu.SettingContent.FIRST_REMINDER -> {
+
+                                    content == FIRST_REMINDER -> {
                                         ReminderDropdownItem(
                                             label = content.getLabel(),
                                             selectedLabel = state.firstReminderTime.label,
-                                            onSelect = { option -> onEvent(SettingEvent.SetFirstReminderTime(option)) },
+                                            onSelect = { option -> onEvent(SetFirstReminderTime(option)) },
                                         )
                                     }
-                                    content == SettingMenu.SettingContent.SECOND_REMINDER -> {
+
+                                    content == SECOND_REMINDER -> {
                                         ReminderDropdownItem(
                                             label = content.getLabel(),
                                             selectedLabel = state.secondReminderTime.label,
-                                            onSelect = { option -> onEvent(SettingEvent.SetSecondReminderTime(option)) },
+                                            onSelect = { option -> onEvent(SetSecondReminderTime(option)) },
                                         )
                                     }
+
                                     index != menu.items.lastIndex -> {
                                         Spacer(
                                             modifier =
@@ -142,7 +216,7 @@ fun SettingContent(
                             }
                         }
 
-                        SettingMenu.USER_SUPPORT, SettingMenu.USAGE_GUIDE -> {
+                        USER_SUPPORT, USAGE_GUIDE -> {
                             menu.items.forEachIndexed { index, content ->
                                 SettingItem(
                                     content = content,

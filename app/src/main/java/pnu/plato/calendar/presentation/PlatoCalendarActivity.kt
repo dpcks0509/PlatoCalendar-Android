@@ -1,12 +1,16 @@
 package pnu.plato.calendar.presentation
 
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -28,6 +32,7 @@ import pnu.plato.calendar.presentation.common.component.AnimatedToast
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import pnu.plato.calendar.presentation.common.manager.SettingsManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -44,8 +49,29 @@ class PlatoCalendarActivity : ComponentActivity() {
     @Inject
     lateinit var calendarScheduleManager: CalendarScheduleManager
 
+    @Inject
+    lateinit var settingsManager: SettingsManager
+
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (!isGranted) {
+                    lifecycleScope.launch { settingsManager.setNotificationsEnabled(false) }
+                }
+            }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (
+                checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
 
         MobileAds.initialize(this)
 

@@ -29,4 +29,8 @@ sealed interface SettingEvent : UiEvent {
     data class NavigateToWebView(
         val url: String,
     ) : SettingEvent
+
+    data object ShowNotificationPermissionSettingsDialog : SettingEvent
+
+    data object HideNotificationPermissionSettingsDialog : SettingEvent
 }
