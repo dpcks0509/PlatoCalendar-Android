@@ -8,8 +8,8 @@ private val amPmTimeFormatter: DateTimeFormatter =
     DateTimeFormatter.ofPattern("a h:mm", Locale.KOREAN)
 
 fun LocalDateTime.formatTimeWithMidnightSpecialCase(): String {
-    return if (hour == 0 && minute == 0) {
-        "00시 00분"
+    return if (hour == 0) {
+        "00시 ${minute.toString().padStart(2, '0')}분"
     } else {
         this.format(amPmTimeFormatter)
     }
