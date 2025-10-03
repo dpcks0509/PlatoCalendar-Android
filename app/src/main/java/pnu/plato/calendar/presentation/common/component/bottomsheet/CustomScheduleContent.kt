@@ -78,16 +78,14 @@ fun CustomScheduleContent(
     schedule: CustomScheduleUiModel,
     adView: AdView,
     editSchedule: (CustomSchedule) -> Unit,
-    deleteSchedule: (Long) -> Unit,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
+    onDeleteRequest: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     var title: String by remember { mutableStateOf(schedule.title) }
     var description: String by remember { mutableStateOf(schedule.description.orEmpty()) }
     var startAt: LocalDateTime by remember { mutableStateOf(schedule.startAt) }
     var endAt: LocalDateTime by remember { mutableStateOf(schedule.endAt) }
-
-    var showDeleteDialog: Boolean by remember { mutableStateOf(false) }
 
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -108,7 +106,8 @@ fun CustomScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean =
+                    year in minDate.year..maxDate.year
             }
         }
 
@@ -194,7 +193,8 @@ fun CustomScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -257,7 +257,8 @@ fun CustomScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -446,30 +447,11 @@ fun CustomScheduleContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .noRippleClickable { showDeleteDialog = true },
+                    .noRippleClickable { onDeleteRequest() },
         )
     }
 
     Spacer(modifier = Modifier.height(18.dp))
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(text = "일정 삭제") },
-            text = { Text(text = "일정을 삭제하시겠습니까?\n삭제된 일정은 복구할 수 없습니다.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        deleteSchedule(schedule.id)
-                    },
-                ) { Text(text = "삭제", color = Red) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text(text = "취소") }
-            },
-        )
-    }
 
     if (showStartDatePicker) {
         val datePickerState =
