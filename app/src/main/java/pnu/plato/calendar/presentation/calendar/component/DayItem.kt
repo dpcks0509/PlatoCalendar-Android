@@ -104,7 +104,7 @@ fun DayItem(
                     Box(
                         modifier =
                             Modifier
-                                .size(5.dp)
+                                .size(4.5.dp)
                                 .clip(CircleShape)
                                 .background(schedule.color.let { color -> if (daySchedule.isInMonth) color else color.copy(alpha = 0.6f) }),
                     )
