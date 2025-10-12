@@ -7,6 +7,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import pnu.plato.calendar.domain.repository.CourseRepository
 import javax.inject.Inject
 
+private const val UNKNOWN_COURSE_NAME = "알 수 없는 교과목"
+
 class LocalCourseRepository
     @Inject
     constructor(
@@ -29,8 +31,7 @@ class LocalCourseRepository
             courses.entries
                 .find { course ->
                     (course.key.substring(0, 4) + course.key.substring(6, 9) == courseCode)
-                }?.value
-                .orEmpty()
+                }?.value ?: UNKNOWN_COURSE_NAME
 
         override fun getCourseCode(courseName: String): String =
             courses.entries

@@ -42,6 +42,7 @@ import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBott
 import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -165,7 +166,18 @@ class CalendarViewModel
                             }
                         }
 
-                    return personalSchedules
+                    return personalSchedules + CourseScheduleUiModel(
+                        domain = CourseSchedule(
+                            id = 1,
+                            courseCode = "BC3000575",
+                            title = "과제 제출",
+                            description = "웹 소켓 통신에 대해 조사하고 보고서 제출",
+                            startAt = LocalDateTime.of(2025,10,15,9,0),
+                            endAt = LocalDateTime.of(2025,10,29,22,0),
+                            isCompleted = false
+                        ),
+                        courseName = "컴퓨터네트워크",
+                    )
                 }.onFailure { throwable ->
                     calendarScheduleManager.updateLoading(false)
 

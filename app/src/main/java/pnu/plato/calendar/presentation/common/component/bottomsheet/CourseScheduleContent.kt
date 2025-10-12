@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -169,6 +170,42 @@ fun CourseScheduleContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "CourseName",
+                tint = Black,
+                modifier = Modifier.size(24.dp),
+            )
+
+            TextField(
+                value = schedule.courseName,
+                readOnly = true,
+                onValueChange = { },
+                textStyle =
+                    TextStyle(
+                        fontSize = 16.sp,
+                        color = Black,
+                    ),
+                colors =
+                    TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        cursorColor = schedule.color,
+                    ),
+                maxLines = 5,
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
                 imageVector = Icons.Default.Menu,
                 contentDescription = "Description",
                 tint = Black,
@@ -300,7 +337,7 @@ fun CourseScheduleContent(
         modifier = Modifier.fillMaxWidth(),
     )
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(24.dp))
 
     Box(
         modifier =
