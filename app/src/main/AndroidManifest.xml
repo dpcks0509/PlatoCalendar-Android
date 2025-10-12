@@ -17,6 +17,7 @@
         <activity
             android:name="pnu.plato.calendar.presentation.PlatoCalendarActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.PlatoCalendar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

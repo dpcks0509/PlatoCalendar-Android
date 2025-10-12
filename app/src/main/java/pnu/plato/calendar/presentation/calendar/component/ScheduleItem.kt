@@ -4,11 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +42,6 @@ fun ScheduleItem(
         Box(
             modifier =
                 modifier
-                    .fillMaxHeight()
                     .padding(end = 44.dp),
             contentAlignment = Alignment.Center,
         ) {
@@ -57,11 +53,11 @@ fun ScheduleItem(
             )
         }
     } else {
-        LazyColumn(
+        Column(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            items(items = schedules) { schedule ->
+            schedules.forEach { schedule ->
                 when (schedule) {
                     is AcademicScheduleUiModel -> {
                         AcademicScheduleItem(schedule = schedule, onScheduleClick = onScheduleClick)

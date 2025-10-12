@@ -1,7 +1,6 @@
 package pnu.plato.calendar.presentation
 
 import android.Manifest
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -80,7 +79,6 @@ class PlatoCalendarActivity : ComponentActivity() {
             loginManager.autoLogin()
         }
 
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         enableEdgeToEdge(
             statusBarStyle =
                 SystemBarStyle.light(
