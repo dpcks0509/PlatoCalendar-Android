@@ -97,7 +97,7 @@ fun SelectedDateScheduleInfo(
         ScheduleItem(
             schedules = schedules,
             onScheduleClick = onScheduleClick,
-            modifier = Modifier.fillMaxWidth().requiredHeightIn(min = 96.dp),
+            modifier = Modifier.fillMaxWidth().requiredHeightIn(min = 180.dp),
         )
     }
 }
