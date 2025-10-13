@@ -7,7 +7,6 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.base.UiState
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 

@@ -56,7 +56,7 @@ class CalendarViewModel
             initialState =
                 CalendarState(
                     today = calendarScheduleManager.today.value.toLocalDate(),
-                    baseToday = calendarScheduleManager.baseToday.value.toLocalDate(),
+                    baseToday = calendarScheduleManager.baseToday,
                 ),
         ) {
         init {
@@ -84,12 +84,6 @@ class CalendarViewModel
                         }
                     }
                 }
-
-                launch {
-                    calendarScheduleManager.baseToday.collect { baseToday ->
-                        setState { copy(baseToday = baseToday.toLocalDate()) }
-                    }
-                }
             }
         }
 
@@ -97,7 +91,7 @@ class CalendarViewModel
             when (event) {
                 MoveToToday -> {
                     val today = calendarScheduleManager.today.value.toLocalDate()
-                    val baseToday = calendarScheduleManager.baseToday.value.toLocalDate()
+                    val baseToday = calendarScheduleManager.baseToday
                     val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
                     val baseTodayYearMonth = YearMonth(year = baseToday.year, month = baseToday.monthValue)
 

@@ -32,7 +32,6 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig.BANNER_AD_UNIT_ID
 import pnu.plato.calendar.presentation.calendar.component.Calendar
@@ -51,7 +50,6 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePerso
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
-import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToPage
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
@@ -107,7 +105,11 @@ fun CalendarScreen(
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 CalendarSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
-                is CalendarSideEffect.ScrollToPage -> coroutineScope.launch { pagerState.scrollToPage(sideEffect.page) }
+                is CalendarSideEffect.ScrollToPage -> coroutineScope.launch {
+                    pagerState.scrollToPage(
+                        sideEffect.page
+                    )
+                }
             }
         }
     }
@@ -126,7 +128,6 @@ fun CalendarScreen(
     CalendarContent(
         state = state,
         pagerState = pagerState,
-        coroutineScope = coroutineScope,
         getMonthSchedule = viewModel::getMonthSchedule,
         onEvent = viewModel::setEvent,
         modifier = modifier,
@@ -167,7 +168,6 @@ fun CalendarScreen(
 fun CalendarContent(
     state: CalendarState,
     pagerState: PagerState,
-    coroutineScope: CoroutineScope,
     getMonthSchedule: (YearMonth) -> List<List<DaySchedule?>>,
     onEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
@@ -272,7 +272,6 @@ fun CalendarScreenPreview() {
                     scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
                 ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            coroutineScope = rememberCoroutineScope(),
             getMonthSchedule = { yearMonth -> monthSchedule },
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
