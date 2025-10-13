@@ -37,6 +37,7 @@ import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pnu.plato.calendar.presentation.common.component.PullToRefreshContainer
 import pnu.plato.calendar.presentation.common.component.TopBar
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -125,6 +126,7 @@ fun ToDoScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToDoContent(
     state: ToDoState,
@@ -141,52 +143,58 @@ fun ToDoContent(
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
-    LazyColumn(
-        state = lazyListState,
-        modifier =
-            modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    PullToRefreshContainer(
+        modifier = modifier,
+        onRefresh = { /* TODO: Implement refresh logic */ },
     ) {
-        item {
-            TopBar(title = "할일")
+        LazyColumn(
+            state = lazyListState,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+        ) {
+            item {
+                TopBar(title = "할일")
+            }
+
+            items(ToDoSection.entries.toList()) { section ->
+                val schedules =
+                    when (section) {
+                        ToDoSection.WITHIN_7_DAYS -> within7Days
+                        ToDoSection.COMPLETED -> completedSchedules
+                        ToDoSection.COURSE -> courseSchedules
+                        ToDoSection.CUSTOM -> customSchedules
+                        ToDoSection.ACADEMIC -> academicSchedules
+                    }
+
+                ExpandableSection(
+                    toDoSection = section,
+                    items = schedules,
+                    isExpanded = expandedToDoSection == section,
+                    onSectionClick = { clickedSection ->
+                        expandedToDoSection =
+                            if (expandedToDoSection == clickedSection) {
+                                null
+                            } else {
+                                coroutineScope.launch { lazyListState.scrollToItem(0) }
+                                clickedSection
+                            }
+                    },
+                    toggleCompletion = { id, completed ->
+                        onEvent(TogglePersonalScheduleCompletion(id, completed))
+                    },
+                    onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
         }
-
-        items(ToDoSection.entries.toList()) { section ->
-            val schedules =
-                when (section) {
-                    ToDoSection.WITHIN_7_DAYS -> within7Days
-                    ToDoSection.COMPLETED -> completedSchedules
-                    ToDoSection.COURSE -> courseSchedules
-                    ToDoSection.CUSTOM -> customSchedules
-                    ToDoSection.ACADEMIC -> academicSchedules
-                }
-
-            ExpandableSection(
-                toDoSection = section,
-                items = schedules,
-                isExpanded = expandedToDoSection == section,
-                onSectionClick = { clickedSection ->
-                    expandedToDoSection =
-                        if (expandedToDoSection == clickedSection) {
-                            null
-                        } else {
-                            coroutineScope.launch { lazyListState.scrollToItem(0) }
-                            clickedSection
-                        }
-                },
-                toggleCompletion = { id, completed ->
-                    onEvent(TogglePersonalScheduleCompletion(id, completed))
-                },
-                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-            )
-        }
-
-        item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun ToDoScreenPreview() {

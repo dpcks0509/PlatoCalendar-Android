@@ -58,6 +58,7 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.component.LoginDialog
+import pnu.plato.calendar.presentation.common.component.PullToRefreshContainer
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
@@ -172,45 +173,48 @@ fun CalendarContent(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier
-            .verticalScroll(scrollState)
-            .fillMaxSize()
+    PullToRefreshContainer(
+        modifier = modifier,
+        onRefresh = { /* TODO: Implement refresh logic */ },
     ) {
-        CalendarTopBar(
-            selectedDate = state.selectedDate,
-            currentYearMonth = state.currentYearMonth,
-            moveToToday = {
-                onEvent(MoveToToday)
-                coroutineScope.launch { pagerState.scrollToPage(0) }
-            },
-            onMakeScheduleClick = { onEvent(ShowScheduleBottomSheet()) },
-            modifier =
-                Modifier
-                    .background(PrimaryColor)
-                    .statusBarsPadding()
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-                    .fillMaxWidth()
-                    .height(50.dp),
-        )
+        Column(
+            Modifier.verticalScroll(scrollState),
+        ) {
+            CalendarTopBar(
+                selectedDate = state.selectedDate,
+                currentYearMonth = state.currentYearMonth,
+                moveToToday = {
+                    onEvent(MoveToToday)
+                    coroutineScope.launch { pagerState.scrollToPage(0) }
+                },
+                onMakeScheduleClick = { onEvent(ShowScheduleBottomSheet()) },
+                modifier =
+                    Modifier
+                        .background(PrimaryColor)
+                        .statusBarsPadding()
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .height(50.dp),
+            )
 
-        Calendar(
-            pagerState = pagerState,
-            getMonthSchedule = getMonthSchedule,
-            onDateClick = { date -> onEvent(UpdateSelectedDate(date)) },
-            onMonthSwipe = { yearMonth -> onEvent(UpdateCurrentYearMonth(yearMonth)) },
-            modifier = Modifier.fillMaxWidth(),
-        )
+            Calendar(
+                pagerState = pagerState,
+                getMonthSchedule = getMonthSchedule,
+                onDateClick = { date -> onEvent(UpdateSelectedDate(date)) },
+                onMonthSwipe = { yearMonth -> onEvent(UpdateCurrentYearMonth(yearMonth)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-        SelectedDateScheduleInfo(
-            selectedDate = state.selectedDate,
-            schedules = state.selectedDateSchedules,
-            onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 8.dp),
-        )
+            SelectedDateScheduleInfo(
+                selectedDate = state.selectedDate,
+                schedules = state.selectedDateSchedules,
+                onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 8.dp),
+            )
+        }
     }
 }
 
