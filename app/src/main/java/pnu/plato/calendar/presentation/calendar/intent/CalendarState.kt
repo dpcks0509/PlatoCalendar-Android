@@ -1,6 +1,5 @@
 package pnu.plato.calendar.presentation.calendar.intent
 
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
@@ -10,6 +9,8 @@ import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBott
 import java.time.LocalDate
 
 data class CalendarState(
+    val today: LocalDate,
+    val baseToday: LocalDate = today,
     val selectedDate: LocalDate = today,
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),

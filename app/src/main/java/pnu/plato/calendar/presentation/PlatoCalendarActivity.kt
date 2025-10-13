@@ -38,7 +38,6 @@ import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
-import java.time.LocalDate
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -136,9 +135,5 @@ class PlatoCalendarActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    companion object {
-        val today: LocalDate = LocalDate.now()
     }
 }

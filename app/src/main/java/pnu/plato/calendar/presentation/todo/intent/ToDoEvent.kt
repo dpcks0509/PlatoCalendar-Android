@@ -5,6 +5,8 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.common.base.UiEvent
 
 sealed interface ToDoEvent : UiEvent {
+    data object Refresh : ToDoEvent
+
     data class TogglePersonalScheduleCompletion(
         val id: Long,
         val isCompleted: Boolean,

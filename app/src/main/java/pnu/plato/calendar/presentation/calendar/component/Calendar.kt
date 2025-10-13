@@ -15,7 +15,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -31,12 +30,14 @@ const val MAX_DAY_SIZE = 7
 @Composable
 fun Calendar(
     pagerState: PagerState,
+    todayDate: LocalDate,
+    baseTodayDate: LocalDate,
     getMonthSchedule: (YearMonth) -> List<List<DaySchedule?>>,
     onDateClick: (LocalDate) -> Unit,
     onMonthSwipe: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val baseYearMonth = YearMonth(today.year, today.monthValue)
+    val baseYearMonth = YearMonth(baseTodayDate.year, baseTodayDate.monthValue)
 
     LaunchedEffect(pagerState.currentPage) {
         val yearMonth = baseYearMonth.plusMonths(pagerState.currentPage)
@@ -68,6 +69,7 @@ fun Calendar(
 fun CalendarPreview() {
     PlatoCalendarTheme {
         val today = LocalDate.of(2024, 1, 8)
+        val baseToday = LocalDate.of(2024, 1, 8)
         val schedules =
             listOf(
                 AcademicScheduleUiModel(
@@ -87,6 +89,8 @@ fun CalendarPreview() {
 
         Calendar(
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
+            todayDate = today,
+            baseTodayDate = baseToday,
             getMonthSchedule = { yearMonth ->
                 val firstDayOfMonth = LocalDate.of(yearMonth.year, yearMonth.month, 1)
                 val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7

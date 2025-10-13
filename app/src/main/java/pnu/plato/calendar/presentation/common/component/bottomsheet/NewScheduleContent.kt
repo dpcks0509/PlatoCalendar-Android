@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
@@ -85,8 +84,9 @@ fun NewScheduleContent(
 
     val initialStartTime =
         remember(selectedDate) {
-            if (selectedDate == today) {
-                LocalDateTime.now()
+            val today = LocalDateTime.now()
+            if (selectedDate == today.toLocalDate()) {
+                today
             } else {
                 LocalDateTime.of(selectedDate, LocalTime.of(9, 0))
             }
@@ -100,6 +100,7 @@ fun NewScheduleContent(
     var timePickerFor by remember { mutableStateOf<PickerTarget?>(null) }
 
     val zoneId = ZoneId.systemDefault()
+    val today = LocalDateTime.now().toLocalDate()
     val currentMonthStart = LocalDate.of(today.year, today.monthValue, 1)
     val minDate = minOf(today.minusDays(5), currentMonthStart)
     val maxDate = remember(today) { today.plusYears(1).minusDays(1) }
@@ -198,7 +199,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -261,7 +263,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

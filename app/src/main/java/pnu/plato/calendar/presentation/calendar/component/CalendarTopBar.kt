@@ -27,17 +27,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun CalendarTopBar(
     selectedDate: LocalDate,
     currentYearMonth: YearMonth,
+    todayDate: LocalDate,
     moveToToday: () -> Unit,
     onMakeScheduleClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -55,7 +56,7 @@ fun CalendarTopBar(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (today != selectedDate || today.monthValue != currentYearMonth.month) {
+        if (todayDate != selectedDate || todayDate.monthValue != currentYearMonth.month) {
             OutlinedButton(
                 onClick = moveToToday,
                 shape = RoundedCornerShape(40.dp),
@@ -96,9 +97,11 @@ fun CalendarTopBar(
 @Composable
 fun CalendarTopBarPreview() {
     PlatoCalendarTheme {
+        val today = LocalDateTime.now().toLocalDate()
         CalendarTopBar(
             selectedDate = today.plusMonths(1),
             currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
+            todayDate = today,
             moveToToday = {},
             onMakeScheduleClick = {},
             modifier =

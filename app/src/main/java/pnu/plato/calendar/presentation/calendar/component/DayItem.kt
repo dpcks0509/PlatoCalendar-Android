@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -51,16 +50,19 @@ fun DayItem(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = { onDateClick(daySchedule.date) },
-                    ).then(
+                    )
+                    .then(
                         if (daySchedule.isSelected) {
                             Modifier
                                 .clip(
                                     RoundedCornerShape(12.dp),
-                                ).background(MediumGray)
+                                )
+                                .background(MediumGray)
                         } else {
                             Modifier
                         },
-                    ).padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
+                    )
+                    .padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -130,6 +132,7 @@ fun DayItem(
 @Composable
 fun DayItemPreview() {
     PlatoCalendarTheme {
+        val today = LocalDateTime.now().toLocalDate()
         val sampleSchedules =
             listOf(
                 AcademicScheduleUiModel(

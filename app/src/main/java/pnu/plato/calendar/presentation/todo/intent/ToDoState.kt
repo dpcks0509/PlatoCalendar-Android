@@ -15,15 +15,16 @@ data class ToDoState(
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val isScheduleBottomSheetVisible: Boolean = false,
+    val today: LocalDateTime,
 ) : UiState {
-    private val currentTime = LocalDateTime.now()
-    private val today = LocalDate.now()
+    private val currentTime = today
+    private val todayDate = today.toLocalDate()
 
     private val validSchedules =
         schedules
             .filter { schedule ->
                 when (schedule) {
-                    is AcademicScheduleUiModel -> !schedule.endAt.isBefore(today)
+                    is AcademicScheduleUiModel -> !schedule.endAt.isBefore(todayDate)
                     is PersonalScheduleUiModel -> schedule.endAt.isAfter(currentTime) && !schedule.isCompleted
                 }
             }.sortedWith(
@@ -47,8 +48,8 @@ data class ToDoState(
         validSchedules.filter { schedule ->
             val daysUntilEnd =
                 when (schedule) {
-                    is AcademicScheduleUiModel -> ChronoUnit.DAYS.between(today, schedule.endAt)
-                    is PersonalScheduleUiModel -> ChronoUnit.DAYS.between(today, schedule.endAt.toLocalDate())
+                    is AcademicScheduleUiModel -> ChronoUnit.DAYS.between(todayDate, schedule.endAt)
+                    is PersonalScheduleUiModel -> ChronoUnit.DAYS.between(todayDate, schedule.endAt.toLocalDate())
                 }
             daysUntilEnd in 0..7
         }

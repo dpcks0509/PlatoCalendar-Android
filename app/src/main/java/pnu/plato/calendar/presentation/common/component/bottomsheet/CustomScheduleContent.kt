@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
@@ -92,6 +91,7 @@ fun CustomScheduleContent(
     var timePickerFor by remember { mutableStateOf<PickerTarget?>(null) }
 
     val zoneId = ZoneId.systemDefault()
+    val today = LocalDateTime.now().toLocalDate()
     val currentMonthStart = LocalDate.of(today.year, today.monthValue, 1)
     val minDate = minOf(today.minusDays(5), currentMonthStart)
     val maxDate = remember(today) { today.plusYears(1).minusDays(1) }

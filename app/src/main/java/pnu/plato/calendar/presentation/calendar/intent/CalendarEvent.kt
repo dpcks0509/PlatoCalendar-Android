@@ -11,6 +11,8 @@ import java.time.LocalDate
 sealed interface CalendarEvent : UiEvent {
     data object MoveToToday : CalendarEvent
 
+    data object Refresh : CalendarEvent
+
     data class MakeCustomSchedule(
         val schedule: NewSchedule,
     ) : CalendarEvent

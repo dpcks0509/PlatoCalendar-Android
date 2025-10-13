@@ -5,7 +5,6 @@ import androidx.compose.runtime.toMutableStateList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.MAX_DAY_SIZE
 import pnu.plato.calendar.presentation.calendar.component.MAX_WEEK_SIZE
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
@@ -14,6 +13,7 @@ import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicSc
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.YearMonth
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,13 +23,31 @@ class CalendarScheduleManager
     constructor() {
         private val monthlyDates = mutableMapOf<YearMonth, List<List<LocalDate?>>>()
         private val monthlySchedules = mutableMapOf<YearMonth, List<MutableList<DaySchedule?>>>()
-        private val selectedDate = MutableStateFlow(today)
+        private val _today = MutableStateFlow(LocalDateTime.now())
+        val today: StateFlow<LocalDateTime> = _today.asStateFlow()
+        private val _baseToday = MutableStateFlow(LocalDateTime.now())
+        val baseToday: StateFlow<LocalDateTime> = _baseToday.asStateFlow()
+        private val selectedDate = MutableStateFlow(today.value.toLocalDate())
 
         private val _schedules = MutableStateFlow<List<ScheduleUiModel>>(emptyList())
         val schedules: StateFlow<List<ScheduleUiModel>> = _schedules.asStateFlow()
 
         private val _isLoading = MutableStateFlow(false)
         val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+        fun updateToday() {
+            val previousTodayDate = _today.value.toLocalDate()
+            _today.value = _today.value.plusDays(7)
+//            _today.value = LocalDateTime.now()
+            val newTodayDate = _today.value.toLocalDate()
+
+            if (previousTodayDate != newTodayDate) {
+                unmarkAsToday(previousTodayDate)
+                markAsToday(newTodayDate)
+                deselectDate(previousTodayDate)
+                selectDate(newTodayDate)
+            }
+        }
 
         fun updateSchedules(schedules: List<ScheduleUiModel>) {
             _schedules.value = schedules
@@ -44,7 +62,6 @@ class CalendarScheduleManager
             val previousDate = selectedDate.value
             deselectDate(previousDate)
             selectDate(date)
-            selectedDate.value = date
         }
 
         fun getMonthSchedule(yearMonth: YearMonth): List<List<DaySchedule?>> =
@@ -89,6 +106,25 @@ class CalendarScheduleManager
                     weekSchedule[index] = matched.copy(isSelected = true)
                 }
             }
+            selectedDate.value = date
+        }
+
+        private fun unmarkAsToday(date: LocalDate) {
+            monthlySchedules.values.flatten().forEach { weekSchedule ->
+                weekSchedule.find { it?.date == date }?.let { matched ->
+                    val index = weekSchedule.indexOf(matched)
+                    weekSchedule[index] = matched.copy(isToday = false)
+                }
+            }
+        }
+
+        private fun markAsToday(date: LocalDate) {
+            monthlySchedules.values.flatten().forEach { weekSchedule ->
+                weekSchedule.find { it?.date == date }?.let { matched ->
+                    val index = weekSchedule.indexOf(matched)
+                    weekSchedule[index] = matched.copy(isToday = true)
+                }
+            }
         }
 
         private fun getMonthDate(yearMonth: YearMonth): List<List<LocalDate?>> =
@@ -101,15 +137,19 @@ class CalendarScheduleManager
             val dayOfWeekValue = if (baseDate.dayOfWeek.value == 7) 0 else baseDate.dayOfWeek.value
             val firstDateOfMonth = baseDate.minusDays(dayOfWeekValue.toLong())
 
-            val rangeEnd = today.plusYears(1).minusDays(1)
+            val rangeEnd =
+                baseToday.value
+                    .toLocalDate()
+                    .plusYears(1)
+                    .minusDays(1)
 
-            val firstMonth = YearMonth(year = today.year, month = today.monthValue)
+            val firstMonth = YearMonth(year = baseToday.value.year, month = baseToday.value.monthValue)
             val lastMonth = firstMonth.plusMonths(12)
 
             val firstMonthStart: LocalDate? =
                 if (yearMonth == firstMonth) {
-                    val monthFirstDay = LocalDate.of(today.year, today.monthValue, 1)
-                    val fiveDaysBefore = today.minusDays(5)
+                    val monthFirstDay = LocalDate.of(baseToday.value.year, baseToday.value.monthValue, 1)
+                    val fiveDaysBefore = baseToday.value.toLocalDate().minusDays(5)
                     if (fiveDaysBefore.isBefore(monthFirstDay)) fiveDaysBefore else monthFirstDay
                 } else {
                     null
@@ -138,7 +178,7 @@ class CalendarScheduleManager
             date: LocalDate,
             yearMonth: YearMonth,
         ): DaySchedule {
-            val isToday = date == today
+            val isToday = date == today.value.toLocalDate()
             val isSelected = date == selectedDate.value
             val isInMonth =
                 date.year == yearMonth.year && date.monthValue == yearMonth.month

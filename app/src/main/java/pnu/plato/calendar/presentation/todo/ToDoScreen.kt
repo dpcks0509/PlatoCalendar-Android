@@ -33,7 +33,6 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -111,7 +110,7 @@ fun ToDoScreen(
     if (state.isScheduleBottomSheetVisible) {
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
-            selectedDate = today,
+            selectedDate = state.today.toLocalDate(),
             adView = adView,
             sheetState = sheetState,
             makeSchedule = { Unit },
@@ -145,7 +144,7 @@ fun ToDoContent(
 
     PullToRefreshContainer(
         modifier = modifier,
-        onRefresh = { /* TODO: Implement refresh logic */ },
+        onRefresh = { onEvent(ToDoEvent.Refresh) },
     ) {
         LazyColumn(
             state = lazyListState,
@@ -172,6 +171,7 @@ fun ToDoContent(
                 ExpandableSection(
                     toDoSection = section,
                     items = schedules,
+                    today = state.today,
                     isExpanded = expandedToDoSection == section,
                     onSectionClick = { clickedSection ->
                         expandedToDoSection =
@@ -243,6 +243,7 @@ fun ToDoScreenPreview() {
                             courseName = "데이터베이스",
                         ),
                     ),
+                    today = LocalDateTime.now(),
                 ),
             onEvent = {},
             modifier = Modifier.fillMaxSize(),

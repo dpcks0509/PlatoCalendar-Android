@@ -21,6 +21,7 @@ import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.HideScheduleBottomSheet
+import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.Refresh
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect
@@ -35,9 +36,18 @@ class ToDoViewModel
         private val calendarScheduleManager: CalendarScheduleManager,
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
-    ) : BaseViewModel<ToDoState, ToDoEvent, ToDoSideEffect>(initialState = ToDoState()) {
+    ) : BaseViewModel<ToDoState, ToDoEvent, ToDoSideEffect>(
+            initialState = ToDoState(today = calendarScheduleManager.today.value),
+        ) {
+        val today get() = calendarScheduleManager.today
+
         init {
             viewModelScope.launch {
+                launch {
+                    calendarScheduleManager.today.collect { currentToday ->
+                        setState { copy(today = currentToday) }
+                    }
+                }
                 launch {
                     calendarScheduleManager.schedules.collect { schedules ->
                         setState { copy(schedules = schedules) }
@@ -48,11 +58,18 @@ class ToDoViewModel
 
         override suspend fun handleEvent(event: ToDoEvent) {
             when (event) {
+                is Refresh -> refresh()
                 is TogglePersonalScheduleCompletion -> togglePersonalScheduleCompletion(event.id, event.isCompleted)
                 is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
                 is HideScheduleBottomSheet -> hideScheduleBottomSheet()
                 is EditCustomSchedule -> editCustomSchedule(event.schedule)
                 is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
+            }
+        }
+
+        private fun refresh() {
+            viewModelScope.launch {
+                calendarScheduleManager.updateToday()
             }
         }
 
@@ -123,6 +140,7 @@ class ToDoViewModel
                         AcademicScheduleContent(
                             schedule,
                         )
+
                     null -> ScheduleBottomSheetContent.NewScheduleContent
                 }
 

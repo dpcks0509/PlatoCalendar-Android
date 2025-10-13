@@ -12,7 +12,6 @@ import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.domain.repository.CourseRepository
 import pnu.plato.calendar.domain.repository.ScheduleRepository
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
@@ -20,6 +19,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideLoginDi
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.Refresh
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TryLogin
@@ -42,7 +42,6 @@ import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBott
 import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,7 +53,11 @@ class CalendarViewModel
         private val courseRepository: CourseRepository,
         private val calendarScheduleManager: CalendarScheduleManager,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
-            initialState = CalendarState(),
+            initialState =
+                CalendarState(
+                    today = calendarScheduleManager.today.value.toLocalDate(),
+                    baseToday = calendarScheduleManager.baseToday.value.toLocalDate(),
+                ),
         ) {
         init {
             viewModelScope.launch {
@@ -69,13 +72,38 @@ class CalendarViewModel
                         setState { copy(schedules = schedules) }
                     }
                 }
+
+                launch {
+                    calendarScheduleManager.today.collect { today ->
+                        setState {
+                            copy(
+                                today = today.toLocalDate(),
+                                selectedDate = today.toLocalDate(),
+                                currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
+                            )
+                        }
+                    }
+                }
+
+                launch {
+                    calendarScheduleManager.baseToday.collect { baseToday ->
+                        setState { copy(baseToday = baseToday.toLocalDate()) }
+                    }
+                }
             }
         }
 
         override suspend fun handleEvent(event: CalendarEvent) {
             when (event) {
                 MoveToToday -> {
+                    val today = calendarScheduleManager.today.value.toLocalDate()
+                    val baseToday = calendarScheduleManager.baseToday.value.toLocalDate()
                     val todayYearMonth = YearMonth(year = today.year, month = today.monthValue)
+                    val baseTodayYearMonth = YearMonth(year = baseToday.year, month = baseToday.monthValue)
+
+                    val monthsDiff =
+                        (todayYearMonth.year - baseTodayYearMonth.year) * 12 +
+                            (todayYearMonth.month - baseTodayYearMonth.month)
 
                     calendarScheduleManager.updateSelectedDate(today)
 
@@ -83,9 +111,14 @@ class CalendarViewModel
                         copy(
                             selectedDate = today,
                             currentYearMonth = todayYearMonth,
+                            today = today,
                         )
                     }
+
+                    setSideEffect { CalendarSideEffect.ScrollToPage(monthsDiff) }
                 }
+
+                Refresh -> refresh()
 
                 is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
 
@@ -127,6 +160,11 @@ class CalendarViewModel
             }
         }
 
+        private fun refresh() {
+            calendarScheduleManager.updateToday()
+            getSchedules()
+        }
+
         fun getMonthSchedule(yearMonth: YearMonth): List<List<DaySchedule?>> = calendarScheduleManager.getMonthSchedule(yearMonth)
 
         private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
@@ -166,18 +204,7 @@ class CalendarViewModel
                             }
                         }
 
-                    return personalSchedules + CourseScheduleUiModel(
-                        domain = CourseSchedule(
-                            id = 1,
-                            courseCode = "BC3000575",
-                            title = "과제 제출",
-                            description = "웹 소켓 통신에 대해 조사하고 보고서 제출",
-                            startAt = LocalDateTime.of(2025,10,15,9,0),
-                            endAt = LocalDateTime.of(2025,10,29,22,0),
-                            isCompleted = false
-                        ),
-                        courseName = "컴퓨터네트워크",
-                    )
+                    return personalSchedules
                 }.onFailure { throwable ->
                     calendarScheduleManager.updateLoading(false)
 

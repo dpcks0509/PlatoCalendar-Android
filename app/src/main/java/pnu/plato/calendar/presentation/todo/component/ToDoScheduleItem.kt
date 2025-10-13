@@ -43,15 +43,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ToDoScheduleItem(
     schedule: ScheduleUiModel,
+    today: LocalDateTime,
     modifier: Modifier = Modifier,
-    toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> }
+    toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
 ) {
     var isCompleted by remember {
         mutableStateOf(
             when (schedule) {
                 is PersonalScheduleUiModel -> schedule.isCompleted
                 is AcademicScheduleUiModel -> false
-            }
+            },
         )
     }
 
@@ -71,13 +72,14 @@ fun ToDoScheduleItem(
         Spacer(modifier = Modifier.width(12.dp))
 
         Column {
-            val title = schedule.title.run {
-                if (schedule is CourseScheduleUiModel) {
-                    if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
-                } else {
-                    this
+            val title =
+                schedule.title.run {
+                    if (schedule is CourseScheduleUiModel) {
+                        if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
+                    } else {
+                        this
+                    }
                 }
-            }
 
             Text(text = title, fontWeight = FontWeight.SemiBold)
 
@@ -85,28 +87,30 @@ fun ToDoScheduleItem(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(schedule.color)
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                    modifier =
+                        Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(schedule.color)
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
                 ) {
-                    val type = when (schedule) {
-                        is AcademicScheduleUiModel -> "학사 일정"
-                        is CourseScheduleUiModel -> "강의 일정"
-                        is CustomScheduleUiModel -> "개인 일정"
-                    }
+                    val type =
+                        when (schedule) {
+                            is AcademicScheduleUiModel -> "학사 일정"
+                            is CourseScheduleUiModel -> "강의 일정"
+                            is CustomScheduleUiModel -> "개인 일정"
+                        }
 
                     Text(
                         text = type,
                         fontSize = 12.sp,
                         color = White,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Text(text = dateRange(schedule))
+                Text(text = dateRange(schedule, today))
             }
         }
 
@@ -115,10 +119,11 @@ fun ToDoScheduleItem(
 
             Checkbox(
                 checked = isCompleted,
-                colors = CheckboxDefaults.colors(
-                    checkedColor = PrimaryColor,
-                    checkmarkColor = White,
-                ),
+                colors =
+                    CheckboxDefaults.colors(
+                        checkedColor = PrimaryColor,
+                        checkmarkColor = White,
+                    ),
                 onCheckedChange = {
                     toggleCompletion(schedule.id, !schedule.isCompleted)
                     isCompleted = !isCompleted
@@ -128,27 +133,39 @@ fun ToDoScheduleItem(
     }
 }
 
-private fun dateRange(schedule: ScheduleUiModel): String =
+private fun dateRange(
+    schedule: ScheduleUiModel,
+    today: LocalDateTime,
+): String =
     when (schedule) {
         is AcademicScheduleUiModel -> formatDateRange(schedule.startAt, schedule.endAt)
-        is PersonalScheduleUiModel -> remainingTimePersonal(schedule.endAt)
+        is PersonalScheduleUiModel -> remainingTimePersonal(today, schedule.endAt)
     }
 
 private fun remainingTimePersonal(
+    today: LocalDateTime,
     endAt: LocalDateTime,
 ): String {
-    val duration = Duration.between(LocalDateTime.now(), endAt)
+    val duration = Duration.between(today, endAt)
     val totalHours = duration.toHours()
     val days = totalHours / 24
     val hours = totalHours % 24
     val minutes = duration.toMinutes() % 60
-    return if (duration.isNegative) "마감 지남"
-    else if (days > 0) "${days}일 ${hours}시간 남음"
-    else if (hours > 0) "${hours}시간 ${minutes}분 남음"
-    else "${minutes}분 남음"
+    return if (duration.isNegative) {
+        "마감 지남"
+    } else if (days > 0) {
+        "${days}일 ${hours}시간 남음"
+    } else if (hours > 0) {
+        "${hours}시간 ${minutes}분 남음"
+    } else {
+        "${minutes}분 남음"
+    }
 }
 
-private fun formatDateRange(startAt: LocalDate, endAt: LocalDate): String {
+private fun formatDateRange(
+    startAt: LocalDate,
+    endAt: LocalDate,
+): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     return "${startAt.format(formatter)} ~ ${endAt.format(formatter)}"
 }
@@ -158,17 +175,21 @@ private fun formatDateRange(startAt: LocalDate, endAt: LocalDate): String {
 private fun ToDoScheduleItemPreview() {
     PlatoCalendarTheme {
         ToDoScheduleItem(
-            schedule = CustomScheduleUiModel(
-                id = 1L,
-                title = "새해 계획 세우기",
-                description = "",
-                startAt = LocalDateTime.of(2024, 1, 11, 14, 0),
-                endAt = LocalDateTime.now().plusDays(2).plusHours(3),
-                isCompleted = false,
-            ), modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+            schedule =
+                CustomScheduleUiModel(
+                    id = 1L,
+                    title = "새해 계획 세우기",
+                    description = "",
+                    startAt = LocalDateTime.of(2024, 1, 11, 14, 0),
+                    endAt = LocalDateTime.now().plusDays(2).plusHours(3),
+                    isCompleted = false,
+                ),
+            today = LocalDateTime.now(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
         )
     }
 }

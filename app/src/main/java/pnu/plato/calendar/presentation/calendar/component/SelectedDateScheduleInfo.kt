@@ -21,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.DayOfWeekUiModel.Companion.isWeekend
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
@@ -40,6 +39,7 @@ import java.util.Locale
 fun SelectedDateScheduleInfo(
     selectedDate: LocalDate,
     schedules: List<ScheduleUiModel>,
+    todayDate: LocalDate,
     onScheduleClick: (ScheduleUiModel) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -65,7 +65,7 @@ fun SelectedDateScheduleInfo(
                 modifier =
                     Modifier
                         .then(
-                            if (selectedDate == today) {
+                            if (selectedDate == todayDate) {
                                 Modifier
                                     .size(28.dp)
                                     .clip(CircleShape)
@@ -79,7 +79,7 @@ fun SelectedDateScheduleInfo(
                 Text(
                     text = selectedDate.dayOfMonth.toString(),
                     color =
-                        if (selectedDate == today) {
+                        if (selectedDate == todayDate) {
                             Color.White
                         } else if (selectedDate.dayOfWeek.isWeekend()) {
                             Red
@@ -97,7 +97,9 @@ fun SelectedDateScheduleInfo(
         ScheduleItem(
             schedules = schedules,
             onScheduleClick = onScheduleClick,
-            modifier = Modifier.fillMaxWidth().requiredHeightIn(min = 180.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = 180.dp),
         )
     }
 }
@@ -106,6 +108,7 @@ fun SelectedDateScheduleInfo(
 @Composable
 fun SelectedDateScheduleInfoPreview() {
     PlatoCalendarTheme {
+        val today = LocalDateTime.now().toLocalDate()
         val sampleSchedules =
             listOf(
                 AcademicScheduleUiModel(
@@ -152,6 +155,7 @@ fun SelectedDateScheduleInfoPreview() {
         SelectedDateScheduleInfo(
             selectedDate = LocalDate.now(),
             schedules = sampleSchedules,
+            todayDate = today,
             onScheduleClick = {},
             modifier = Modifier.fillMaxWidth(),
         )

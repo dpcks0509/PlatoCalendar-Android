@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
@@ -150,6 +149,7 @@ private fun formatDateRange(startAt: LocalDate, endAt: LocalDate): String {
 @Composable
 fun ScheduleItemPreview() {
     PlatoCalendarTheme {
+        val today = LocalDateTime.now().toLocalDate()
         val sampleSchedules =
             listOf(
                 AcademicScheduleUiModel(

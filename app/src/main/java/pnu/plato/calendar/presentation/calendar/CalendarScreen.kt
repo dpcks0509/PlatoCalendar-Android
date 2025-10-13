@@ -35,7 +35,6 @@ import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.BuildConfig.BANNER_AD_UNIT_ID
-import pnu.plato.calendar.presentation.PlatoCalendarActivity.Companion.today
 import pnu.plato.calendar.presentation.calendar.component.Calendar
 import pnu.plato.calendar.presentation.calendar.component.CalendarTopBar
 import pnu.plato.calendar.presentation.calendar.component.MAX_MONTH_SIZE
@@ -52,6 +51,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePerso
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect
+import pnu.plato.calendar.presentation.calendar.intent.CalendarSideEffect.ScrollToPage
 import pnu.plato.calendar.presentation.calendar.intent.CalendarState
 import pnu.plato.calendar.presentation.calendar.model.DaySchedule
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
@@ -76,7 +76,7 @@ fun CalendarScreen(
     val pagerState =
         rememberPagerState(
             initialPage = 0,
-            pageCount = { if (today.dayOfMonth != 1) MAX_MONTH_SIZE else MAX_MONTH_SIZE - 1 },
+            pageCount = { if (state.today.dayOfMonth != 1) MAX_MONTH_SIZE else MAX_MONTH_SIZE - 1 },
         )
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
@@ -107,6 +107,7 @@ fun CalendarScreen(
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 CalendarSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
+                is CalendarSideEffect.ScrollToPage -> coroutineScope.launch { pagerState.scrollToPage(sideEffect.page) }
             }
         }
     }
@@ -175,7 +176,7 @@ fun CalendarContent(
 
     PullToRefreshContainer(
         modifier = modifier,
-        onRefresh = { /* TODO: Implement refresh logic */ },
+        onRefresh = { onEvent(CalendarEvent.Refresh) },
     ) {
         Column(
             Modifier.verticalScroll(scrollState),
@@ -183,9 +184,9 @@ fun CalendarContent(
             CalendarTopBar(
                 selectedDate = state.selectedDate,
                 currentYearMonth = state.currentYearMonth,
+                todayDate = state.today,
                 moveToToday = {
                     onEvent(MoveToToday)
-                    coroutineScope.launch { pagerState.scrollToPage(0) }
                 },
                 onMakeScheduleClick = { onEvent(ShowScheduleBottomSheet()) },
                 modifier =
@@ -199,6 +200,8 @@ fun CalendarContent(
 
             Calendar(
                 pagerState = pagerState,
+                todayDate = state.today,
+                baseTodayDate = state.baseToday,
                 getMonthSchedule = getMonthSchedule,
                 onDateClick = { date -> onEvent(UpdateSelectedDate(date)) },
                 onMonthSwipe = { yearMonth -> onEvent(UpdateCurrentYearMonth(yearMonth)) },
@@ -208,6 +211,7 @@ fun CalendarContent(
             SelectedDateScheduleInfo(
                 selectedDate = state.selectedDate,
                 schedules = state.selectedDateSchedules,
+                todayDate = state.today,
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
                 modifier =
                     Modifier
@@ -224,6 +228,8 @@ fun CalendarContent(
 fun CalendarScreenPreview() {
     PlatoCalendarTheme {
         val base = LocalDate.of(2024, 1, 1)
+        val today = LocalDate.of(2024, 1, 11)
+        val baseToday = LocalDate.of(2024, 1, 1)
         val schedules =
             listOf(
                 AcademicScheduleUiModel(
@@ -258,7 +264,9 @@ fun CalendarScreenPreview() {
         CalendarContent(
             state =
                 CalendarState(
+                    today = today,
                     selectedDate = LocalDate.of(2024, 1, 11),
+                    baseToday = baseToday,
                     schedules = schedules,
                     isScheduleBottomSheetVisible = false,
                     scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,

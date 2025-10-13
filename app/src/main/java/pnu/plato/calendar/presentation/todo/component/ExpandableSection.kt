@@ -30,6 +30,7 @@ import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
 import pnu.plato.calendar.presentation.todo.model.ToDoSection
+import java.time.LocalDateTime
 
 private const val HAS_NO_SCHEDULE = "일정 없음"
 
@@ -37,6 +38,7 @@ private const val HAS_NO_SCHEDULE = "일정 없음"
 fun ExpandableSection(
     toDoSection: ToDoSection,
     items: List<ScheduleUiModel>,
+    today: LocalDateTime,
     isExpanded: Boolean,
     onSectionClick: (ToDoSection) -> Unit,
     toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
@@ -95,6 +97,7 @@ fun ExpandableSection(
                         items.forEach { schedule ->
                             ToDoScheduleItem(
                                 schedule = schedule,
+                                today = today,
                                 toggleCompletion = { id, isCompleted ->
                                     toggleCompletion(id, isCompleted)
                                 },
