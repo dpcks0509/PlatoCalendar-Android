@@ -54,10 +54,7 @@ class CalendarViewModel
         private val calendarScheduleManager: CalendarScheduleManager,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
             initialState =
-                CalendarState(
-                    today = calendarScheduleManager.today.value.toLocalDate(),
-                    baseToday = calendarScheduleManager.baseToday,
-                ),
+                CalendarState(today = calendarScheduleManager.today.value.toLocalDate()),
         ) {
         init {
             viewModelScope.launch {
@@ -75,13 +72,7 @@ class CalendarViewModel
 
                 launch {
                     calendarScheduleManager.today.collect { today ->
-                        setState {
-                            copy(
-                                today = today.toLocalDate(),
-                                selectedDate = today.toLocalDate(),
-                                currentYearMonth = YearMonth(year = today.year, month = today.monthValue),
-                            )
-                        }
+                        setState { copy(today = today.toLocalDate()) }
                     }
                 }
             }

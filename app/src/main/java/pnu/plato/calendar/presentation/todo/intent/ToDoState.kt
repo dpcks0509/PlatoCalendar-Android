@@ -11,20 +11,17 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 data class ToDoState(
+    val today: LocalDateTime,
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val isScheduleBottomSheetVisible: Boolean = false,
-    val today: LocalDateTime,
 ) : UiState {
-    private val currentTime = today
-    private val todayDate = today.toLocalDate()
-
     private val validSchedules =
         schedules
             .filter { schedule ->
                 when (schedule) {
-                    is AcademicScheduleUiModel -> !schedule.endAt.isBefore(todayDate)
-                    is PersonalScheduleUiModel -> schedule.endAt.isAfter(currentTime) && !schedule.isCompleted
+                    is AcademicScheduleUiModel -> !schedule.endAt.isBefore(today.toLocalDate())
+                    is PersonalScheduleUiModel -> schedule.endAt.isAfter(today) && !schedule.isCompleted
                 }
             }.sortedWith(
                 compareBy(
@@ -47,8 +44,8 @@ data class ToDoState(
         validSchedules.filter { schedule ->
             val daysUntilEnd =
                 when (schedule) {
-                    is AcademicScheduleUiModel -> ChronoUnit.DAYS.between(todayDate, schedule.endAt)
-                    is PersonalScheduleUiModel -> ChronoUnit.DAYS.between(todayDate, schedule.endAt.toLocalDate())
+                    is AcademicScheduleUiModel -> ChronoUnit.DAYS.between(today.toLocalDate(), schedule.endAt)
+                    is PersonalScheduleUiModel -> ChronoUnit.DAYS.between(today.toLocalDate(), schedule.endAt.toLocalDate())
                 }
             daysUntilEnd in 0..7
         }

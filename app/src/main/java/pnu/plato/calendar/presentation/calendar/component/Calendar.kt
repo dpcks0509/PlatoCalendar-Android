@@ -30,14 +30,13 @@ const val MAX_DAY_SIZE = 7
 @Composable
 fun Calendar(
     pagerState: PagerState,
-    todayDate: LocalDate,
-    baseTodayDate: LocalDate,
+    baseToday: LocalDate,
     getMonthSchedule: (YearMonth) -> List<List<DaySchedule?>>,
     onDateClick: (LocalDate) -> Unit,
     onMonthSwipe: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val baseYearMonth = YearMonth(baseTodayDate.year, baseTodayDate.monthValue)
+    val baseYearMonth = YearMonth(baseToday.year, baseToday.monthValue)
 
     LaunchedEffect(pagerState.currentPage) {
         val yearMonth = baseYearMonth.plusMonths(pagerState.currentPage)
@@ -89,8 +88,7 @@ fun CalendarPreview() {
 
         Calendar(
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            todayDate = today,
-            baseTodayDate = baseToday,
+            baseToday = baseToday,
             getMonthSchedule = { yearMonth ->
                 val firstDayOfMonth = LocalDate.of(yearMonth.year, yearMonth.month, 1)
                 val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7

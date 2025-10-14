@@ -105,11 +105,12 @@ fun CalendarScreen(
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 CalendarSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
-                is CalendarSideEffect.ScrollToPage -> coroutineScope.launch {
-                    pagerState.scrollToPage(
-                        sideEffect.page
-                    )
-                }
+                is CalendarSideEffect.ScrollToPage ->
+                    coroutineScope.launch {
+                        pagerState.scrollToPage(
+                            sideEffect.page,
+                        )
+                    }
             }
         }
     }
@@ -200,8 +201,7 @@ fun CalendarContent(
 
             Calendar(
                 pagerState = pagerState,
-                todayDate = state.today,
-                baseTodayDate = state.baseToday,
+                baseToday = state.baseToday,
                 getMonthSchedule = getMonthSchedule,
                 onDateClick = { date -> onEvent(UpdateSelectedDate(date)) },
                 onMonthSwipe = { yearMonth -> onEvent(UpdateCurrentYearMonth(yearMonth)) },
@@ -229,7 +229,6 @@ fun CalendarScreenPreview() {
     PlatoCalendarTheme {
         val base = LocalDate.of(2024, 1, 1)
         val today = LocalDate.of(2024, 1, 11)
-        val baseToday = LocalDate.of(2024, 1, 1)
         val schedules =
             listOf(
                 AcademicScheduleUiModel(
@@ -266,7 +265,6 @@ fun CalendarScreenPreview() {
                 CalendarState(
                     today = today,
                     selectedDate = LocalDate.of(2024, 1, 11),
-                    baseToday = baseToday,
                     schedules = schedules,
                     isScheduleBottomSheetVisible = false,
                     scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
