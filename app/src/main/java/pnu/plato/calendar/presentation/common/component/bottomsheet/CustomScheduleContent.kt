@@ -19,7 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,9 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +49,7 @@ import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
+import pnu.plato.calendar.presentation.common.component.TimePickerDialog
 import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
@@ -106,8 +104,7 @@ fun CustomScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean =
-                    year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
             }
         }
 
@@ -193,8 +190,7 @@ fun CustomScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                )
-                .background(White),
+                ).background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -257,8 +253,7 @@ fun CustomScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                )
-                .background(White)
+                ).background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -517,37 +512,24 @@ fun CustomScheduleContent(
 
     timePickerFor?.let { target ->
         val initialDateTime = if (target == PickerTarget.START) startAt else endAt
-        val timeState =
-            rememberTimePickerState(
-                initialHour = initialDateTime.hour,
-                initialMinute = initialDateTime.minute,
-                is24Hour = false,
-            )
 
-        AlertDialog(
-            onDismissRequest = { timePickerFor = null },
-            title = { Text(if (target == PickerTarget.START) "시작 시간" else "종료 시간") },
-            text = { TimePicker(state = timeState) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val updated =
-                            initialDateTime
-                                .withHour(timeState.hour)
-                                .withMinute(timeState.minute)
-                        if (target == PickerTarget.START) {
-                            startAt = updated
-                            if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                        } else {
-                            endAt = updated
-                            if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
-                        }
-                        timePickerFor = null
-                    },
-                ) { Text(text = "확인") }
-            },
-            dismissButton = {
-                TextButton(onClick = { timePickerFor = null }) { Text(text = "취소") }
+        TimePickerDialog(
+            initialHour = initialDateTime.hour,
+            initialMinute = initialDateTime.minute,
+            onDismiss = { timePickerFor = null },
+            onConfirm = { hour, minute ->
+                val updated =
+                    initialDateTime
+                        .withHour(hour)
+                        .withMinute(minute)
+                if (target == PickerTarget.START) {
+                    startAt = updated
+                    if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
+                } else {
+                    endAt = updated
+                    if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
+                }
+                timePickerFor = null
             },
         )
     }
