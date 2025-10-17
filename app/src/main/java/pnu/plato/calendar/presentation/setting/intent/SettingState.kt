@@ -7,7 +7,6 @@ data class SettingState(
     val userInfo: String? = null,
     val isLoginDialogVisible: Boolean = false,
     val notificationsEnabled: Boolean = false,
-    val academicScheduleEnabled: Boolean = false,
     val firstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
     val secondReminderTime: NotificationTime = NotificationTime.NONE,
     val isNotificationPermissionSettingsDialogVisible: Boolean = false,

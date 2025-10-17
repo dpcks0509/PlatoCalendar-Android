@@ -43,7 +43,6 @@ constructor(
                 setState {
                     copy(
                         notificationsEnabled = appSettings.notificationsEnabled,
-                        academicScheduleEnabled = appSettings.academicScheduleEnabled,
                         firstReminderTime = appSettings.firstReminderTime,
                         secondReminderTime = appSettings.secondReminderTime,
                     )

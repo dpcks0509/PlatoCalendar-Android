@@ -43,7 +43,6 @@ import pnu.plato.calendar.presentation.setting.component.SettingItem
 import pnu.plato.calendar.presentation.setting.component.SettingSection
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
-import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateAcademicScheduleEnabled
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateFirstReminderTime
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateNotificationPermission
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.UpdateNotificationsEnabled
@@ -53,7 +52,6 @@ import pnu.plato.calendar.presentation.setting.intent.SettingState
 import pnu.plato.calendar.presentation.setting.model.SettingMenu
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.ACCOUNT
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.NOTIFICATIONS
-import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.ACADEMIC_SCHEDULE_ENABLED
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
@@ -191,19 +189,6 @@ fun SettingContent(
                                             onCheckedChange = { enabled ->
                                                 onEvent(
                                                     UpdateNotificationsEnabled(enabled)
-                                                )
-                                            },
-                                        )
-                                    }
-
-                                    content == ACADEMIC_SCHEDULE_ENABLED -> {
-                                        NotificationToggleItem(
-                                            label = content.getLabel(),
-                                            checked = state.academicScheduleEnabled,
-                                            enabled = state.hasNotificationPermission,
-                                            onCheckedChange = { enabled ->
-                                                onEvent(
-                                                    UpdateAcademicScheduleEnabled(enabled)
                                                 )
                                             },
                                         )

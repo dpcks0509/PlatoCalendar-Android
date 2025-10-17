@@ -1,6 +1,5 @@
 package pnu.plato.calendar.presentation.setting.model
 
-import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.ACADEMIC_SCHEDULE_ENABLED
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.ACCOUNT_INFO
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.ANNOUNCEMENTS
 import pnu.plato.calendar.presentation.setting.model.SettingMenu.SettingContent.CONTACT_US
@@ -14,7 +13,10 @@ enum class SettingMenu(
     val items: List<SettingContent>,
 ) {
     ACCOUNT("계정", listOf(ACCOUNT_INFO)),
-    NOTIFICATIONS("알림", listOf(SettingContent.NOTIFICATIONS_ENABLED, ACADEMIC_SCHEDULE_ENABLED, FIRST_REMINDER, SECOND_REMINDER)),
+    NOTIFICATIONS(
+        "알림",
+        listOf(SettingContent.NOTIFICATIONS_ENABLED, FIRST_REMINDER, SECOND_REMINDER)
+    ),
     USER_SUPPORT("사용자 지원", listOf(ANNOUNCEMENTS, CONTACT_US)),
     USAGE_GUIDE("이용 안내", listOf(TERMS_OF_SERVICE, PRIVACY_POLICY)),
     ;
@@ -22,7 +24,6 @@ enum class SettingMenu(
     enum class SettingContent {
         ACCOUNT_INFO,
         NOTIFICATIONS_ENABLED,
-        ACADEMIC_SCHEDULE_ENABLED,
         FIRST_REMINDER,
         SECOND_REMINDER,
         ANNOUNCEMENTS,
@@ -35,7 +36,6 @@ enum class SettingMenu(
             when (this) {
                 ACCOUNT_INFO -> ""
                 NOTIFICATIONS_ENABLED -> "알림 허용하기"
-                ACADEMIC_SCHEDULE_ENABLED -> "학사 일정 알림받기"
                 FIRST_REMINDER -> "알림"
                 SECOND_REMINDER -> "두 번째 알림"
                 ANNOUNCEMENTS -> "공지"

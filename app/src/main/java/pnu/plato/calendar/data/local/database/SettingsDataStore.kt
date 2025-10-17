@@ -36,7 +36,6 @@ constructor(
             }
             .map { preferences ->
                 val notificationsEnabled = preferences[KEY_NOTIFICATIONS_ENABLED] ?: false
-                val academicScheduleEnabled = preferences[KEY_ACADEMIC_SCHEDULE_ENABLED] ?: false
                 val firstReminderName =
                     preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_HOUR.name
                 val secondReminderName =
@@ -50,7 +49,6 @@ constructor(
 
                 AppSettings(
                     notificationsEnabled = notificationsEnabled,
-                    academicScheduleEnabled = academicScheduleEnabled,
                     firstReminderTime = firstReminderTime,
                     secondReminderTime = secondReminderTime,
                 )
