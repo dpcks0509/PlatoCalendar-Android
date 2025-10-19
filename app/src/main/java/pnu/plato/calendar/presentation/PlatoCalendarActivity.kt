@@ -35,6 +35,7 @@ import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.manager.SettingsManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
@@ -50,6 +51,9 @@ class PlatoCalendarActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsManager: SettingsManager
+
+    @Inject
+    lateinit var alarmScheduler: AlarmScheduler
 
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
