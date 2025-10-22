@@ -76,9 +76,9 @@ private const val DESCRIPTION = "설명"
 fun NewScheduleContent(
     selectedDate: LocalDate,
     adView: AdView,
+    coroutineScope: CoroutineScope,
     makeSchedule: (NewSchedule) -> Unit,
-    onDismissRequest: () -> Unit,
-    coroutineScope: CoroutineScope
+    onDismissRequest: () -> Unit
 ) {
     val color = PrimaryColor
 
@@ -232,8 +232,9 @@ fun NewScheduleContent(
             placeholder = {
                 Text(
                     text = TITLE,
-                    fontSize = 16.sp,
-                    color = color,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = color
                 )
             },
             textStyle =

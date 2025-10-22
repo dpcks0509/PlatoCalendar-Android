@@ -45,11 +45,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.component.TimePickerDialog
+import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
@@ -66,7 +69,8 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private const val TITLE_REQUIRED = "제목 필수"
+private const val TITLE_INPUT_HINT = "제목을 입력해주세요."
+private const val TITLE = "제목"
 private const val HAS_NO_DESCRIPTION = "설명 없음"
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,10 +78,11 @@ private const val HAS_NO_DESCRIPTION = "설명 없음"
 fun CustomScheduleContent(
     schedule: CustomScheduleUiModel,
     adView: AdView,
+    coroutineScope: CoroutineScope,
     editSchedule: (CustomSchedule) -> Unit,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDeleteRequest: () -> Unit,
-    onDismissRequest: () -> Unit,
+    onDismissRequest: () -> Unit
 ) {
     var title: String by remember { mutableStateOf(schedule.title) }
     var description: String by remember { mutableStateOf(schedule.description.orEmpty()) }
@@ -104,7 +109,8 @@ fun CustomScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean =
+                    year in minDate.year..maxDate.year
             }
         }
 
@@ -171,6 +177,8 @@ fun CustomScheduleContent(
                             isCompleted = schedule.isCompleted,
                         ),
                     )
+                } else {
+                    coroutineScope.launch { SnackbarEventBus.sendError(TITLE_INPUT_HINT) }
                 }
             },
         )
@@ -190,7 +198,8 @@ fun CustomScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -215,9 +224,10 @@ fun CustomScheduleContent(
             },
             placeholder = {
                 Text(
-                    text = TITLE_REQUIRED,
-                    fontSize = 16.sp,
-                    color = Red,
+                    text = TITLE,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = schedule.color
                 )
             },
             textStyle =
@@ -253,7 +263,8 @@ fun CustomScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

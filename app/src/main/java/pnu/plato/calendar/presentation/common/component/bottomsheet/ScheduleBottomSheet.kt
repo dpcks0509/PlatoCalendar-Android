@@ -101,6 +101,7 @@ fun ScheduleBottomSheet(
                     CustomScheduleContent(
                         schedule = content.schedule,
                         adView = adView,
+                        coroutineScope = coroutineScope,
                         editSchedule = editSchedule,
                         toggleScheduleCompletion = toggleScheduleCompletion,
                         onDeleteRequest = { showDeleteDialog = true },
@@ -111,9 +112,9 @@ fun ScheduleBottomSheet(
                     NewScheduleContent(
                         adView = adView,
                         selectedDate = selectedDate,
+                        coroutineScope = coroutineScope,
                         makeSchedule = makeSchedule,
-                        onDismissRequest = onDismissRequest,
-                        coroutineScope = coroutineScope
+                        onDismissRequest = onDismissRequest
                     )
 
                 null -> Unit
