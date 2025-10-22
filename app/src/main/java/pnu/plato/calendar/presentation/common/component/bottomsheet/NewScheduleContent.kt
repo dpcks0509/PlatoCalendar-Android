@@ -44,10 +44,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.ads.AdView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import pnu.plato.calendar.domain.entity.Schedule.NewSchedule
 import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.component.TimePickerDialog
+import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
 import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
@@ -64,7 +67,8 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private const val TITLE_REQUIRED = "제목 필수"
+private const val TITLE_INPUT_HINT = "제목을 입력해주세요."
+private const val TITLE = "제목"
 private const val DESCRIPTION = "설명"
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,6 +78,7 @@ fun NewScheduleContent(
     adView: AdView,
     makeSchedule: (NewSchedule) -> Unit,
     onDismissRequest: () -> Unit,
+    coroutineScope: CoroutineScope
 ) {
     val color = PrimaryColor
 
@@ -113,7 +118,8 @@ fun NewScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean =
+                    year in minDate.year..maxDate.year
             }
         }
 
@@ -178,6 +184,8 @@ fun NewScheduleContent(
                             endAt = endAt,
                         ),
                     )
+                } else {
+                    coroutineScope.launch { SnackbarEventBus.sendError(TITLE_INPUT_HINT) }
                 }
             },
         )
@@ -197,7 +205,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -222,7 +231,7 @@ fun NewScheduleContent(
             },
             placeholder = {
                 Text(
-                    text = TITLE_REQUIRED,
+                    text = TITLE,
                     fontSize = 16.sp,
                     color = color,
                 )
@@ -260,7 +269,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
