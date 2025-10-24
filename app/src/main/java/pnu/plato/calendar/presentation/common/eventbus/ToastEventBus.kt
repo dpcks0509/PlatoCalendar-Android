@@ -3,31 +3,31 @@ package pnu.plato.calendar.presentation.common.eventbus
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-object SnackbarEventBus {
-    private val _snackbarMessage = MutableSharedFlow<SnackbarMessage>()
-    val snackbarMessage = _snackbarMessage.asSharedFlow()
+object ToastEventBus {
+    private val _toastMessage = MutableSharedFlow<ToastMessage>(replay = 1)
+    val toastMessage = _toastMessage.asSharedFlow()
 
     suspend fun sendSuccess(message: String?) {
         if (message.isNullOrEmpty()) return
 
-        _snackbarMessage.emit(SnackbarMessage.Success(message))
+        _toastMessage.emit(ToastMessage.Success(message))
     }
 
     suspend fun sendError(message: String?) {
         if (message.isNullOrEmpty()) return
 
-        _snackbarMessage.emit(SnackbarMessage.Error(message))
+        _toastMessage.emit(ToastMessage.Error(message))
     }
 }
 
-sealed class SnackbarMessage {
+sealed class ToastMessage {
     abstract val message: String
 
     data class Success(
         override val message: String,
-    ) : SnackbarMessage()
+    ) : ToastMessage()
 
     data class Error(
         override val message: String,
-    ) : SnackbarMessage()
+    ) : ToastMessage()
 }

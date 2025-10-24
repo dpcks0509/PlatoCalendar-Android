@@ -39,16 +39,16 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.delay
 import pnu.plato.calendar.R
-import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
-import pnu.plato.calendar.presentation.common.eventbus.SnackbarMessage
+import pnu.plato.calendar.presentation.common.eventbus.ToastEventBus
+import pnu.plato.calendar.presentation.common.eventbus.ToastMessage
 
 @Composable
 fun AnimatedToast() {
-    var currentMessage by remember { mutableStateOf<SnackbarMessage?>(null) }
+    var currentMessage by remember { mutableStateOf<ToastMessage?>(null) }
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        SnackbarEventBus.snackbarMessage.collect { message ->
+        ToastEventBus.toastMessage.collect { message ->
             currentMessage = message
             delay(100)
             isVisible = true
@@ -110,14 +110,14 @@ fun AnimatedToast() {
                         ) {
                             val icon =
                                 when (message) {
-                                    is SnackbarMessage.Error -> painterResource(R.drawable.ic_error)
-                                    is SnackbarMessage.Success -> painterResource(R.drawable.ic_success)
+                                    is ToastMessage.Error -> painterResource(R.drawable.ic_error)
+                                    is ToastMessage.Success -> painterResource(R.drawable.ic_success)
                                 }
 
                             val iconTint =
                                 when (message) {
-                                    is SnackbarMessage.Error -> Color(0xFFFFD21E)
-                                    is SnackbarMessage.Success -> Color(0xFF4CAF50)
+                                    is ToastMessage.Error -> Color(0xFFFFD21E)
+                                    is ToastMessage.Success -> Color(0xFF4CAF50)
                                 }
 
                             Icon(
