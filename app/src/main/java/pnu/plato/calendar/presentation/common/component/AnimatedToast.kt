@@ -50,7 +50,7 @@ fun AnimatedToast() {
     LaunchedEffect(Unit) {
         ToastEventBus.toastMessage.collect { message ->
             currentMessage = message
-            delay(100)
+            delay(300)
             isVisible = true
 
             delay(3000)

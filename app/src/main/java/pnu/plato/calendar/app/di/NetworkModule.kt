@@ -1,8 +1,10 @@
 package pnu.plato.calendar.app.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
@@ -11,6 +13,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import pnu.plato.calendar.BuildConfig
 import pnu.plato.calendar.BuildConfig.PLATO_BASE_URL
 import pnu.plato.calendar.BuildConfig.PNU_BASE_URL
+import pnu.plato.calendar.app.network.NetworkConnectionInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.CookieManager
@@ -30,8 +33,17 @@ object NetworkModule {
 
     @Singleton
     @Provides
+    fun provideNetworkConnectionInterceptor(
+        @ApplicationContext context: Context,
+    ): NetworkConnectionInterceptor = NetworkConnectionInterceptor(context)
+
+    @Singleton
+    @Provides
     @Redirect
-    fun provideReDirectOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+    fun provideReDirectOkHttpClient(
+        cookieJar: CookieJar,
+        networkConnectionInterceptor: NetworkConnectionInterceptor,
+    ): OkHttpClient {
         val logging =
             HttpLoggingInterceptor().apply {
                 level =
@@ -41,6 +53,7 @@ object NetworkModule {
         return OkHttpClient
             .Builder()
             .cookieJar(cookieJar)
+            .addInterceptor(networkConnectionInterceptor)
             .addInterceptor(logging)
             .build()
     }
@@ -48,7 +61,10 @@ object NetworkModule {
     @Singleton
     @Provides
     @NonDirect
-    fun provideNonDirectOkHttpClient(cookieJar: CookieJar): OkHttpClient {
+    fun provideNonDirectOkHttpClient(
+        cookieJar: CookieJar,
+        networkConnectionInterceptor: NetworkConnectionInterceptor,
+    ): OkHttpClient {
         val logging =
             HttpLoggingInterceptor().apply {
                 level =
@@ -58,6 +74,7 @@ object NetworkModule {
         return OkHttpClient
             .Builder()
             .cookieJar(cookieJar)
+            .addInterceptor(networkConnectionInterceptor)
             .addInterceptor(logging)
             .followRedirects(false)
             .build()

@@ -52,7 +52,7 @@ import pnu.plato.calendar.presentation.calendar.model.PickerTarget
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pnu.plato.calendar.presentation.common.component.BannerAd
 import pnu.plato.calendar.presentation.common.component.TimePickerDialog
-import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
+import pnu.plato.calendar.presentation.common.eventbus.ToastEventBus
 import pnu.plato.calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Black
@@ -178,7 +178,7 @@ fun CustomScheduleContent(
                         ),
                     )
                 } else {
-                    coroutineScope.launch { SnackbarEventBus.sendError(TITLE_INPUT_HINT) }
+                    coroutineScope.launch { ToastEventBus.sendError(TITLE_INPUT_HINT) }
                 }
             },
         )

@@ -13,83 +13,95 @@ class RemoteLoginRepository
         private val loginService: LoginService,
     ) : LoginRepository {
         override suspend fun login(credentials: LoginCredentials): Result<LoginSession> {
-            val response =
-                loginService.login(
-                    userName = credentials.userName,
-                    password = credentials.password,
-                )
+            return try {
+                val response =
+                    loginService.login(
+                        userName = credentials.userName,
+                        password = credentials.password,
+                    )
 
-            if (response.code() == REDIRECT_CODE) {
-                val redirectLocation =
-                    response.headers()["Location"]
-                        ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-                val redirectUrl = redirectLocation.toHttpUrlOrNull()
+                if (response.code() == REDIRECT_CODE) {
+                    val redirectLocation =
+                        response.headers()["Location"]
+                            ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+                    val redirectUrl = redirectLocation.toHttpUrlOrNull()
 
-                when (redirectUrl?.queryParameter("errorcode")) {
-                    "1" -> return Result.failure(Exception(COOKIES_DISABLED_ERROR))
-                    "2" -> return Result.failure(Exception(INVALID_USERNAME_FORMAT_ERROR))
-                    "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
-                    "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
-                    "5" -> return Result.failure(Exception(ACCOUNT_LOCKED_ERROR))
-                    null -> Unit
-                    else -> return Result.failure(Exception(LOGIN_FAILED_ERROR))
+                    when (redirectUrl?.queryParameter("errorcode")) {
+                        "1" -> return Result.failure(Exception(COOKIES_DISABLED_ERROR))
+                        "2" -> return Result.failure(Exception(INVALID_USERNAME_FORMAT_ERROR))
+                        "3" -> return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
+                        "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
+                        "5" -> return Result.failure(Exception(ACCOUNT_LOCKED_ERROR))
+                        null -> Unit
+                        else -> return Result.failure(Exception(LOGIN_FAILED_ERROR))
+                    }
+
+                    val userId =
+                        redirectUrl?.queryParameter("testsession")
+                            ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+
+                    val redirectResponse = loginService.redirect()
+
+                    if (redirectResponse.isSuccessful) {
+                        val redirectResponseBody =
+                            redirectResponse.body()?.string() ?: return Result.failure(
+                                Exception(LOGIN_FAILED_ERROR)
+                            )
+
+                        val sessKey =
+                            Regex(
+                                pattern = """M\.cfg\s*=\s*\{[\s\S]*?"sesskey"\s*:\s*"([^"]+)""",
+                            ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
+                                ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+
+                        val fullName =
+                            Regex(
+                                pattern = """class="fullname"[^>]*title="([^"]+)""",
+                            ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
+                                ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+
+                        return Result.success(
+                            LoginSession(
+                                userName = credentials.userName,
+                                fullName = fullName,
+                                userId = userId,
+                                sessKey = sessKey,
+                            ),
+                        )
+                    }
                 }
 
-                val userId =
-                    redirectUrl?.queryParameter("testsession")
-                        ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
+                Result.failure(Exception(LOGIN_FAILED_ERROR))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+        override suspend fun logout(sessKey: String): Result<Unit> {
+            return try {
+                val response = loginService.logout(sessKey = sessKey)
+
+                if (response.code() == REDIRECT_CODE) {
+                    val redirectLocation =
+                        response.headers()["Location"]
+                            ?: return Result.failure(Exception(LOGOUT_FAILED_ERROR))
+                    val redirectUrl = redirectLocation.toHttpUrlOrNull()
+
+                    when (redirectUrl?.queryParameter("errorcode")) {
+                        null -> Unit
+                        else -> return Result.failure(Exception(LOGOUT_FAILED_ERROR))
+                    }
+                }
 
                 val redirectResponse = loginService.redirect()
 
                 if (redirectResponse.isSuccessful) {
-                    val redirectResponseBody = redirectResponse.body()?.string() ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-
-                    val sessKey =
-                        Regex(
-                            pattern = """M\.cfg\s*=\s*\{[\s\S]*?"sesskey"\s*:\s*"([^"]+)""",
-                        ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
-                            ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-
-                    val fullName =
-                        Regex(
-                            pattern = """class="fullname"[^>]*title="([^"]+)"""",
-                        ).find(redirectResponseBody)?.groupValues?.getOrNull(1) ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-
-                    return Result.success(
-                        LoginSession(
-                            userName = credentials.userName,
-                            fullName = fullName,
-                            userId = userId,
-                            sessKey = sessKey,
-                        ),
-                    )
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception(LOGOUT_FAILED_ERROR))
                 }
-            }
-
-            return Result.failure(Exception(LOGIN_FAILED_ERROR))
-        }
-
-        override suspend fun logout(sessKey: String): Result<Unit> {
-            val response = loginService.logout(sessKey = sessKey)
-
-            if (response.code() == REDIRECT_CODE) {
-                val redirectLocation =
-                    response.headers()["Location"]
-                        ?: return Result.failure(Exception(LOGOUT_FAILED_ERROR))
-                val redirectUrl = redirectLocation.toHttpUrlOrNull()
-
-                when (redirectUrl?.queryParameter("errorcode")) {
-                    null -> Unit
-                    else -> return Result.failure(Exception(LOGOUT_FAILED_ERROR))
-                }
-            }
-
-            val redirectResponse = loginService.redirect()
-
-            return if (redirectResponse.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception(LOGOUT_FAILED_ERROR))
+            } catch (e: Exception) {
+                Result.failure(e)
             }
         }
 

@@ -15,7 +15,7 @@ import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBott
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
-import pnu.plato.calendar.presentation.common.eventbus.SnackbarEventBus
+import pnu.plato.calendar.presentation.common.eventbus.ToastEventBus
 import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
@@ -125,9 +125,9 @@ class ToDoViewModel
                         },
                     )
                     setSideEffect { ToDoHideSheet }
-                    SnackbarEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
+                    ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
                 }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
+                    ToastEventBus.sendError(throwable.message)
                 }
         }
 
@@ -182,9 +182,9 @@ class ToDoViewModel
                     calendarScheduleManager.updateSchedules(updatedSchedules)
 
                     setSideEffect { ToDoHideSheet }
-                    SnackbarEventBus.sendSuccess("일정이 수정되었습니다.")
+                    ToastEventBus.sendSuccess("일정이 수정되었습니다.")
                 }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
+                    ToastEventBus.sendError(throwable.message)
                 }
         }
 
@@ -199,9 +199,9 @@ class ToDoViewModel
                     calendarScheduleManager.updateSchedules(updatedSchedules)
 
                     setSideEffect { ToDoHideSheet }
-                    SnackbarEventBus.sendSuccess("일정이 삭제되었습니다.")
+                    ToastEventBus.sendSuccess("일정이 삭제되었습니다.")
                 }.onFailure { throwable ->
-                    SnackbarEventBus.sendError(throwable.message)
+                    ToastEventBus.sendError(throwable.message)
                 }
         }
     }
