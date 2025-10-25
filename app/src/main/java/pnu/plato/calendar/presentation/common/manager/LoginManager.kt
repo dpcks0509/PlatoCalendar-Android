@@ -35,8 +35,11 @@ constructor(
 
                     return true
                 }.onFailure { throwable ->
-                    if (throwable is NoNetworkConnectivityException) _loginStatus.update { LoginStatus.NetworkDisconnected }
-                    ToastEventBus.sendError(throwable.message)
+                    if (throwable is NoNetworkConnectivityException) {
+                        _loginStatus.update { LoginStatus.NetworkDisconnected }
+                    } else {
+                        ToastEventBus.sendError(throwable.message)
+                    }
                 }
         } else {
             _loginStatus.update { LoginStatus.Logout }

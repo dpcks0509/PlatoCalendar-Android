@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import pnu.plato.calendar.app.network.NoNetworkConnectivityException
 import pnu.plato.calendar.app.network.NoNetworkConnectivityException.Companion.NETWORK_ERROR_MESSAGE
 import pnu.plato.calendar.domain.entity.LoginCredentials
 import pnu.plato.calendar.domain.entity.LoginStatus
@@ -162,6 +163,8 @@ constructor(
                 val academicSchedules = it.map(::AcademicScheduleUiModel)
 
                 return academicSchedules
+            }.onFailure { throwable ->
+                if (throwable !is NoNetworkConnectivityException) ToastEventBus.sendError(throwable.message)
             }
 
         return emptyList()
