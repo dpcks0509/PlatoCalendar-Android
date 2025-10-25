@@ -231,6 +231,7 @@ constructor(
                 }
 
                 LoginStatus.Uninitialized -> calendarScheduleManager.updateLoading(false)
+
                 LoginStatus.NetworkDisconnected -> {
                     ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
                     calendarScheduleManager.updateLoading(false)
