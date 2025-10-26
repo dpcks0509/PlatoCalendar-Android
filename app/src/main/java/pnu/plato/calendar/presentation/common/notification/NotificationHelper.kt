@@ -43,6 +43,7 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
 
     fun showNotification(
         notificationId: Int,
+        scheduleId: Long,
         title: String,
         message: String
     ) {
@@ -57,7 +58,9 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
         }
 
         val intent = Intent(context, PlatoCalendarActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_SCHEDULE_ID, scheduleId)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -100,5 +103,6 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
     companion object {
         private const val CHANNEL_ID = "plato_calendar_notification"
         private const val CHANNEL_NAME = "PLATO 캘린더 일정"
+        const val EXTRA_SCHEDULE_ID = "schedule_id"
     }
 }

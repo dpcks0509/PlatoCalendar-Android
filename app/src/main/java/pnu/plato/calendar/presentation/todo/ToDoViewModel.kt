@@ -23,8 +23,8 @@ import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBott
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
 import pnu.plato.calendar.presentation.common.eventbus.ToastEventBus
-import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import pnu.plato.calendar.presentation.common.manager.ScheduleManager
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pnu.plato.calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
@@ -41,24 +41,24 @@ import pnu.plato.calendar.presentation.todo.intent.ToDoSideEffect.HideScheduleBo
 class ToDoViewModel
 @Inject
 constructor(
-    private val calendarScheduleManager: CalendarScheduleManager,
+    private val scheduleManager: ScheduleManager,
     private val scheduleRepository: ScheduleRepository,
     private val courseRepository: CourseRepository,
     private val loginManager: LoginManager,
 ) : BaseViewModel<ToDoState, ToDoEvent, ToDoSideEffect>(
-    initialState = ToDoState(today = calendarScheduleManager.today.value),
+    initialState = ToDoState(today = scheduleManager.today.value),
 ) {
-    val today get() = calendarScheduleManager.today
+    val today get() = scheduleManager.today
 
     init {
         viewModelScope.launch {
             launch {
-                calendarScheduleManager.today.collect { currentToday ->
+                scheduleManager.today.collect { currentToday ->
                     setState { copy(today = currentToday) }
                 }
             }
             launch {
-                calendarScheduleManager.schedules.collect { schedules ->
+                scheduleManager.schedules.collect { schedules ->
                     setState { copy(schedules = schedules) }
                 }
             }
@@ -81,7 +81,7 @@ constructor(
     }
 
     private fun refresh() {
-        calendarScheduleManager.updateToday()
+        scheduleManager.updateToday()
         getSchedules()
     }
 
@@ -124,7 +124,7 @@ constructor(
 
                 return personalSchedules
             }.onFailure { throwable ->
-                calendarScheduleManager.updateLoading(false)
+                scheduleManager.updateLoading(false)
 
                 ToastEventBus.sendError(throwable.message)
             }
@@ -136,7 +136,7 @@ constructor(
         viewModelScope.launch {
             when (val loginStatus = loginManager.loginStatus.value) {
                 is LoginStatus.Login -> {
-                    calendarScheduleManager.updateLoading(true)
+                    scheduleManager.updateLoading(true)
 
                     val (academicSchedules, personalSchedules) =
                         awaitAll(
@@ -146,24 +146,24 @@ constructor(
 
                     val schedules = academicSchedules + personalSchedules
 
-                    if (schedules.isNotEmpty()) calendarScheduleManager.updateSchedules(schedules)
-                    calendarScheduleManager.updateLoading(false)
+                    if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
+                    scheduleManager.updateLoading(false)
                 }
 
                 LoginStatus.Logout -> {
-                    calendarScheduleManager.updateLoading(true)
+                    scheduleManager.updateLoading(true)
 
                     val academicSchedules = getAcademicSchedules()
 
-                    calendarScheduleManager.updateSchedules(academicSchedules)
-                    calendarScheduleManager.updateLoading(false)
+                    scheduleManager.updateSchedules(academicSchedules)
+                    scheduleManager.updateLoading(false)
                 }
 
-                LoginStatus.Uninitialized -> calendarScheduleManager.updateLoading(false)
+                LoginStatus.Uninitialized -> scheduleManager.updateLoading(false)
 
                 LoginStatus.NetworkDisconnected -> {
                     ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
-                    calendarScheduleManager.updateLoading(false)
+                    scheduleManager.updateLoading(false)
                 }
             }
         }
@@ -208,7 +208,7 @@ constructor(
         scheduleRepository
             .editPersonalSchedule(personalSchedule)
             .onSuccess {
-                calendarScheduleManager.updateSchedules(
+                scheduleManager.updateSchedules(
                     state.value.schedules.map { schedule ->
                         if (schedule is PersonalScheduleUiModel && schedule.id == id) {
                             when (schedule) {
@@ -271,7 +271,7 @@ constructor(
                             schedule
                         }
                     }
-                calendarScheduleManager.updateSchedules(updatedSchedules)
+                scheduleManager.updateSchedules(updatedSchedules)
 
                 setSideEffect { ToDoHideSheet }
                 ToastEventBus.sendSuccess("일정이 수정되었습니다.")
@@ -288,7 +288,7 @@ constructor(
                     state.value.schedules.filter { schedule ->
                         !(schedule is PersonalScheduleUiModel && schedule.id == id)
                     }
-                calendarScheduleManager.updateSchedules(updatedSchedules)
+                scheduleManager.updateSchedules(updatedSchedules)
 
                 setSideEffect { ToDoHideSheet }
                 ToastEventBus.sendSuccess("일정이 삭제되었습니다.")

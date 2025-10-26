@@ -46,6 +46,10 @@ sealed interface CalendarEvent : UiEvent {
         val schedule: ScheduleUiModel? = null,
     ) : CalendarEvent
 
+    data class ShowScheduleBottomSheetById(
+        val scheduleId: Long,
+    ) : CalendarEvent
+
     data object HideScheduleBottomSheet : CalendarEvent
 
     data object HideLoginDialog : CalendarEvent

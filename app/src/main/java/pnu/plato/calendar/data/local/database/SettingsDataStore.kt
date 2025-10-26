@@ -60,12 +60,6 @@ constructor(
         }
     }
 
-    suspend fun setAcademicScheduleEnabled(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_ACADEMIC_SCHEDULE_ENABLED] = enabled
-        }
-    }
-
     suspend fun setFirstReminderTime(time: NotificationTime) {
         context.dataStore.edit { prefs ->
             prefs[KEY_FIRST_REMINDER_TIME_NAME] = time.name
@@ -81,8 +75,6 @@ constructor(
     companion object {
         private const val SETTINGS_NAME = "app_settings"
         private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
-        private val KEY_ACADEMIC_SCHEDULE_ENABLED =
-            booleanPreferencesKey("academic_schedule_enabled")
         private val KEY_FIRST_REMINDER_TIME_NAME = stringPreferencesKey("first_reminder_time_name")
         private val KEY_SECOND_REMINDER_TIME_NAME =
             stringPreferencesKey("second_reminder_time_name")

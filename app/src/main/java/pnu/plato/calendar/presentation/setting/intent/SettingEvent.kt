@@ -14,10 +14,6 @@ sealed interface SettingEvent : UiEvent {
         val enabled: Boolean,
     ) : SettingEvent
 
-    data class UpdateAcademicScheduleEnabled(
-        val enabled: Boolean,
-    ) : SettingEvent
-
     data class UpdateFirstReminderTime(
         val time: NotificationTime,
     ) : SettingEvent

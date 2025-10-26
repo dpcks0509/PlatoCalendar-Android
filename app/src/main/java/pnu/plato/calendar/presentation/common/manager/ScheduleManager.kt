@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CalendarScheduleManager
+class ScheduleManager
     @Inject
     constructor() {
         private val monthlyDates = mutableMapOf<YearMonth, List<List<LocalDate?>>>()

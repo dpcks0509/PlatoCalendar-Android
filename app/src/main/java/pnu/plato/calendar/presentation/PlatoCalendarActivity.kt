@@ -1,6 +1,7 @@
 package pnu.plato.calendar.presentation
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -29,13 +30,16 @@ import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pnu.plato.calendar.presentation.common.component.AnimatedToast
+import pnu.plato.calendar.presentation.common.eventbus.NotificationEvent
+import pnu.plato.calendar.presentation.common.eventbus.NotificationEventBus
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
-import pnu.plato.calendar.presentation.common.manager.CalendarScheduleManager
 import pnu.plato.calendar.presentation.common.manager.LoginManager
+import pnu.plato.calendar.presentation.common.manager.ScheduleManager
 import pnu.plato.calendar.presentation.common.manager.SettingsManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.notification.AlarmScheduler
+import pnu.plato.calendar.presentation.common.notification.NotificationHelper
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
@@ -47,7 +51,7 @@ class PlatoCalendarActivity : ComponentActivity() {
     lateinit var loginManager: LoginManager
 
     @Inject
-    lateinit var calendarScheduleManager: CalendarScheduleManager
+    lateinit var scheduleManager: ScheduleManager
 
     @Inject
     lateinit var settingsManager: SettingsManager
@@ -80,6 +84,7 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginManager.autoLogin()
+            handleNotificationIntent(intent)
         }
 
         enableEdgeToEdge(
@@ -97,7 +102,7 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val isLoading by calendarScheduleManager.isLoading.collectAsStateWithLifecycle()
+            val isLoading by scheduleManager.isLoading.collectAsStateWithLifecycle()
 
             PlatoCalendarTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -137,6 +142,21 @@ class PlatoCalendarActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent) {
+        val scheduleId = intent.getLongExtra(NotificationHelper.EXTRA_SCHEDULE_ID, -1L)
+        if (scheduleId != -1L) {
+            lifecycleScope.launch {
+                NotificationEventBus.sendEvent(NotificationEvent.OpenSchedule(scheduleId))
             }
         }
     }

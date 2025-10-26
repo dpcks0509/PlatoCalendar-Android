@@ -19,10 +19,6 @@ constructor(
         settingsDataStore.setNotificationsEnabled(enabled)
     }
 
-    suspend fun setAcademicScheduleEnabled(enabled: Boolean) {
-        settingsDataStore.setAcademicScheduleEnabled(enabled)
-    }
-
     suspend fun setFirstReminderTime(time: NotificationTime) {
         settingsDataStore.setFirstReminderTime(time)
     }

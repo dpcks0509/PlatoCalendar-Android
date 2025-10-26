@@ -46,6 +46,7 @@ import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.HideSchedul
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
+import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheetById
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pnu.plato.calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
@@ -59,6 +60,8 @@ import pnu.plato.calendar.presentation.common.component.LoginDialog
 import pnu.plato.calendar.presentation.common.component.PullToRefreshContainer
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pnu.plato.calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
+import pnu.plato.calendar.presentation.common.eventbus.NotificationEvent
+import pnu.plato.calendar.presentation.common.eventbus.NotificationEventBus
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
@@ -111,6 +114,16 @@ fun CalendarScreen(
                             sideEffect.page,
                         )
                     }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        NotificationEventBus.events.collect { event ->
+            when (event) {
+                is NotificationEvent.OpenSchedule -> {
+                    viewModel.setEvent(ShowScheduleBottomSheetById(event.scheduleId))
+                }
             }
         }
     }

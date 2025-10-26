@@ -8,6 +8,7 @@ import pnu.plato.calendar.domain.entity.LoginStatus
 import pnu.plato.calendar.presentation.common.base.BaseViewModel
 import pnu.plato.calendar.presentation.common.manager.LoginManager
 import pnu.plato.calendar.presentation.common.manager.SettingsManager
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.HideLoginDialog
 import pnu.plato.calendar.presentation.setting.intent.SettingEvent.HideNotificationPermissionSettingsDialog
@@ -22,8 +23,9 @@ import javax.inject.Inject
 class SettingViewModel
 @Inject
 constructor(
-    val loginManager: LoginManager,
+    private val loginManager: LoginManager,
     private val settingsManager: SettingsManager,
+    private val alarmScheduler: AlarmScheduler
 ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(SettingState()) {
     init {
         viewModelScope.launch {
@@ -66,15 +68,12 @@ constructor(
                 }
 
             SettingEvent.Logout -> {
+                alarmScheduler.cancelAllNotifications()
                 loginManager.logout()
             }
 
             is SettingEvent.UpdateNotificationsEnabled -> {
                 settingsManager.setNotificationsEnabled(event.enabled)
-            }
-
-            is SettingEvent.UpdateAcademicScheduleEnabled -> {
-                settingsManager.setAcademicScheduleEnabled(event.enabled)
             }
 
             is SettingEvent.UpdateFirstReminderTime -> {
