@@ -4,6 +4,7 @@ enum class NotificationTime(
     val label: String,
 ) {
     NONE("없음"),
+    ON_TIME("이벤트 시간"),
     ONE_HOUR("1시간 전"),
     TWO_HOURS("2시간 전"),
     SIX_HOURS("6시간 전"),
@@ -14,7 +15,7 @@ enum class NotificationTime(
 
     companion object {
         fun NotificationTime.getReminderTime(): String = when (this) {
-            NONE -> "지금"
+            ON_TIME -> "지금"
             else -> this.label
         }
     }

@@ -142,7 +142,6 @@ class AlarmScheduler @Inject constructor(@ApplicationContext private val context
         reminderTime: NotificationTime
     ): LocalDateTime {
         return when (reminderTime) {
-            NotificationTime.NONE -> endDateTime
             NotificationTime.ONE_HOUR -> endDateTime.minusHours(1)
             NotificationTime.TWO_HOURS -> endDateTime.minusHours(2)
             NotificationTime.SIX_HOURS -> endDateTime.minusHours(6)
@@ -150,6 +149,7 @@ class AlarmScheduler @Inject constructor(@ApplicationContext private val context
             NotificationTime.ONE_DAY -> endDateTime.minusDays(1)
             NotificationTime.TWO_DAYS -> endDateTime.minusDays(2)
             NotificationTime.ONE_WEEK -> endDateTime.minusWeeks(1)
+            else -> endDateTime
         }
     }
 
