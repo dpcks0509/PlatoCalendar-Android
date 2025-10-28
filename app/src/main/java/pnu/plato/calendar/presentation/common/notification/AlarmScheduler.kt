@@ -67,7 +67,7 @@ class AlarmScheduler @Inject constructor(@ApplicationContext private val context
                     scheduleId = personalSchedule.id,
                     title = personalSchedule.title,
                     message = if (!personalSchedule.description.isNullOrBlank()) {
-                        "${personalSchedule.description} · ${reminderTime.getReminderTime()}"
+                        "${personalSchedule.description}\n· ${reminderTime.getReminderTime()}"
                     } else {
                         "· ${reminderTime.getReminderTime()}"
                     },

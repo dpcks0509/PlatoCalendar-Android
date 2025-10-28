@@ -16,7 +16,7 @@ enum class NotificationTime(
     companion object {
         fun NotificationTime.getReminderTime(): String = when (this) {
             ON_TIME -> "지금"
-            else -> this.label
+            else -> "종료 ${this.label}"
         }
     }
 }
