@@ -23,8 +23,8 @@ android {
         applicationId = "pusan.university.plato_calendar"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -40,7 +40,7 @@ android {
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
-                localProperties.getProperty("banner.ad.sample.id")
+                localProperties.getProperty("banner.ad.sample.id"),
             )
         }
 
@@ -48,7 +48,7 @@ android {
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
-                localProperties.getProperty("banner.ad.unit.id")
+                localProperties.getProperty("banner.ad.unit.id"),
             )
 
             isMinifyEnabled = false
