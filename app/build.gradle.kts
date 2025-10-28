@@ -30,13 +30,23 @@ android {
 
         buildConfigField("String", "PLATO_BASE_URL", localProperties.getProperty("plato.base.url"))
         buildConfigField("String", "PNU_BASE_URL", localProperties.getProperty("pnu.base.url"))
-        buildConfigField("String", "ADMOB_APP_ID", "\"${localProperties.getProperty("admob.app.id")}\"")
+        buildConfigField(
+            "String",
+            "ADMOB_APP_ID",
+            "\"${localProperties.getProperty("admob.app.id")}\""
+        )
 
         manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("admob.app.id")
     }
 
     buildTypes {
         debug {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
@@ -45,16 +55,16 @@ android {
         }
 
         release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
                 localProperties.getProperty("banner.ad.unit.id"),
-            )
-
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
             )
         }
     }
