@@ -20,15 +20,19 @@ import pnu.plato.calendar.presentation.common.theme.White
 fun ActionButton(
     text: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
     OutlinedButton(
         onClick = onClick,
+        enabled = enabled,
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(2.dp, White),
+        border = BorderStroke(2.dp, White.copy(alpha = if (enabled) 1f else 0.5f)),
         colors =
             ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = White,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = White.copy(alpha = 0.5f),
             ),
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
         modifier = Modifier.height(36.dp),
