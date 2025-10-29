@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.setting.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.common.theme.MediumGray
+import pnu.plato.calendar.presentation.common.theme.VeryLightGray
 import pnu.plato.calendar.presentation.setting.model.SettingMenu
 
 @Composable
@@ -30,6 +32,7 @@ fun SettingItem(
             Modifier
                 .fillMaxWidth()
                 .height(48.dp)
+                .background(VeryLightGray)
                 .then(if (url != null) Modifier.clickable { navigateToWebView(url) } else Modifier)
                 .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,

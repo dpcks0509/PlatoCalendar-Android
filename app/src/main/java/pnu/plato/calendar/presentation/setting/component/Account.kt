@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import pnu.plato.calendar.presentation.common.theme.VeryLightGray
 import pnu.plato.calendar.presentation.common.theme.White
 import pnu.plato.calendar.presentation.setting.intent.SettingState
 
@@ -42,6 +43,7 @@ fun Account(
             Modifier
                 .fillMaxWidth()
                 .height(54.dp)
+                .background(VeryLightGray)
                 .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

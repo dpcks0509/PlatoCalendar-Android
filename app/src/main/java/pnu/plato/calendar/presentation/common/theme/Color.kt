@@ -13,6 +13,9 @@ val WhiteDark = Color.Black
 val BlackLight = Color.Black
 val BlackDark = Color.White
 
+val VeryLightGrayLight = Color(0xFFF2F2F2)
+val VeryLightGrayDark = Color(0xFF2A2A2A)
+
 val LightBlueLight = Color(0xFFAAD0F5)
 val LightBlueDark = Color(0xFF1E3A5F)
 
@@ -78,3 +81,6 @@ val CalendarSage: Color
 
 val CalendarLavender: Color
     @Composable get() = if (isSystemInDarkTheme()) CalendarLavenderDark else CalendarLavenderLight
+
+val VeryLightGray: Color
+    @Composable get() = if (isSystemInDarkTheme()) VeryLightGrayDark else VeryLightGrayLight

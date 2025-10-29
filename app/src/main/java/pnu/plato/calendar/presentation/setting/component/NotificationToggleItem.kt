@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.setting.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
+import pnu.plato.calendar.presentation.common.theme.VeryLightGray
 
 @Composable
 fun NotificationToggleItem(
@@ -28,6 +30,7 @@ fun NotificationToggleItem(
             Modifier
                 .fillMaxWidth()
                 .height(48.dp)
+                .background(VeryLightGray)
                 .padding(horizontal = 16.dp)
                 .alpha(if (enabled) 1f else 0.6f),
         verticalAlignment = Alignment.CenterVertically,

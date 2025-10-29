@@ -1,5 +1,6 @@
 package pnu.plato.calendar.presentation.setting.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.MediumGray
+import pnu.plato.calendar.presentation.common.theme.VeryLightGray
 import pnu.plato.calendar.presentation.setting.model.NotificationTime
 
 @Composable
@@ -44,6 +46,7 @@ fun ReminderDropdownItem(
             Modifier
                 .fillMaxWidth()
                 .height(48.dp)
+                .background(VeryLightGray)
                 .padding(horizontal = 16.dp)
                 .alpha(if (enabled) 1f else 0.6f),
         verticalAlignment = Alignment.CenterVertically,

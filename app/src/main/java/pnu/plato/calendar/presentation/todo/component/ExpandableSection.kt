@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
-import pnu.plato.calendar.presentation.common.theme.White
+import pnu.plato.calendar.presentation.common.theme.VeryLightGray
 import pnu.plato.calendar.presentation.todo.model.ToDoSection
 import java.time.LocalDateTime
 
@@ -50,7 +50,7 @@ fun ExpandableSection(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = VeryLightGray),
     ) {
         Row(
             modifier =
