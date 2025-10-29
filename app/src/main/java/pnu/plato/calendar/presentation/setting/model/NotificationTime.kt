@@ -11,12 +11,14 @@ enum class NotificationTime(
     TWELVE_HOURS("12시간 전"),
     ONE_DAY("1일 전"),
     TWO_DAYS("2일 전"),
-    ONE_WEEK("1주 전");
+    ONE_WEEK("1주 전"),
+    ;
 
     companion object {
-        fun NotificationTime.getReminderTime(): String = when (this) {
-            ON_TIME -> "지금"
-            else -> "종료 ${this.label}"
-        }
+        fun NotificationTime.getReminderTime(): String =
+            when (this) {
+                ON_TIME -> "지금"
+                else -> this.label
+            }
     }
 }
