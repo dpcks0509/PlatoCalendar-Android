@@ -41,8 +41,8 @@ fun ExpandableSection(
     today: LocalDateTime,
     isExpanded: Boolean,
     onSectionClick: (ToDoSection) -> Unit,
-    toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
-    onScheduleClick: (ScheduleUiModel) -> Unit = {},
+    toggleCompletion: (Long, Boolean) -> Unit,
+    onScheduleClick: (ScheduleUiModel) -> Unit,
 ) {
     val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
 
