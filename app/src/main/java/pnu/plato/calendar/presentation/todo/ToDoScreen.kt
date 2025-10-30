@@ -148,7 +148,7 @@ fun ToDoContent(
     ) {
         LazyColumn(
             state = lazyListState,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier =
                 Modifier
                     .fillMaxSize()
