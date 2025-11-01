@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import pnu.plato.calendar.R
@@ -20,7 +19,9 @@ import javax.inject.Singleton
 @Singleton
 class NotificationHelper @Inject constructor(@ApplicationContext private val context: Context) {
     private val notificationManager: NotificationManager by lazy {
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        context.getSystemService(
+            NotificationManager::class.java
+        )
     }
 
     init {
@@ -39,6 +40,7 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
         }
 
         notificationManager.createNotificationChannel(channel)
+        println(channel)
     }
 
     fun showNotification(
@@ -87,9 +89,7 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
             )
             .build()
 
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, notification)
-        }
+        notificationManager.notify(notificationId, notification)
     }
 
     fun cancelNotification(notificationId: Int) {

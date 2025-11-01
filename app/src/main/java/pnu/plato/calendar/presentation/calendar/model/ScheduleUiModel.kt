@@ -51,6 +51,8 @@ sealed class ScheduleUiModel {
             override val isCompleted: Boolean,
             val courseName: String,
         ) : PersonalScheduleUiModel() {
+            val titleWithCourseName: String get() = if (courseName.isEmpty()) title else "${courseName}_$title"
+
             constructor(domain: PersonalSchedule.CourseSchedule, courseName: String) : this(
                 id = domain.id,
                 title = domain.title.removePrefix(COMPLETE),

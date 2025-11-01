@@ -116,13 +116,7 @@ private fun PersonalScheduleItem(
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         val title =
-            schedule.title.run {
-                if (schedule is CourseScheduleUiModel) {
-                    if (schedule.courseName.isEmpty()) this else "${schedule.courseName}_$this"
-                } else {
-                    this
-                }
-            }
+            if (schedule is CourseScheduleUiModel) schedule.titleWithCourseName else schedule.title
 
         Text(
             text = title,
