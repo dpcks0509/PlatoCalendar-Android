@@ -37,7 +37,7 @@ constructor(
             .map { preferences ->
                 val notificationsEnabled = preferences[KEY_NOTIFICATIONS_ENABLED] ?: false
                 val firstReminderName =
-                    preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_HOUR.name
+                    preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_DAY.name
                 val secondReminderName =
                     preferences[KEY_SECOND_REMINDER_TIME_NAME] ?: NotificationTime.NONE.name
 

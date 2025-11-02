@@ -40,7 +40,6 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
         }
 
         notificationManager.createNotificationChannel(channel)
-        println(channel)
     }
 
     fun showNotification(
