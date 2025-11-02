@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import pnu.plato.calendar.R
 import pnu.plato.calendar.presentation.PlatoCalendarActivity
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -102,6 +103,5 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
     companion object {
         private const val CHANNEL_ID = "plato_calendar_notification"
         private const val CHANNEL_NAME = "PLATO 캘린더 일정"
-        const val EXTRA_SCHEDULE_ID = "schedule_id"
     }
 }

@@ -94,10 +94,10 @@ constructor(
 
         val intent =
             Intent(context, AlarmReceiver::class.java).apply {
-                putExtra(AlarmReceiver.EXTRA_NOTIFICATION_ID, notificationId)
-                putExtra(AlarmReceiver.EXTRA_TITLE, title)
-                putExtra(AlarmReceiver.EXTRA_MESSAGE, message)
-                putExtra(AlarmReceiver.EXTRA_SCHEDULE_ID, scheduleId)
+                putExtra(EXTRA_NOTIFICATION_ID, notificationId)
+                putExtra(EXTRA_TITLE, title)
+                putExtra(EXTRA_MESSAGE, message)
+                putExtra(EXTRA_SCHEDULE_ID, scheduleId)
             }
 
         val pendingIntent =
@@ -171,4 +171,11 @@ constructor(
         scheduleId: Long,
         reminderIndex: Int,
     ): Int = (scheduleId * 10 + reminderIndex).toInt()
+
+    companion object {
+        const val EXTRA_NOTIFICATION_ID = "notification_id"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_MESSAGE = "message"
+        const val EXTRA_SCHEDULE_ID = "schedule_id"
+    }
 }

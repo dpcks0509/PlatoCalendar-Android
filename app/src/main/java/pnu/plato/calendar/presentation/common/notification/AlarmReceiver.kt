@@ -4,6 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_MESSAGE
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_NOTIFICATION_ID
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_TITLE
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,12 +32,5 @@ class AlarmReceiver : BroadcastReceiver() {
             title = title,
             message = message
         )
-    }
-
-    companion object {
-        const val EXTRA_NOTIFICATION_ID = "notification_id"
-        const val EXTRA_TITLE = "title"
-        const val EXTRA_MESSAGE = "message"
-        const val EXTRA_SCHEDULE_ID = "schedule_id"
     }
 }

@@ -39,7 +39,7 @@ import pnu.plato.calendar.presentation.common.manager.SettingsManager
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pnu.plato.calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pnu.plato.calendar.presentation.common.notification.AlarmScheduler
-import pnu.plato.calendar.presentation.common.notification.NotificationHelper
+import pnu.plato.calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
 import pnu.plato.calendar.presentation.common.theme.PlatoCalendarTheme
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.White
@@ -153,7 +153,7 @@ class PlatoCalendarActivity : ComponentActivity() {
     }
 
     private fun handleNotificationIntent(intent: Intent) {
-        val scheduleId = intent.getLongExtra(NotificationHelper.EXTRA_SCHEDULE_ID, -1L)
+        val scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1L)
         if (scheduleId != -1L) {
             lifecycleScope.launch {
                 NotificationEventBus.sendEvent(NotificationEvent.OpenSchedule(scheduleId))
