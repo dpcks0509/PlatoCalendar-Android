@@ -66,8 +66,8 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         notificationPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (!isGranted) {
-                    lifecycleScope.launch { settingsManager.setNotificationsEnabled(false) }
+                lifecycleScope.launch {
+                    settingsManager.setNotificationsEnabled(isGranted)
                 }
             }
 
