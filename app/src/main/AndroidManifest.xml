@@ -31,10 +31,6 @@
             </intent-filter>
         </activity>
 
-
-
-
-
         <receiver
             android:name="pusan.university.plato_calendar.presentation.common.notification.AlarmReceiver"
             android:enabled="true"

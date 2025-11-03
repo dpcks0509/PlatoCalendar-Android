@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -20,6 +21,15 @@ localProperties.load(FileInputStream(rootProject.file("local.properties")))
 android {
     namespace = "pusan.university.plato_calendar"
     compileSdk = 36
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(gradleLocalProperties(rootDir, providers).getProperty("storeFile"))
+            storePassword = gradleLocalProperties(rootDir, providers).getProperty("storePassword")
+            keyPassword = gradleLocalProperties(rootDir, providers).getProperty("keyPassword")
+            keyAlias = gradleLocalProperties(rootDir, providers).getProperty("keyAlias")
+        }
+    }
 
     defaultConfig {
         applicationId = "pusan.university.plato_calendar"
@@ -68,6 +78,7 @@ android {
                 "BANNER_AD_UNIT_ID",
                 localProperties.getProperty("banner.ad.unit.id"),
             )
+
             signingConfig = signingConfigs.getByName("release")
         }
     }
