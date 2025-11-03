@@ -18,11 +18,11 @@ val localProperties = Properties()
 localProperties.load(FileInputStream(rootProject.file("local.properties")))
 
 android {
-    namespace = "pnu.plato.calendar"
+    namespace = "pusan.university.plato_calendar"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "pnu.plato.calendar"
+        applicationId = "pusan.university.plato_calendar"
         minSdk = 26
         targetSdk = 36
         versionCode = 10
@@ -68,6 +68,7 @@ android {
                 "BANNER_AD_UNIT_ID",
                 localProperties.getProperty("banner.ad.unit.id"),
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

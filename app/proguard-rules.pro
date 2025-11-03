@@ -37,21 +37,21 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
--keep,includedescriptorclasses class pnu.plato.calendar.**$$serializer { *; }
--keepclassmembers class pnu.plato.calendar.** {
+-keep,includedescriptorclasses class pusan.university.plato_calendar.**$$serializer { *; }
+-keepclassmembers class pusan.university.plato_calendar.** {
     *** Companion;
 }
--keepclasseswithmembers class pnu.plato.calendar.** {
+-keepclasseswithmembers class pusan.university.plato_calendar.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
 # Keep all @Serializable classes
--keep @kotlinx.serialization.Serializable class pnu.plato.calendar.** { *; }
+-keep @kotlinx.serialization.Serializable class pusan.university.plato_calendar.** { *; }
 
 # Keep all sealed classes and their subclasses (for navigation)
--keep class * extends pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen { *; }
--keep class pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen { *; }
--keep class pnu.plato.calendar.presentation.common.navigation.PlatoCalendarScreen$* { *; }
+-keep class * extends pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen { *; }
+-keep class pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen { *; }
+-keep class pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen$* { *; }
 
 #===============================================================================
 # Jetpack Compose
@@ -71,7 +71,7 @@
 }
 
 # Keep enum BottomBarItem specifically
--keep enum pnu.plato.calendar.presentation.common.navigation.BottomBarItem { *; }
+-keep enum pusan.university.plato_calendar.presentation.common.navigation.BottomBarItem { *; }
 
 # Compose Navigation
 -keep class androidx.navigation.** { *; }
@@ -187,8 +187,8 @@
 -dontwarn sun.misc.**
 
 # Keep all data classes for Gson
--keep class pnu.plato.calendar.data.** { *; }
--keep class pnu.plato.calendar.domain.model.** { *; }
+-keep class pusan.university.plato_calendar.data.** { *; }
+-keep class pusan.university.plato_calendar.domain.model.** { *; }
 
 #===============================================================================
 # Google AdMob

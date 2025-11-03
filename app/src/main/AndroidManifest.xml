@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name="pnu.plato.calendar.app.PlatoCalendarApplication"
+        android:name="pusan.university.plato_calendar.app.PlatoCalendarApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlatoCalendar">
         <activity
-            android:name="pnu.plato.calendar.presentation.PlatoCalendarActivity"
+            android:name="pusan.university.plato_calendar.presentation.PlatoCalendarActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.PlatoCalendar">
@@ -31,13 +31,17 @@
             </intent-filter>
         </activity>
 
+
+
+
+
         <receiver
-            android:name="pnu.plato.calendar.presentation.common.notification.AlarmReceiver"
+            android:name="pusan.university.plato_calendar.presentation.common.notification.AlarmReceiver"
             android:enabled="true"
             android:exported="false" />
 
         <receiver
-            android:name="pnu.plato.calendar.presentation.common.notification.BootReceiver"
+            android:name="pusan.university.plato_calendar.presentation.common.notification.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
