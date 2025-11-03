@@ -5,6 +5,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -71,7 +72,7 @@ fun PlatoCalendarNavHost(
 
             WebView(
                 url = url,
-                modifier = Modifier.fillMaxSize().statusBarsPadding(),
+                modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
             )
         }
     }

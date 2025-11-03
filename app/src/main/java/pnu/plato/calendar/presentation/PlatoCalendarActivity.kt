@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.AndroidEntryPoint
@@ -103,12 +104,17 @@ class PlatoCalendarActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val isLoading by scheduleManager.isLoading.collectAsStateWithLifecycle()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
 
             PlatoCalendarTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Scaffold(
                         bottomBar = {
-                            PlatoCalendarBottomBar(navController = navController)
+                            val isWebView = currentRoute?.contains("WebView") == true
+                            if (!isWebView) {
+                                PlatoCalendarBottomBar(navController = navController)
+                            }
                         },
                         contentWindowInsets = WindowInsets(0, 0, 0, 0),
                         modifier = Modifier.fillMaxSize(),
