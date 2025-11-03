@@ -331,7 +331,7 @@ fun NewScheduleContent(
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
                         .background(LightGray)
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 8.dp)
                         .noRippleClickable { showStartDatePicker = true },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -372,7 +372,7 @@ fun NewScheduleContent(
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
                         .background(LightGray)
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 8.dp)
                         .noRippleClickable { showEndDatePicker = true },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
