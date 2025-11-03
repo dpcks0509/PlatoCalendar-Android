@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 val localProperties = Properties()
@@ -20,7 +22,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "pusan.university.plato_calendar"
+        applicationId = "pnu.plato.calendar"
         minSdk = 26
         targetSdk = 36
         versionCode = 9
@@ -33,7 +35,7 @@ android {
         buildConfigField(
             "String",
             "ADMOB_APP_ID",
-            "\"${localProperties.getProperty("admob.app.id")}\""
+            "\"${localProperties.getProperty("admob.app.id")}\"",
         )
 
         manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("admob.app.id")
@@ -44,7 +46,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
 
             buildConfigField(
@@ -58,7 +60,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
 
             buildConfigField(
@@ -101,6 +103,10 @@ dependencies {
     implementation(libs.bundles.coil)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.google.admob)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 
     kapt(libs.bundles.hilt.kapt)
 }
