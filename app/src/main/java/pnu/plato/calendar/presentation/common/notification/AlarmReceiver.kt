@@ -12,11 +12,13 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
-
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         val notificationId = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "PLATO 캘린더"
         val message = intent.getStringExtra(EXTRA_MESSAGE) ?: "예정된 일정이 있습니다."
@@ -30,7 +32,7 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationId = notificationId,
             scheduleId = scheduleId,
             title = title,
-            message = message
+            message = message,
         )
     }
 }

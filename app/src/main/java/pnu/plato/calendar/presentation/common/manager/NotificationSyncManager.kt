@@ -12,53 +12,52 @@ import javax.inject.Singleton
 
 @Singleton
 class NotificationSyncManager
-@Inject
-constructor(
-    private val scheduleManager: ScheduleManager,
-    private val settingsManager: SettingsManager,
-    private val alarmScheduler: AlarmScheduler,
-) {
-    private var syncJob: Job? = null
+    @Inject
+    constructor(
+        private val scheduleManager: ScheduleManager,
+        private val settingsManager: SettingsManager,
+        private val alarmScheduler: AlarmScheduler,
+    ) {
+        private var syncJob: Job? = null
 
-    fun startSync(scope: CoroutineScope) {
-        syncJob?.cancel()
+        fun startSync(scope: CoroutineScope) {
+            syncJob?.cancel()
 
-        syncJob = scope.launch {
-            combine(
-                scheduleManager.schedules,
-                settingsManager.appSettings
-            ) { schedules, settings ->
-                Pair(schedules, settings)
-            }.collect { (schedules, settings) ->
-                val personalSchedules =
-                    schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
+            syncJob =
+                scope.launch {
+                    combine(
+                        scheduleManager.schedules,
+                        settingsManager.appSettings,
+                    ) { schedules, settings ->
+                        Pair(schedules, settings)
+                    }.collect { (schedules, settings) ->
+                        val personalSchedules =
+                            schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
 
-                syncNotifications(
+                        syncNotifications(
+                            personalSchedules = personalSchedules,
+                            notificationsEnabled = settings.notificationsEnabled,
+                            firstReminderTime = settings.firstReminderTime,
+                            secondReminderTime = settings.secondReminderTime,
+                        )
+                    }
+                }
+        }
+
+        private fun syncNotifications(
+            personalSchedules: List<PersonalScheduleUiModel>,
+            notificationsEnabled: Boolean,
+            firstReminderTime: NotificationTime,
+            secondReminderTime: NotificationTime,
+        ) {
+            alarmScheduler.cancelAllNotifications()
+
+            if (notificationsEnabled) {
+                alarmScheduler.scheduleNotificationsForSchedule(
                     personalSchedules = personalSchedules,
-                    notificationsEnabled = settings.notificationsEnabled,
-                    firstReminderTime = settings.firstReminderTime,
-                    secondReminderTime = settings.secondReminderTime
+                    firstReminderTime = firstReminderTime,
+                    secondReminderTime = secondReminderTime,
                 )
             }
         }
     }
-
-    private fun syncNotifications(
-        personalSchedules: List<PersonalScheduleUiModel>,
-        notificationsEnabled: Boolean,
-        firstReminderTime: NotificationTime,
-        secondReminderTime: NotificationTime
-    ) {
-        if (!notificationsEnabled) {
-            alarmScheduler.cancelAllNotifications()
-            return
-        }
-
-        alarmScheduler.cancelAllNotifications()
-        alarmScheduler.scheduleNotificationsForSchedule(
-            personalSchedules = personalSchedules,
-            firstReminderTime = firstReminderTime,
-            secondReminderTime = secondReminderTime
-        )
-    }
-}
