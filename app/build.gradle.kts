@@ -62,7 +62,7 @@ android {
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
-                localProperties.getProperty("banner.ad.sample.id"),
+                "\"${localProperties.getProperty("banner.ad.sample.id")}\"",
             )
         }
 
@@ -76,7 +76,7 @@ android {
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
-                localProperties.getProperty("banner.ad.unit.id"),
+                "\"${localProperties.getProperty("banner.ad.unit.id")}\"",
             )
 
             signingConfig = signingConfigs.getByName("release")
