@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pnu.plato.calendar.presentation.calendar.model.ScheduleUiModel
 import pnu.plato.calendar.presentation.common.extension.noRippleClickable
+import pnu.plato.calendar.presentation.common.theme.Gray
 import pnu.plato.calendar.presentation.common.theme.PrimaryColor
 import pnu.plato.calendar.presentation.common.theme.VeryLightGray
 import pnu.plato.calendar.presentation.todo.model.ToDoSection
@@ -85,7 +86,7 @@ fun ExpandableSection(
                         modifier = Modifier.padding(start = 18.dp, bottom = 18.dp, top = 6.dp),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PrimaryColor,
+                        color = Gray,
                     )
                 } else {
                     Column(
