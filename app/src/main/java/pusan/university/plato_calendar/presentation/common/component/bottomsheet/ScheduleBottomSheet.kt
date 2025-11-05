@@ -3,7 +3,9 @@ package pusan.university.plato_calendar.presentation.common.component.bottomshee
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -43,6 +45,7 @@ fun ScheduleBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (showDeleteDialog) {
@@ -77,7 +80,8 @@ fun ScheduleBottomSheet(
                 Modifier
                     .fillMaxWidth()
                     .background(White)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .clip(RoundedCornerShape(8.dp))
+                    .verticalScroll(scrollState),
         ) {
             when (content) {
                 is AcademicScheduleContent ->

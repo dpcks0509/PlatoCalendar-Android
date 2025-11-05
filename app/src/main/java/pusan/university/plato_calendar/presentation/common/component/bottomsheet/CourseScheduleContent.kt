@@ -194,12 +194,9 @@ fun CourseScheduleContent(
                         focusedIndicatorColor = Color.Transparent,
                         cursorColor = schedule.color,
                     ),
-                maxLines = 5,
                 modifier = Modifier.weight(1f),
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -237,7 +234,6 @@ fun CourseScheduleContent(
                         focusedIndicatorColor = Color.Transparent,
                         cursorColor = schedule.color,
                     ),
-                maxLines = 5,
                 modifier = Modifier.weight(1f),
             )
         }

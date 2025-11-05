@@ -227,7 +227,7 @@ class RemoteScheduleRepository
             private fun String.parseIcsToPersonalSchedules(): List<PersonalSchedule> {
                 val unfoldedLines = mutableListOf<String>()
                 lines().forEach { rawLine ->
-                    if (rawLine.startsWith(" ") && unfoldedLines.isNotEmpty()) {
+                    if ((rawLine.startsWith(" ") || rawLine.startsWith("\t")) && unfoldedLines.isNotEmpty()) {
                         val previous = unfoldedLines.removeAt(unfoldedLines.lastIndex)
                         unfoldedLines.add(previous + rawLine.trimStart())
                     } else {
@@ -279,6 +279,13 @@ class RemoteScheduleRepository
                 val startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime()
                 val endAt = fields["DTEND"].orEmpty().parseUtcToKstLocalDateTime()
 
+                val adjustedStartAt =
+                    if (startAt == endAt && startAt.hour == 0 && startAt.minute == 0) {
+                        startAt.minusMinutes(1)
+                    } else {
+                        startAt
+                    }
+
                 val adjustedEndAt =
                     if (endAt.hour == 0 && endAt.minute == 0) {
                         endAt.minusMinutes(1)
@@ -300,7 +307,7 @@ class RemoteScheduleRepository
                         id = fields["UID"].orEmpty().split("@")[0].toLong(),
                         title = fields["SUMMARY"].orEmpty(),
                         description = description,
-                        startAt = startAt,
+                        startAt = adjustedStartAt,
                         endAt = adjustedEndAt,
                         courseCode = courseCode,
                         isCompleted = fields["SUMMARY"].orEmpty().startsWith(COMPLETE),
