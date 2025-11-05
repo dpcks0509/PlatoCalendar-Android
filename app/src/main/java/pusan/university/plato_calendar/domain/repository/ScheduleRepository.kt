@@ -14,4 +14,8 @@ interface ScheduleRepository {
     suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): Result<Unit>
 
     suspend fun deleteCustomSchedule(id: Long): Result<Unit>
+
+    suspend fun markScheduleAsCompleted(id: Long)
+
+    suspend fun markScheduleAsUncompleted(id: Long)
 }

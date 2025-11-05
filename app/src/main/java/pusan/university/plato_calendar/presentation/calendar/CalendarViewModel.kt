@@ -316,6 +316,7 @@ class CalendarViewModel
             scheduleRepository
                 .deleteCustomSchedule(id)
                 .onSuccess {
+                    scheduleRepository.markScheduleAsUncompleted(id)
                     alarmScheduler.cancelNotificationsForSchedule(id)
 
                     val updatedSchedules =
@@ -335,63 +336,28 @@ class CalendarViewModel
             id: Long,
             isCompleted: Boolean,
         ) {
-            val currentSchedule =
-                state.value.schedules
-                    .filterIsInstance<PersonalScheduleUiModel>()
-                    .find { it.id == id } ?: return
+            if (isCompleted) {
+                scheduleRepository.markScheduleAsCompleted(id)
+                alarmScheduler.cancelNotificationsForSchedule(id)
+            } else {
+                scheduleRepository.markScheduleAsUncompleted(id)
+            }
 
-            val personalSchedule =
-                when (currentSchedule) {
-                    is CourseScheduleUiModel -> {
-                        val courseCode = courseRepository.getCourseCode(currentSchedule.courseName)
-
-                        CourseSchedule(
-                            id = currentSchedule.id,
-                            title = currentSchedule.title,
-                            description = currentSchedule.description,
-                            startAt = currentSchedule.startAt,
-                            endAt = currentSchedule.endAt,
-                            isCompleted = isCompleted,
-                            courseCode = courseCode,
-                        )
-                    }
-
-                    is CustomScheduleUiModel ->
-                        CustomSchedule(
-                            id = currentSchedule.id,
-                            title = currentSchedule.title,
-                            description = currentSchedule.description,
-                            startAt = currentSchedule.startAt,
-                            endAt = currentSchedule.endAt,
-                            isCompleted = isCompleted,
-                        )
-                }
-
-            scheduleRepository
-                .editPersonalSchedule(personalSchedule)
-                .onSuccess {
-                    val updatedSchedules =
-                        state.value.schedules.map { schedule ->
-                            if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                                when (schedule) {
-                                    is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                    is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                }
-                            } else {
-                                schedule
-                            }
+            val updatedSchedules =
+                state.value.schedules.map { schedule ->
+                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                        when (schedule) {
+                            is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                            is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
                         }
-                    scheduleManager.updateSchedules(updatedSchedules)
-
-                    if (isCompleted) {
-                        alarmScheduler.cancelNotificationsForSchedule(id)
+                    } else {
+                        schedule
                     }
-
-                    setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
-                    ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
-                }.onFailure { throwable ->
-                    ToastEventBus.sendError(throwable.message)
                 }
+            scheduleManager.updateSchedules(updatedSchedules)
+
+            setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
+            ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
         }
 
         private fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {

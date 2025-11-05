@@ -55,7 +55,7 @@ sealed class ScheduleUiModel {
 
             constructor(domain: PersonalSchedule.CourseSchedule, courseName: String) : this(
                 id = domain.id,
-                title = domain.title.removePrefix(COMPLETE),
+                title = domain.title,
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
@@ -78,7 +78,7 @@ sealed class ScheduleUiModel {
         ) : PersonalScheduleUiModel() {
             constructor(domain: CustomSchedule) : this(
                 id = domain.id,
-                title = domain.title.removePrefix(COMPLETE),
+                title = domain.title,
                 description = domain.description,
                 startAt = domain.startAt,
                 endAt = domain.endAt,
@@ -88,10 +88,6 @@ sealed class ScheduleUiModel {
             override val color: Color
                 @Composable get() =
                     if (!isCompleted) CalendarFlamingo else MediumGray
-        }
-
-        companion object {
-            const val COMPLETE = "(완료) "
         }
     }
 }
