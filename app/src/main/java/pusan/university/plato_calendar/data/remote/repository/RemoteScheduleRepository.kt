@@ -270,17 +270,21 @@ class RemoteScheduleRepository
             }
 
             private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
-                val courseCode = fields["CATEGORIES"]?.split("_")[2]
+                val courseCode =
+                    fields["CATEGORIES"]?.split("_")[2]?.let { courseCode ->
+                        courseCode.substring(0, 4) + courseCode.substring(6, 9)
+                    }
                 val description = fields["DESCRIPTION"]?.processIcsDescription()
 
                 val startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime()
                 val endAt = fields["DTEND"].orEmpty().parseUtcToKstLocalDateTime()
 
-                val adjustedEndAt = if (endAt.hour == 0 && endAt.minute == 0) {
-                    endAt.minusMinutes(1)
-                } else {
-                    endAt
-                }
+                val adjustedEndAt =
+                    if (endAt.hour == 0 && endAt.minute == 0) {
+                        endAt.minusMinutes(1)
+                    } else {
+                        endAt
+                    }
 
                 return if (courseCode == null) {
                     CustomSchedule(
@@ -298,7 +302,7 @@ class RemoteScheduleRepository
                         description = description,
                         startAt = startAt,
                         endAt = adjustedEndAt,
-                        courseCode = fields["CATEGORIES"]?.split("_")[2].toString(),
+                        courseCode = courseCode,
                         isCompleted = fields["SUMMARY"].orEmpty().startsWith(COMPLETE),
                     )
                 }
