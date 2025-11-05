@@ -45,7 +45,6 @@ import pusan.university.plato_calendar.presentation.common.component.bottomsheet
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
-import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,7 +55,6 @@ class CalendarViewModel
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
         private val scheduleManager: ScheduleManager,
-        private val alarmScheduler: AlarmScheduler,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
             initialState =
                 CalendarState(today = scheduleManager.today.value.toLocalDate()),
@@ -317,7 +315,6 @@ class CalendarViewModel
                 .deleteCustomSchedule(id)
                 .onSuccess {
                     scheduleRepository.markScheduleAsUncompleted(id)
-                    alarmScheduler.cancelNotificationsForSchedule(id)
 
                     val updatedSchedules =
                         state.value.schedules.filter { schedule ->
@@ -338,7 +335,6 @@ class CalendarViewModel
         ) {
             if (isCompleted) {
                 scheduleRepository.markScheduleAsCompleted(id)
-                alarmScheduler.cancelNotificationsForSchedule(id)
             } else {
                 scheduleRepository.markScheduleAsUncompleted(id)
             }

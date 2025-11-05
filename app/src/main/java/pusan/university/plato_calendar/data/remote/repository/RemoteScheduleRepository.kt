@@ -21,6 +21,7 @@ import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
+import pusan.university.plato_calendar.presentation.common.extension.formatCourseCode
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import java.net.URLEncoder
 import java.time.LocalDate
@@ -296,10 +297,8 @@ constructor(
         }
 
         private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
-            val courseCode =
-                fields["CATEGORIES"]?.split("_")[2]?.let { courseCode ->
-                    courseCode.substring(0, 4) + courseCode.substring(6, 9)
-                }
+            val courseCode = fields["CATEGORIES"]?.split("_")[2].formatCourseCode()
+
             val description = fields["DESCRIPTION"]?.processIcsDescription()
 
             val startAt = fields["DTSTART"].orEmpty().parseUtcToKstLocalDateTime()

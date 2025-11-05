@@ -6,58 +6,46 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
-import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class NotificationSyncManager
-    @Inject
-    constructor(
-        private val scheduleManager: ScheduleManager,
-        private val settingsManager: SettingsManager,
-        private val alarmScheduler: AlarmScheduler,
-    ) {
-        private var syncJob: Job? = null
+@Inject
+constructor(
+    private val scheduleManager: ScheduleManager,
+    private val settingsManager: SettingsManager,
+    private val alarmScheduler: AlarmScheduler,
+) {
+    private var syncJob: Job? = null
 
-        fun startSync(scope: CoroutineScope) {
-            syncJob?.cancel()
+    fun startSync(scope: CoroutineScope) {
+        syncJob?.cancel()
 
-            syncJob =
-                scope.launch {
-                    combine(
-                        scheduleManager.schedules,
-                        settingsManager.appSettings,
-                    ) { schedules, settings ->
-                        Pair(schedules, settings)
-                    }.collect { (schedules, settings) ->
-                        val personalSchedules =
-                            schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
+        syncJob =
+            scope.launch {
+                combine(
+                    scheduleManager.schedules,
+                    settingsManager.appSettings,
+                ) { schedules, settings ->
+                    Pair(schedules, settings)
+                }.collect { (schedules, settings) ->
+                    val personalSchedules =
+                        schedules.filterIsInstance<PersonalScheduleUiModel>()
+                            .filter { !it.isCompleted }
 
-                        syncNotifications(
-                            personalSchedules = personalSchedules,
-                            notificationsEnabled = settings.notificationsEnabled,
-                            firstReminderTime = settings.firstReminderTime,
-                            secondReminderTime = settings.secondReminderTime,
-                        )
+                    with(settings) {
+                        alarmScheduler.cancelAllNotifications()
+
+                        if (notificationsEnabled) {
+                            alarmScheduler.scheduleNotificationsForSchedule(
+                                personalSchedules = personalSchedules,
+                                firstReminderTime = firstReminderTime,
+                                secondReminderTime = secondReminderTime,
+                            )
+                        }
                     }
                 }
-        }
-
-        private fun syncNotifications(
-            personalSchedules: List<PersonalScheduleUiModel>,
-            notificationsEnabled: Boolean,
-            firstReminderTime: NotificationTime,
-            secondReminderTime: NotificationTime,
-        ) {
-            alarmScheduler.cancelAllNotifications()
-
-            if (notificationsEnabled) {
-                alarmScheduler.scheduleNotificationsForSchedule(
-                    personalSchedules = personalSchedules,
-                    firstReminderTime = firstReminderTime,
-                    secondReminderTime = secondReminderTime,
-                )
             }
-        }
     }
+}
