@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -37,11 +38,33 @@ fun WebView(
                             view: WebView?,
                             request: android.webkit.WebResourceRequest?,
                         ): Boolean {
-                            val loadingUrl = request?.url.toString()
+                            val url = request?.url.toString()
+                            val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                            val packageName = intent.`package`
 
-                            return if (loadingUrl.startsWith("intent://")) {
-                                val intent = Intent.parseUri(loadingUrl, Intent.URI_INTENT_SCHEME)
-                                context.startActivity(intent)
+                            return if (url.startsWith("intent://")) {
+                                if (!packageName.isNullOrBlank()) {
+                                    val existPackage = context.packageManager
+                                        .getLaunchIntentForPackage(packageName)
+
+                                    if (existPackage != null) {
+                                        context.startActivity(intent)
+                                    } else {
+                                        val marketIntent = Intent(
+                                            Intent.ACTION_VIEW,
+                                            "market://details?id=$packageName".toUri()
+                                        )
+                                        context.startActivity(marketIntent)
+                                    }
+                                }
+
+                                true
+                            } else if (url.startsWith("market://")) {
+                                val marketIntent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    url.toUri()
+                                )
+                                context.startActivity(marketIntent)
 
                                 true
                             } else {
