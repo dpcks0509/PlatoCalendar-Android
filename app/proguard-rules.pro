@@ -175,6 +175,23 @@
 #===============================================================================
 # Gson (used by Retrofit converter)
 #===============================================================================
+# Keep generic type information for TypeToken
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+# Keep TypeToken and its generic signatures
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+
+# Keep generic signature of classes used with Gson
+-keep class com.google.gson.** { *; }
+
+# Keep LocalCourseRepository and its inner classes (including anonymous TypeToken)
+-keep class pusan.university.plato_calendar.data.local.repository.LocalCourseRepository { *; }
+-keep class pusan.university.plato_calendar.data.local.repository.LocalCourseRepository$* { *; }
+
 -keep class * extends com.google.gson.TypeAdapter
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer

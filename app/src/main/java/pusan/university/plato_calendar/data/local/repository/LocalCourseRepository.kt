@@ -22,10 +22,9 @@ constructor(
                 .bufferedReader()
                 .use { it.readText() }
 
-        Gson().fromJson(
-            jsonString,
-            object : TypeToken<Map<String, String>>() {}.type,
-        )
+        // Create a concrete type to avoid ProGuard issues
+        val type = object : TypeToken<Map<String, String>>() {}.type
+        Gson().fromJson(jsonString, type)
     }
 
     override fun getCourseName(courseCode: String): String =
