@@ -38,37 +38,40 @@ fun WebView(
                             view: WebView?,
                             request: android.webkit.WebResourceRequest?,
                         ): Boolean {
-                            val url = request?.url.toString()
-                            val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-                            val packageName = intent.`package`
+                            val requestUrl = request?.url.toString()
 
-                            return if (url.startsWith("intent://")) {
-                                if (!packageName.isNullOrBlank()) {
-                                    val existPackage = context.packageManager
-                                        .getLaunchIntentForPackage(packageName)
-
-                                    if (existPackage != null) {
+                            return when {
+                                requestUrl.startsWith("intent://") -> {
+                                    try {
+                                        val intent = Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME)
                                         context.startActivity(intent)
-                                    } else {
-                                        val marketIntent = Intent(
-                                            Intent.ACTION_VIEW,
-                                            "market://details?id=$packageName".toUri()
-                                        )
-                                        context.startActivity(marketIntent)
+                                    } catch (_: Exception) {
+                                        val packageName =
+                                            try {
+                                                Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME).`package`
+                                            } catch (_: Exception) {
+                                                null
+                                            }
+
+                                        if (!packageName.isNullOrBlank()) {
+                                            val marketIntent =
+                                                Intent(
+                                                    Intent.ACTION_VIEW,
+                                                    "market://details?id=$packageName".toUri(),
+                                                )
+                                            context.startActivity(marketIntent)
+                                        }
                                     }
+                                    true
                                 }
 
-                                true
-                            } else if (url.startsWith("market://")) {
-                                val marketIntent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    url.toUri()
-                                )
-                                context.startActivity(marketIntent)
+                                requestUrl.startsWith("market://") -> {
+                                    val marketIntent = Intent(Intent.ACTION_VIEW, requestUrl.toUri())
+                                    context.startActivity(marketIntent)
+                                    true
+                                }
 
-                                true
-                            } else {
-                                false
+                                else -> false
                             }
                         }
                     }
