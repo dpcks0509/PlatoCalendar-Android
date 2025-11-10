@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,13 +64,19 @@ fun ToDoScreen(
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
 
     val adView =
         remember {
             AdView(context).apply {
                 adUnitId = BuildConfig.BANNER_AD_UNIT_ID
-                val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, 360)
+
+                val screenWidthDp = configuration.screenWidthDp
+                val adWidth = screenWidthDp - 24
+
+                val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
                 setAdSize(adSize)
 
                 adListener =
