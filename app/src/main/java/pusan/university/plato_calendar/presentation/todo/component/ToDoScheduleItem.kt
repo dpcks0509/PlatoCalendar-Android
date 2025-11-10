@@ -71,7 +71,7 @@ fun ToDoScheduleItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             val title =
                 schedule.title.run {
                     if (schedule is CourseScheduleUiModel) {
@@ -115,8 +115,6 @@ fun ToDoScheduleItem(
         }
 
         if (schedule is PersonalScheduleUiModel) {
-            Spacer(modifier = Modifier.weight(1f))
-
             Checkbox(
                 checked = isCompleted,
                 colors =
