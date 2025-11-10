@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -89,13 +92,22 @@ fun ExpandableSection(
                         color = Gray,
                     )
                 } else {
-                    Column(
+                    LazyColumn(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
+                                .heightIn(max = 500.dp)
                                 .padding(vertical = 6.dp),
                     ) {
-                        items.forEach { schedule ->
+                        items(
+                            items = items,
+                            key = { schedule ->
+                                when (schedule) {
+                                    is ScheduleUiModel.PersonalScheduleUiModel -> schedule.id
+                                    is ScheduleUiModel.AcademicScheduleUiModel -> schedule.hashCode()
+                                }
+                            },
+                        ) { schedule ->
                             ToDoScheduleItem(
                                 schedule = schedule,
                                 today = today,
