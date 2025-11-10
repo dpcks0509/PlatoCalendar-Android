@@ -173,58 +173,27 @@ constructor(
         id: Long,
         isCompleted: Boolean,
     ) {
-        val currentSchedule =
-            state.value.schedules
-                .filterIsInstance<PersonalScheduleUiModel>()
-                .find { it.id == id } ?: return
-
-        val personalSchedule =
-            when (currentSchedule) {
-                is CourseScheduleUiModel -> {
-                    val courseCode = courseRepository.getCourseCode(currentSchedule.courseName)
-
-                    CourseSchedule(
-                        id = currentSchedule.id,
-                        title = currentSchedule.title,
-                        description = currentSchedule.description,
-                        startAt = currentSchedule.startAt,
-                        endAt = currentSchedule.endAt,
-                        isCompleted = isCompleted,
-                        courseCode = courseCode,
-                    )
-                }
-
-                is CustomScheduleUiModel ->
-                    CustomSchedule(
-                        id = currentSchedule.id,
-                        title = currentSchedule.title,
-                        description = currentSchedule.description,
-                        startAt = currentSchedule.startAt,
-                        endAt = currentSchedule.endAt,
-                        isCompleted = isCompleted,
-                    )
+            if (isCompleted) {
+                scheduleRepository.markScheduleAsCompleted(id)
+            } else {
+                scheduleRepository.markScheduleAsUncompleted(id)
             }
 
-        scheduleRepository
-            .editPersonalSchedule(personalSchedule)
-            .onSuccess {
-                scheduleManager.updateSchedules(
-                    state.value.schedules.map { schedule ->
-                        if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                            when (schedule) {
-                                is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                                is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                            }
-                        } else {
-                            schedule
+            val updatedSchedules =
+                state.value.schedules.map { schedule ->
+                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                        when (schedule) {
+                            is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                            is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
                         }
-                    },
-                )
-                setSideEffect { ToDoHideSheet }
-                ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
-            }.onFailure { throwable ->
-                ToastEventBus.sendError(throwable.message)
+                    } else {
+                        schedule
+                }
             }
+            scheduleManager.updateSchedules(updatedSchedules)
+
+            setSideEffect { ToDoHideSheet }
+            ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
     }
 
     private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
