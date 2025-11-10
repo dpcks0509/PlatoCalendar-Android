@@ -20,7 +20,7 @@
   <tr>
     <td width="50%" style="text-align:center; vertical-align:top;">
     <div>• 캘린더</div>
-    <video src="https://github.com/user-attachments/assets/15bd0816-d5ca-4992-9f28-9ef78b80078e" width="100%" controls></video>
+    <video src="https://github.com/user-attachments/assets/df6b2208-50bc-49b5-87de-b39a1da68c7c" width="100%" controls></video>
     </td>
     <td width="50%" style="text-align:center; vertical-align:top;">
     <div>• 일정 새로고침</div>
@@ -51,6 +51,7 @@
   </tr>
 </table>
 
+<br>
 <h3>2. 할일</h3>
 <table>
   <tr>
@@ -65,6 +66,7 @@
   </tr>
 </table>
 
+<br>
 <h3>3. 설정</h3>
 <table>
   <tr>
