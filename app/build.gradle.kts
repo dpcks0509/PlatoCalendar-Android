@@ -124,6 +124,7 @@ dependencies {
     implementation(libs.bundles.coil)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.google.admob)
+    implementation(libs.bundles.glance)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
