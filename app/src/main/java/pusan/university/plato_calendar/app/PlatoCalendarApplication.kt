@@ -4,10 +4,12 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import pusan.university.plato_calendar.BuildConfig
 import pusan.university.plato_calendar.presentation.common.manager.NotificationSyncManager
 import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper.Companion.CHANNEL_ID
 import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper.Companion.CHANNEL_NAME
@@ -22,6 +24,8 @@ class PlatoCalendarApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
 
         createNotificationChannel(applicationContext)
         notificationSyncManager.startSync(applicationScope)
