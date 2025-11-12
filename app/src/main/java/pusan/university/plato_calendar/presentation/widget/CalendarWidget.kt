@@ -10,18 +10,18 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -36,22 +36,9 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.action.clickable
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
-import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
-import pusan.university.plato_calendar.domain.entity.LoginStatus
-import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
-import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
@@ -59,19 +46,20 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
-import pusan.university.plato_calendar.presentation.widget.CalendarWidget.WidgetEntryPoint
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @Suppress("RestrictedApi")
 object CalendarWidget : GlanceAppWidget() {
+    init {
+        actionRunCallback<RefreshSchedulesCallback>()
+    }
+
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface WidgetEntryPoint {
@@ -100,22 +88,11 @@ object CalendarWidget : GlanceAppWidget() {
             val todayStr = prefs[stringPreferencesKey("today")] ?: LocalDate.now().toString()
             val selectedDateStr = prefs[stringPreferencesKey("selected_date")] ?: todayStr
 
-            val today =
-                try {
-                    LocalDate.parse(todayStr)
-                } catch (e: Exception) {
-                    LocalDate.now()
-                }
-
-            val selectedDate =
-                try {
-                    LocalDate.parse(selectedDateStr)
-                } catch (e: Exception) {
-                    today
-                }
+            val today = LocalDate.parse(todayStr)
+            val selectedDate = LocalDate.parse(selectedDateStr)
 
             val currentMonth = YearMonth.of(today.year, today.month)
-            val schedules = deserializeSchedules(schedulesJson)
+            val schedules = ScheduleSerializer.deserializeSchedules(schedulesJson)
             val schedulesMap = groupSchedulesByDate(schedules)
             val selectedDateSchedules = schedulesMap[selectedDate] ?: emptyList()
 
@@ -123,6 +100,8 @@ object CalendarWidget : GlanceAppWidget() {
                 modifier =
                     GlanceModifier
                         .fillMaxSize()
+                        .appWidgetBackground()
+                        .cornerRadius(24.dp)
                         .background(Color.White),
             ) {
                 // 왼쪽: 선택된 날짜의 일정 목록
@@ -157,31 +136,29 @@ object CalendarWidget : GlanceAppWidget() {
 
                     Spacer(modifier = GlanceModifier.height(16.dp))
 
-                    // 일정 목록
-                    if (selectedDateSchedules.isEmpty()) {
-                        Text(
-                            text = "일정 없음",
-                            style =
-                                TextStyle(
-                                    fontSize = 14.sp,
-                                    color = androidx.glance.unit.ColorProvider(Color.Gray),
-                                ),
-                        )
-                    } else {
-                        selectedDateSchedules.take(4).forEach { schedule ->
-                            ScheduleItem(schedule)
-                            Spacer(modifier = GlanceModifier.height(8.dp))
-                        }
-
-                        if (selectedDateSchedules.size > 4) {
-                            Text(
-                                text = "+${selectedDateSchedules.size - 4} more",
-                                style =
-                                    TextStyle(
-                                        fontSize = 12.sp,
-                                        color = androidx.glance.unit.ColorProvider(Color.Gray),
-                                    ),
-                            )
+                    // 일정 목록 (스크롤 가능)
+                    LazyColumn(
+                        modifier =
+                            GlanceModifier
+                                .fillMaxWidth()
+                                .defaultWeight(),
+                    ) {
+                        if (selectedDateSchedules.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "일정 없음",
+                                    style =
+                                        TextStyle(
+                                            fontSize = 14.sp,
+                                            color = androidx.glance.unit.ColorProvider(Color.Gray),
+                                        ),
+                                )
+                            }
+                        } else {
+                            items(selectedDateSchedules) { schedule ->
+                                ScheduleItem(schedule)
+                                Spacer(modifier = GlanceModifier.height(8.dp))
+                            }
                         }
                     }
 
@@ -443,258 +420,4 @@ object CalendarWidget : GlanceAppWidget() {
                 is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
             }
         }
-
-    public fun serializeSchedules(schedules: List<ScheduleUiModel>): String {
-        val jsonArray = JSONArray()
-
-        schedules.forEach { schedule ->
-            val jsonObject = JSONObject()
-
-            when (schedule) {
-                is AcademicScheduleUiModel -> {
-                    jsonObject.put("type", "academic")
-                    jsonObject.put("title", schedule.title)
-                    jsonObject.put("startAt", schedule.startAt.toString())
-                    jsonObject.put("endAt", schedule.endAt.toString())
-                }
-
-                is CourseScheduleUiModel -> {
-                    jsonObject.put("type", "course")
-                    jsonObject.put("id", schedule.id)
-                    jsonObject.put("title", schedule.title)
-                    jsonObject.put("description", schedule.description ?: "")
-                    jsonObject.put("startAt", schedule.startAt.toString())
-                    jsonObject.put("endAt", schedule.endAt.toString())
-                    jsonObject.put("isCompleted", schedule.isCompleted)
-                    jsonObject.put("courseName", schedule.courseName)
-                }
-
-                is CustomScheduleUiModel -> {
-                    jsonObject.put("type", "custom")
-                    jsonObject.put("id", schedule.id)
-                    jsonObject.put("title", schedule.title)
-                    jsonObject.put("description", schedule.description ?: "")
-                    jsonObject.put("startAt", schedule.startAt.toString())
-                    jsonObject.put("endAt", schedule.endAt.toString())
-                    jsonObject.put("isCompleted", schedule.isCompleted)
-                }
-            }
-
-            jsonArray.put(jsonObject)
-        }
-
-        return jsonArray.toString()
-    }
-
-    private fun deserializeSchedules(json: String): List<ScheduleUiModel> {
-        if (json.isEmpty()) return emptyList()
-
-        return try {
-            val jsonArray = JSONArray(json)
-            val schedules = mutableListOf<ScheduleUiModel>()
-
-            for (i in 0 until jsonArray.length()) {
-                val jsonObject = jsonArray.getJSONObject(i)
-                val type = jsonObject.getString("type")
-
-                val schedule =
-                    when (type) {
-                        "academic" -> {
-                            AcademicScheduleUiModel(
-                                title = jsonObject.getString("title"),
-                                startAt = LocalDate.parse(jsonObject.getString("startAt")),
-                                endAt = LocalDate.parse(jsonObject.getString("endAt")),
-                            )
-                        }
-
-                        "course" -> {
-                            CourseScheduleUiModel(
-                                id = jsonObject.getLong("id"),
-                                title = jsonObject.getString("title"),
-                                description = jsonObject.getString("description").takeIf { it.isNotEmpty() },
-                                startAt = LocalDateTime.parse(jsonObject.getString("startAt")),
-                                endAt = LocalDateTime.parse(jsonObject.getString("endAt")),
-                                isCompleted = jsonObject.getBoolean("isCompleted"),
-                                courseName = jsonObject.getString("courseName"),
-                            )
-                        }
-
-                        "custom" -> {
-                            CustomScheduleUiModel(
-                                id = jsonObject.getLong("id"),
-                                title = jsonObject.getString("title"),
-                                description = jsonObject.getString("description").takeIf { it.isNotEmpty() },
-                                startAt = LocalDateTime.parse(jsonObject.getString("startAt")),
-                                endAt = LocalDateTime.parse(jsonObject.getString("endAt")),
-                                isCompleted = jsonObject.getBoolean("isCompleted"),
-                            )
-                        }
-
-                        else -> null
-                    }
-
-                schedule?.let { schedules.add(it) }
-            }
-
-            schedules
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-}
-
-class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget
-        get() = CalendarWidget
-}
-
-class SelectDateCallback : ActionCallback {
-    companion object {
-        val dateKey = ActionParameters.Key<String>("selected_date")
-    }
-
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters,
-    ) {
-        val selectedDate = parameters[dateKey] ?: LocalDate.now().toString()
-
-        updateAppWidgetState(context, glanceId) { prefs ->
-            prefs[stringPreferencesKey("selected_date")] = selectedDate
-        }
-
-        CalendarWidget.update(context, glanceId)
-    }
-}
-
-class RefreshSchedulesCallback : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters,
-    ) {
-        val entryPoint =
-            EntryPointAccessors.fromApplication(
-                context.applicationContext,
-                WidgetEntryPoint::class.java,
-            )
-
-        val scheduleRepository = entryPoint.scheduleRepository()
-        val courseRepository = entryPoint.courseRepository()
-        val loginManager = entryPoint.loginManager()
-        val scheduleManager = entryPoint.scheduleManager()
-        val settingsManager = entryPoint.settingsManager()
-        val alarmScheduler = entryPoint.alarmScheduler()
-
-        suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
-            scheduleRepository
-                .getAcademicSchedules()
-                .onSuccess {
-                    val academicSchedules = it.map(::AcademicScheduleUiModel)
-
-                    return academicSchedules
-                }.onFailure { throwable ->
-                    if (throwable !is NoNetworkConnectivityException) {
-                        ToastEventBus.sendError(
-                            throwable.message,
-                        )
-                    }
-                }
-
-            return emptyList()
-        }
-
-        suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
-            scheduleRepository
-                .getPersonalSchedules(sessKey = sessKey)
-                .onSuccess {
-                    val personalSchedules =
-                        it.map { domain ->
-                            when (domain) {
-                                is CourseSchedule -> {
-                                    val courseName =
-                                        courseRepository.getCourseName(
-                                            domain.courseCode,
-                                        )
-
-                                    CourseScheduleUiModel(
-                                        domain = domain,
-                                        courseName = courseName,
-                                    )
-                                }
-
-                                is CustomSchedule -> CustomScheduleUiModel(domain)
-                            }
-                        }
-
-                    return personalSchedules
-                }.onFailure { throwable ->
-                    scheduleManager.updateLoading(false)
-                }
-
-            return emptyList()
-        }
-
-        suspend fun syncAlarms(schedules: List<ScheduleUiModel>) {
-            val settings = settingsManager.appSettings.first()
-
-            val personalSchedules =
-                schedules
-                    .filterIsInstance<PersonalScheduleUiModel>()
-                    .filter { !it.isCompleted }
-
-            alarmScheduler.cancelAllNotifications()
-
-            if (settings.notificationsEnabled) {
-                alarmScheduler.scheduleNotificationsForSchedule(
-                    personalSchedules = personalSchedules,
-                    firstReminderTime = settings.firstReminderTime,
-                    secondReminderTime = settings.secondReminderTime,
-                )
-            }
-        }
-
-        loginManager.autoLogin()
-
-        val schedules =
-            withContext(Dispatchers.IO) {
-                when (val loginStatus = loginManager.loginStatus.value) {
-                    is LoginStatus.Login -> {
-                        scheduleManager.updateLoading(true)
-
-                        val (academicSchedules, personalSchedules) =
-                            awaitAll(
-                                async { getAcademicSchedules() },
-                                async { getPersonalSchedules(loginStatus.loginSession.sessKey) },
-                            )
-
-                        val schedules = academicSchedules + personalSchedules
-
-                        if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
-                        scheduleManager.updateLoading(false)
-                        schedules
-                    }
-
-                    LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.NetworkDisconnected -> {
-                        val academicSchedules = getAcademicSchedules()
-                        scheduleManager.updateLoading(false)
-                        academicSchedules
-                    }
-                }
-            }
-
-        syncAlarms(schedules)
-
-        val schedulesJson = CalendarWidget.serializeSchedules(schedules)
-        val today = LocalDate.now().toString()
-
-        updateAppWidgetState(context, glanceId) { prefs ->
-            prefs[stringPreferencesKey("schedules_list")] = schedulesJson
-            prefs[stringPreferencesKey("today")] = today
-        }
-
-        // 위젯 UI 갱신
-        CalendarWidget.update(context, glanceId)
-    }
 }
