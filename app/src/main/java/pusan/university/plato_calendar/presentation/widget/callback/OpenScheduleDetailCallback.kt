@@ -24,7 +24,13 @@ class OpenScheduleDetailCallback : ActionCallback {
             Intent(context, PlatoCalendarActivity::class.java).apply {
                 putExtra(AlarmScheduler.EXTRA_SCHEDULE_ID, scheduleId)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
-        context.startActivity(intent)
+
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

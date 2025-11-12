@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.presentation.widget
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -14,6 +15,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -35,27 +37,27 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
-import pusan.university.plato_calendar.presentation.common.serializer.ScheduleSerializer
+import pusan.university.plato_calendar.presentation.common.serializer.PersonalScheduleSerializer.deserializePersonalSchedules
 import pusan.university.plato_calendar.presentation.widget.callback.NavigateDateCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.RefreshSchedulesCallback
-import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle.FULL
+import java.util.Locale.KOREAN
 
 @Suppress("RestrictedApi")
 object CalendarWidget : GlanceAppWidget() {
@@ -94,9 +96,10 @@ object CalendarWidget : GlanceAppWidget() {
             val today = LocalDate.parse(todayStr)
             val selectedDate = LocalDate.parse(selectedDateStr)
 
-            val schedules = ScheduleSerializer.deserializeSchedules(schedulesJson)
-            val schedulesMap = groupSchedulesByDate(schedules)
-            val selectedDateSchedules = schedulesMap[selectedDate] ?: emptyList()
+            val schedules = deserializePersonalSchedules(schedulesJson)
+            val schedulesMap = schedules.groupBy { schedule -> schedule.endAt.toLocalDate() }
+            val selectedDateSchedules =
+                schedulesMap[selectedDate]?.filter { !it.isCompleted } ?: emptyList()
 
             Column(
                 modifier =
@@ -125,20 +128,17 @@ object CalendarWidget : GlanceAppWidget() {
                                 TextStyle(
                                     fontSize = 32.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = androidx.glance.unit.ColorProvider(Color.Black),
+                                    color = ColorProvider(Color.Black),
                                 ),
                         )
                         Text(
                             text =
-                                selectedDate.dayOfWeek.getDisplayName(
-                                    java.time.format.TextStyle.FULL,
-                                    java.util.Locale.KOREAN,
-                                ),
+                                selectedDate.dayOfWeek.getDisplayName(FULL, KOREAN),
                             style =
                                 TextStyle(
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Normal,
-                                    color = androidx.glance.unit.ColorProvider(Color.Gray),
+                                    color = ColorProvider(Color.Gray),
                                 ),
                         )
                     }
@@ -187,7 +187,18 @@ object CalendarWidget : GlanceAppWidget() {
                         // 새로고침 버튼
                         Button(
                             text = "+",
-                            onClick = actionRunCallback<OpenNewScheduleCallback>(),
+                            onClick = actionStartActivity(
+                                Intent().apply {
+                                    setClassName(
+                                        "pusan.university.plato_calendar",
+                                        "pusan.university.plato_calendar.presentation.PlatoCalendarActivity"
+                                    )
+                                    action = OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                }
+                            ),
                             modifier =
                                 GlanceModifier
                                     .width(40.dp)
@@ -212,14 +223,14 @@ object CalendarWidget : GlanceAppWidget() {
                                 style =
                                     TextStyle(
                                         fontSize = 14.sp,
-                                        color = androidx.glance.unit.ColorProvider(Color.Gray),
+                                        color = ColorProvider(Color.Gray),
                                     ),
                                 modifier = GlanceModifier.padding(vertical = 8.dp),
                             )
                         }
                     } else {
                         items(selectedDateSchedules) { schedule ->
-                            ScheduleItem(schedule)
+                            ScheduleWidgetItem(schedule)
                             Spacer(modifier = GlanceModifier.height(8.dp))
                         }
                     }
@@ -228,63 +239,54 @@ object CalendarWidget : GlanceAppWidget() {
         }
     }
 
+    data class ScheduleWidgetUiModel(
+        val title: String,
+        val deadLine: String,
+        val color: Color
+    )
+
     @Composable
-    private fun ScheduleItem(schedule: ScheduleUiModel) {
-        val (title, timeRange, color) =
+    private fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
+        val scheduleWidgetItem =
             when (schedule) {
-                is AcademicScheduleUiModel -> Triple(schedule.title, "", Color(0xFF9575CD))
                 is CourseScheduleUiModel ->
-                    Triple(
+                    ScheduleWidgetUiModel(
                         schedule.courseName.ifEmpty { schedule.title },
-                        "${
-                            schedule.startAt.format(
-                                DateTimeFormatter.ofPattern("HH:mm"),
-                            )
-                        } - ${schedule.endAt.format(DateTimeFormatter.ofPattern("HH:mm"))}",
-                        if (schedule.isCompleted) Color.Gray else Color(0xFF4285F4),
+                        schedule.endAt.formatTimeWithMidnightSpecialCase() + " 까지",
+                        if (schedule.isCompleted) Color.Gray else Color(0xFF33B679),
                     )
 
                 is CustomScheduleUiModel ->
-                    Triple(
+                    ScheduleWidgetUiModel(
                         schedule.title,
-                        "${
-                            schedule.startAt.format(
-                                DateTimeFormatter.ofPattern("HH:mm"),
-                            )
-                        } - ${schedule.endAt.format(DateTimeFormatter.ofPattern("HH:mm"))}",
-                        if (schedule.isCompleted) Color.Gray else Color(0xFF4285F4),
+                        schedule.endAt.formatTimeWithMidnightSpecialCase() + " 까지",
+                        if (schedule.isCompleted) Color.Gray else Color(0xFFE67C73),
                     )
             }
 
-        val modifier =
-            if (schedule is PersonalScheduleUiModel) {
-                GlanceModifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .clickable(
-                        actionRunCallback<OpenScheduleDetailCallback>(
-                            actionParametersOf(
-                                OpenScheduleDetailCallback.scheduleIdKey to schedule.id,
-                            ),
-                        ),
-                    )
-            } else {
-                GlanceModifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            }
+        val intent = Intent().apply {
+            setClassName(
+                "pusan.university.plato_calendar",
+                "pusan.university.plato_calendar.presentation.PlatoCalendarActivity"
+            )
+            putExtra(AlarmScheduler.EXTRA_SCHEDULE_ID, schedule.id)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
 
         Row(
-            modifier = modifier,
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .clickable(actionStartActivity(intent)),
             verticalAlignment = Alignment.Vertical.CenterVertically,
         ) {
-            // 원형 인디케이터
             Spacer(
                 modifier =
                     GlanceModifier
                         .width(8.dp)
                         .height(8.dp)
-                        .background(color)
+                        .background(scheduleWidgetItem.color)
                         .cornerRadius(4.dp),
             )
 
@@ -294,36 +296,28 @@ object CalendarWidget : GlanceAppWidget() {
                 modifier = GlanceModifier.defaultWeight(),
             ) {
                 Text(
-                    text = title,
+                    text = scheduleWidgetItem.title,
                     style =
                         TextStyle(
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
-                            color = androidx.glance.unit.ColorProvider(Color.Black),
+                            color = ColorProvider(Color.Black),
                         ),
                     maxLines = 2,
                 )
-                if (timeRange.isNotEmpty()) {
-                    Spacer(modifier = GlanceModifier.height(2.dp))
-                    Text(
-                        text = timeRange,
-                        style =
-                            TextStyle(
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = androidx.glance.unit.ColorProvider(Color.Gray),
-                            ),
-                    )
-                }
+
+                Spacer(modifier = GlanceModifier.height(2.dp))
+
+                Text(
+                    text = scheduleWidgetItem.deadLine,
+                    style =
+                        TextStyle(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = ColorProvider(Color.Gray),
+                        ),
+                )
             }
         }
     }
-
-    private fun groupSchedulesByDate(schedules: List<ScheduleUiModel>): Map<LocalDate, List<ScheduleUiModel>> =
-        schedules.groupBy { schedule ->
-            when (schedule) {
-                is AcademicScheduleUiModel -> schedule.endAt
-                is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
-            }
-        }
 }

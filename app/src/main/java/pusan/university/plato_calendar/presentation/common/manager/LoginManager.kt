@@ -25,7 +25,6 @@ class LoginManager
         val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
         suspend fun autoLogin(): Boolean {
-            println("autologin")
             val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
             if (loginCredentials != null) {
@@ -41,7 +40,6 @@ class LoginManager
                         } else {
                             ToastEventBus.sendError(throwable.message)
                         }
-                        println("asdfasdf: $throwable")
                     }
             } else {
                 _loginStatus.update { LoginStatus.Logout }
