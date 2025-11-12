@@ -131,6 +131,9 @@ fun CalendarScreen(
                 is NotificationEvent.OpenSchedule -> {
                     viewModel.setEvent(ShowScheduleBottomSheetById(event.scheduleId))
                 }
+                is NotificationEvent.OpenNewSchedule -> {
+                    viewModel.setEvent(ShowScheduleBottomSheet())
+                }
             }
         }
     }

@@ -16,72 +16,74 @@ import javax.inject.Singleton
 
 @Singleton
 class LoginManager
-@Inject
-constructor(
-    private val loginRepository: LoginRepository,
-    private val loginCredentialsDataStore: LoginCredentialsDataStore,
-) {
-    private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Uninitialized)
-    val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
+    @Inject
+    constructor(
+        private val loginRepository: LoginRepository,
+        private val loginCredentialsDataStore: LoginCredentialsDataStore,
+    ) {
+        private val _loginStatus = MutableStateFlow<LoginStatus>(LoginStatus.Uninitialized)
+        val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
-    suspend fun autoLogin(): Boolean {
-        val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
+        suspend fun autoLogin(): Boolean {
+            println("autologin")
+            val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
-        if (loginCredentials != null) {
-            loginRepository
-                .login(loginCredentials)
-                .onSuccess { loginSession ->
-                    _loginStatus.update { LoginStatus.Login(loginSession) }
+            if (loginCredentials != null) {
+                loginRepository
+                    .login(loginCredentials)
+                    .onSuccess { loginSession ->
+                        _loginStatus.update { LoginStatus.Login(loginSession) }
 
-                    return true
-                }.onFailure { throwable ->
-                    if (throwable is NoNetworkConnectivityException) {
-                        _loginStatus.update { LoginStatus.NetworkDisconnected }
-                    } else {
+                        return true
+                    }.onFailure { throwable ->
+                        if (throwable is NoNetworkConnectivityException) {
+                            _loginStatus.update { LoginStatus.NetworkDisconnected }
+                        } else {
+                            ToastEventBus.sendError(throwable.message)
+                        }
+                        println("asdfasdf: $throwable")
+                    }
+            } else {
+                _loginStatus.update { LoginStatus.Logout }
+            }
+
+            return false
+        }
+
+        suspend fun login(credentials: LoginCredentials): Boolean {
+            if (loginStatus.value !is LoginStatus.Login) {
+                loginRepository
+                    .login(credentials)
+                    .onSuccess { loginSession ->
+                        _loginStatus.update { LoginStatus.Login(loginSession) }
+                        loginCredentialsDataStore.saveLoginCredentials(credentials)
+
+                        ToastEventBus.sendSuccess("로그인에 성공했습니다.")
+                        return true
+                    }.onFailure { throwable ->
                         ToastEventBus.sendError(throwable.message)
                     }
-                }
-        } else {
-            _loginStatus.update { LoginStatus.Logout }
+            }
+            return false
         }
 
-        return false
-    }
+        suspend fun logout(): Boolean {
+            val loginStatus = loginStatus.value
 
-    suspend fun login(credentials: LoginCredentials): Boolean {
-        if (loginStatus.value !is LoginStatus.Login) {
-            loginRepository
-                .login(credentials)
-                .onSuccess { loginSession ->
-                    _loginStatus.update { LoginStatus.Login(loginSession) }
-                    loginCredentialsDataStore.saveLoginCredentials(credentials)
+            if (loginStatus is LoginStatus.Login) {
+                loginRepository
+                    .logout(sessKey = loginStatus.loginSession.sessKey)
+                    .onSuccess {
+                        _loginStatus.update { LoginStatus.Logout }
+                        loginCredentialsDataStore.deleteLoginCredentials()
 
-                    ToastEventBus.sendSuccess("로그인에 성공했습니다.")
-                    return true
-                }.onFailure { throwable ->
-                    ToastEventBus.sendError(throwable.message)
-                }
+                        ToastEventBus.sendSuccess("로그아웃에 성공했습니다.")
+                        return true
+                    }.onFailure { throwable ->
+                        ToastEventBus.sendError(throwable.message)
+                    }
+            }
+
+            return false
         }
-        return false
     }
-
-    suspend fun logout(): Boolean {
-        val loginStatus = loginStatus.value
-
-        if (loginStatus is LoginStatus.Login) {
-            loginRepository
-                .logout(sessKey = loginStatus.loginSession.sessKey)
-                .onSuccess {
-                    _loginStatus.update { LoginStatus.Logout }
-                    loginCredentialsDataStore.deleteLoginCredentials()
-
-                    ToastEventBus.sendSuccess("로그아웃에 성공했습니다.")
-                    return true
-                }.onFailure { throwable ->
-                    ToastEventBus.sendError(throwable.message)
-                }
-        }
-
-        return false
-    }
-}

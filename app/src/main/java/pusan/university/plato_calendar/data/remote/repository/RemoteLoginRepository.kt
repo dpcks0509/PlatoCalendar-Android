@@ -45,7 +45,7 @@ class RemoteLoginRepository
                     if (redirectResponse.isSuccessful) {
                         val redirectResponseBody =
                             redirectResponse.body()?.string() ?: return Result.failure(
-                                Exception(LOGIN_FAILED_ERROR)
+                                Exception(LOGIN_FAILED_ERROR),
                             )
 
                         val sessKey =

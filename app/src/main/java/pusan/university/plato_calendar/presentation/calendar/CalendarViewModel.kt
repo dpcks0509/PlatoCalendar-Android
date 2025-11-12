@@ -2,6 +2,7 @@ package pusan.university.plato_calendar.presentation.calendar
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -168,7 +169,7 @@ class CalendarViewModel
 
                     return academicSchedules
                 }.onFailure { throwable ->
-                    if (throwable !is NoNetworkConnectivityException) {
+                    if (throwable !is NoNetworkConnectivityException && throwable !is CancellationException) {
                         ToastEventBus.sendError(
                             throwable.message,
                         )
@@ -205,7 +206,9 @@ class CalendarViewModel
                 }.onFailure { throwable ->
                     scheduleManager.updateLoading(false)
 
-                    ToastEventBus.sendError(throwable.message)
+                    if (throwable !is CancellationException) {
+                        ToastEventBus.sendError(throwable.message)
+                    }
                 }
 
             return emptyList()

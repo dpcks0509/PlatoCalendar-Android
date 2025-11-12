@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.widget
+package pusan.university.plato_calendar.presentation.widget.callback
 
 import android.content.Context
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -22,6 +22,8 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
+import pusan.university.plato_calendar.presentation.common.serializer.ScheduleSerializer
+import pusan.university.plato_calendar.presentation.widget.CalendarWidget
 import pusan.university.plato_calendar.presentation.widget.CalendarWidget.WidgetEntryPoint
 import java.time.LocalDate
 

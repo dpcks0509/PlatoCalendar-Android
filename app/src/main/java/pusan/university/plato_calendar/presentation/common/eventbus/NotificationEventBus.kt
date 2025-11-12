@@ -15,4 +15,6 @@ object NotificationEventBus {
 
 sealed interface NotificationEvent {
     data class OpenSchedule(val scheduleId: Long) : NotificationEvent
+
+    data object OpenNewSchedule : NotificationEvent
 }

@@ -44,6 +44,7 @@ import pusan.university.plato_calendar.presentation.common.notification.AlarmSch
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.White
+import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -163,6 +164,12 @@ class PlatoCalendarActivity : ComponentActivity() {
         if (scheduleId != -1L) {
             lifecycleScope.launch {
                 NotificationEventBus.sendEvent(NotificationEvent.OpenSchedule(scheduleId))
+            }
+        }
+
+        if (intent.action == OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE) {
+            lifecycleScope.launch {
+                NotificationEventBus.sendEvent(NotificationEvent.OpenNewSchedule)
             }
         }
     }

@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.widget
+package pusan.university.plato_calendar.presentation.widget.receiver
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.presentation.widget.CalendarWidget
+import pusan.university.plato_calendar.presentation.widget.callback.RefreshSchedulesCallback
 
 class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget
