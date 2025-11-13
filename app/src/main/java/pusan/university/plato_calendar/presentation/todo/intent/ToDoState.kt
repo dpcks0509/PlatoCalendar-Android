@@ -53,7 +53,7 @@ data class ToDoState(
     val completedSchedules =
         schedules
             .filterIsInstance<PersonalScheduleUiModel>()
-            .filter { it.isCompleted }
+            .filter { it.endAt.isAfter(today) && it.isCompleted }
             .sortedByDescending { it.endAt }
 
     val courseSchedules = validSchedules.filterIsInstance<CourseScheduleUiModel>()
