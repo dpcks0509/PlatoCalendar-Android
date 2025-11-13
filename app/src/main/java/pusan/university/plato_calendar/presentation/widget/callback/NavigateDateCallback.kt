@@ -13,6 +13,7 @@ class NavigateDateCallback : ActionCallback {
     companion object {
         val currentDateKey = ActionParameters.Key<String>("current_date")
         val offsetKey = ActionParameters.Key<String>("offset")
+        val targetDateKey = ActionParameters.Key<String>("target_date")
     }
 
     override suspend fun onAction(
@@ -20,12 +21,20 @@ class NavigateDateCallback : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters,
     ) {
-        val currentDateStr = parameters[currentDateKey] ?: LocalDate.now().toString()
-        val offsetStr = parameters[offsetKey] ?: "0"
+        val targetDateStr = parameters[targetDateKey]
 
-        val currentDate = LocalDate.parse(currentDateStr)
-        val offset = offsetStr.toLongOrNull() ?: 0L
-        val newDate = currentDate.plusDays(offset)
+        val newDate =
+            if (targetDateStr != null) {
+                // 직접 날짜 선택
+                LocalDate.parse(targetDateStr)
+            } else {
+                // 기존 offset 방식
+                val currentDateStr = parameters[currentDateKey] ?: LocalDate.now().toString()
+                val offsetStr = parameters[offsetKey] ?: "0"
+                val currentDate = LocalDate.parse(currentDateStr)
+                val offset = offsetStr.toLongOrNull() ?: 0L
+                currentDate.plusDays(offset)
+        }
 
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[stringPreferencesKey("selected_date")] = newDate.toString()
