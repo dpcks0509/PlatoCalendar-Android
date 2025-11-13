@@ -24,7 +24,6 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
-        println("update")
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
         scope.launch {

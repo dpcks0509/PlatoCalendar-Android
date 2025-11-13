@@ -95,7 +95,6 @@ object CalendarWidget : GlanceAppWidget() {
         id: GlanceId,
     ) {
         provideContent {
-            println ("123")
             val prefs = currentState<Preferences>()
             val schedulesJson = prefs[stringPreferencesKey("schedules_list")] ?: ""
             val todayStr = prefs[stringPreferencesKey("today")] ?: LocalDate.now().toString()

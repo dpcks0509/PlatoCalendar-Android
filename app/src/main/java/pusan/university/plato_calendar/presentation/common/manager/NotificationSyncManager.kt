@@ -42,8 +42,6 @@ constructor(
                         schedules.filterIsInstance<PersonalScheduleUiModel>()
                             .filter { !it.isCompleted }
 
-                    println("sync")
-
                     val glanceManager = GlanceAppWidgetManager(context)
                     val glanceIds = glanceManager.getGlanceIds(CalendarWidget::class.java)
                     glanceIds.forEach { glanceId ->
