@@ -34,7 +34,6 @@ class RefreshSchedulesCallback : ActionCallback {
         }
         CalendarWidget.update(context, glanceId)
 
-        println("refresh")
         val entryPoint =
             EntryPointAccessors.fromApplication(
                 context.applicationContext,
