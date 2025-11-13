@@ -171,7 +171,7 @@ fun SettingContent(
                     when (menu) {
                         ACCOUNT -> {
                             Account(
-                                state = state,
+                                userInfo = state.userInfo,
                                 onClickLoginLogout = {
                                     val isLoggedIn = state.userInfo != null
                                     onEvent(if (isLoggedIn) SettingEvent.Logout else SettingEvent.ShowLoginDialog)

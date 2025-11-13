@@ -25,17 +25,16 @@ import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
 import pusan.university.plato_calendar.presentation.common.theme.White
-import pusan.university.plato_calendar.presentation.setting.intent.SettingState
 
 private const val LOGIN_REQUIRED = "로그인이 필요합니다."
 
 @Composable
 fun Account(
-    state: SettingState,
+    userInfo: String?,
     onClickLoginLogout: () -> Unit,
 ) {
-    val isLoggedIn = state.userInfo != null
-    val userName = if (isLoggedIn) state.userInfo else LOGIN_REQUIRED
+    val isLoggedIn = userInfo != null
+    val userName = if (isLoggedIn) userInfo else LOGIN_REQUIRED
     val buttonText = if (isLoggedIn) "로그아웃" else "로그인"
 
     Row(
