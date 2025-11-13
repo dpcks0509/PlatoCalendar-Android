@@ -28,15 +28,18 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
 
         scope.launch {
             appWidgetIds.forEach { appWidgetId ->
-                val glanceId =
-                    GlanceAppWidgetManager(context)
-                        .getGlanceIdBy(appWidgetId)
+                try {
+                    val glanceId =
+                        GlanceAppWidgetManager(context)
+                            .getGlanceIdBy(appWidgetId)
 
-                RefreshSchedulesCallback().onAction(
-                    context = context,
-                    glanceId = glanceId,
-                    parameters = actionParametersOf(),
-                )
+                    RefreshSchedulesCallback().onAction(
+                        context = context,
+                        glanceId = glanceId,
+                        parameters = actionParametersOf(),
+                    )
+                } catch (e: Exception) {
+                }
             }
         }
     }
