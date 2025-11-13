@@ -228,6 +228,8 @@ object CalendarWidget : GlanceAppWidget() {
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
                     weekDates.forEach { date ->
+                        val isToday = date == today
+
                         Box(
                             modifier = GlanceModifier.defaultWeight(),
                             contentAlignment = Alignment.Center,
@@ -240,9 +242,12 @@ object CalendarWidget : GlanceAppWidget() {
                                         fontWeight = FontWeight.Bold,
                                         color =
                                             ColorProvider(
-                                                when (date.dayOfWeek) {
-                                                    DayOfWeek.SATURDAY, DayOfWeek.SUNDAY -> Color.Red
-                                                    else -> Color.DarkGray
+                                                when {
+                                                    isToday -> Color(0xFF3B6EC7)
+                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY ->
+                                                        Color.Red
+
+                                                    else -> Color.Black
                                                 },
                                             ),
                                     ),
