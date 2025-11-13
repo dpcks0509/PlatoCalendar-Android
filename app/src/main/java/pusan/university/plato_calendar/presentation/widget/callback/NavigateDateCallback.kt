@@ -25,16 +25,14 @@ class NavigateDateCallback : ActionCallback {
 
         val newDate =
             if (targetDateStr != null) {
-                // 직접 날짜 선택
                 LocalDate.parse(targetDateStr)
             } else {
-                // 기존 offset 방식
                 val currentDateStr = parameters[currentDateKey] ?: LocalDate.now().toString()
                 val offsetStr = parameters[offsetKey] ?: "0"
                 val currentDate = LocalDate.parse(currentDateStr)
                 val offset = offsetStr.toLongOrNull() ?: 0L
                 currentDate.plusDays(offset)
-        }
+            }
 
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[stringPreferencesKey("selected_date")] = newDate.toString()

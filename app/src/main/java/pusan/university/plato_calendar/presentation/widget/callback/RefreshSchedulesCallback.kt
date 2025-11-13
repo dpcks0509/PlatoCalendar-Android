@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.presentation.widget.callback
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
@@ -28,6 +29,12 @@ class RefreshSchedulesCallback : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters,
     ) {
+        updateAppWidgetState(context, glanceId) { prefs ->
+            prefs[booleanPreferencesKey("is_loading")] = true
+        }
+        CalendarWidget.update(context, glanceId)
+
+        println("refresh")
         val entryPoint =
             EntryPointAccessors.fromApplication(
                 context.applicationContext,
@@ -111,6 +118,8 @@ class RefreshSchedulesCallback : ActionCallback {
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[stringPreferencesKey("schedules_list")] = schedulesJson
             prefs[stringPreferencesKey("today")] = today
+            prefs[stringPreferencesKey("selected_date")] = today
+            prefs[booleanPreferencesKey("is_loading")] = false
         }
 
         CalendarWidget.update(context, glanceId)
