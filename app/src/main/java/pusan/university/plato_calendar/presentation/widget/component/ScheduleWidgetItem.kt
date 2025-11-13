@@ -39,14 +39,14 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
             is CourseScheduleUiModel ->
                 ScheduleWidgetUiModel(
                     schedule.courseName.ifEmpty { schedule.title },
-                    schedule.endAt.formatTimeWithMidnightSpecialCase() + " 까지",
+                    schedule.endAt.formatTimeWithMidnightSpecialCase(),
                     R.drawable.widget_schedule_indicator_green,
                 )
 
             is CustomScheduleUiModel ->
                 ScheduleWidgetUiModel(
                     schedule.title,
-                    schedule.endAt.formatTimeWithMidnightSpecialCase() + " 까지",
+                    schedule.endAt.formatTimeWithMidnightSpecialCase(),
                     R.drawable.widget_schedule_indicator_red,
                 )
         }

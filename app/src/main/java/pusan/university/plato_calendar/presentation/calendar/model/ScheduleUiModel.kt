@@ -40,7 +40,7 @@ sealed class ScheduleUiModel {
         abstract val isCompleted: Boolean
 
         val deadLine: String
-            get() = endAt.formatTimeWithMidnightSpecialCase() + " 까지"
+            get() = endAt.formatTimeWithMidnightSpecialCase()
 
         data class CourseScheduleUiModel(
             override val id: Long,
