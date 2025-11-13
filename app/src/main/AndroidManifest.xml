@@ -50,7 +50,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- 캘린더 위젯 -->
         <receiver
             android:name="pusan.university.plato_calendar.presentation.widget.receiver.CalendarWidgetReceiver"
             android:enabled="true"

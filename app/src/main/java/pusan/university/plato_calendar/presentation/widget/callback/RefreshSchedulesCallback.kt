@@ -29,6 +29,7 @@ class RefreshSchedulesCallback : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters,
     ) {
+        println("refresh")
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[booleanPreferencesKey("is_loading")] = true
         }
