@@ -38,7 +38,7 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
                         glanceId = glanceId,
                         parameters = actionParametersOf(),
                     )
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                 }
             }
         }

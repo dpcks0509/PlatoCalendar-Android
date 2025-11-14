@@ -166,6 +166,8 @@ class ToDoViewModel
                         ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
                         scheduleManager.updateLoading(false)
                     }
+
+                    LoginStatus.LoginInProgress -> Unit
                 }
             }
         }

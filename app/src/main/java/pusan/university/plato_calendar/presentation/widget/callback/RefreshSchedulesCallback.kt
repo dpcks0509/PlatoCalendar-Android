@@ -103,7 +103,7 @@ class RefreshSchedulesCallback : ActionCallback {
                         getPersonalSchedules(loginStatus.loginSession.sessKey)
                     }
 
-                    LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.NetworkDisconnected -> {
+                    LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.NetworkDisconnected, LoginStatus.LoginInProgress -> {
                         emptyList()
                     }
                 }

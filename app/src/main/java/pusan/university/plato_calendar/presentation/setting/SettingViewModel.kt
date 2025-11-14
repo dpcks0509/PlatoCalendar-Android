@@ -8,7 +8,6 @@ import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
-import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.HideLoginDialog
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.HideNotificationPermissionSettingsDialog
@@ -25,7 +24,6 @@ class SettingViewModel
     constructor(
         private val loginManager: LoginManager,
         private val settingsManager: SettingsManager,
-        private val alarmScheduler: AlarmScheduler,
     ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(SettingState()) {
         init {
             viewModelScope.launch {

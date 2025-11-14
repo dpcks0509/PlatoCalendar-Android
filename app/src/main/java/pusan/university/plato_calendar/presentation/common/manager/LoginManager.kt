@@ -25,6 +25,10 @@ class LoginManager
         val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
         suspend fun autoLogin(): Boolean {
+            if (loginStatus.value is LoginStatus.LoginInProgress) return false
+
+            _loginStatus.update { LoginStatus.LoginInProgress }
+
             val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
             if (loginCredentials != null) {
@@ -38,6 +42,7 @@ class LoginManager
                         if (throwable is NoNetworkConnectivityException) {
                             _loginStatus.update { LoginStatus.NetworkDisconnected }
                         } else {
+                            _loginStatus.update { LoginStatus.Logout }
                             ToastEventBus.sendError(throwable.message)
                         }
                     }
