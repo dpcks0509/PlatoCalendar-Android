@@ -36,8 +36,8 @@ android {
         applicationId = "pusan.university.plato_calendar"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.0.13"
+        versionCode = 16
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
