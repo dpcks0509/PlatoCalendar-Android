@@ -40,7 +40,9 @@ import pusan.university.plato_calendar.presentation.common.manager.SettingsManag
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
+import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_NOTIFICATION_ID
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
+import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.White
@@ -60,6 +62,9 @@ class PlatoCalendarActivity : ComponentActivity() {
 
     @Inject
     lateinit var alarmScheduler: AlarmScheduler
+
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
 
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
@@ -161,6 +166,10 @@ class PlatoCalendarActivity : ComponentActivity() {
 
     private fun handleNotificationIntent(intent: Intent) {
         val scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1L)
+        val notificationId = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
+        if (notificationId != -1) {
+            notificationHelper.cancelNotification(notificationId)
+        }
         if (scheduleId != -1L) {
             lifecycleScope.launch {
                 NotificationEventBus.sendEvent(NotificationEvent.OpenSchedule(scheduleId))

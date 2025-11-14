@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.presentation.PlatoCalendarActivity
+import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_NOTIFICATION_ID
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,6 +50,7 @@ class NotificationHelper
                     flags =
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     putExtra(EXTRA_SCHEDULE_ID, scheduleId)
+                    putExtra(EXTRA_NOTIFICATION_ID, notificationId)
                 }
 
             val pendingIntent =
