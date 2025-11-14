@@ -40,14 +40,22 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
                 ScheduleWidgetUiModel(
                     schedule.courseName.ifEmpty { schedule.title },
                     schedule.endAt.formatTimeWithMidnightSpecialCase(),
-                    R.drawable.widget_schedule_indicator_green,
+                    if (schedule.isCompleted) {
+                        R.drawable.widget_schedule_indicator_gray
+                    } else {
+                        R.drawable.widget_schedule_indicator_green
+                    },
                 )
 
             is CustomScheduleUiModel ->
                 ScheduleWidgetUiModel(
                     schedule.title,
                     schedule.endAt.formatTimeWithMidnightSpecialCase(),
-                    R.drawable.widget_schedule_indicator_red,
+                    if (schedule.isCompleted) {
+                        R.drawable.widget_schedule_indicator_gray
+                    } else {
+                        R.drawable.widget_schedule_indicator_red
+                    },
                 )
         }
 

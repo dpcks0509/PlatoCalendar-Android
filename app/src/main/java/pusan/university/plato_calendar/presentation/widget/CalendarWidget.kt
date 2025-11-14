@@ -109,7 +109,9 @@ object CalendarWidget : GlanceAppWidget() {
             val schedules = deserializePersonalSchedules(schedulesJson)
             val schedulesMap = schedules.groupBy { schedule -> schedule.endAt.toLocalDate() }
             val selectedDateSchedules =
-                schedulesMap[selectedDate]?.filter { !it.isCompleted } ?: emptyList()
+                schedulesMap[selectedDate]
+                    ?.sortedBy { it.isCompleted }
+                    ?: emptyList()
 
             Column(
                 modifier =
