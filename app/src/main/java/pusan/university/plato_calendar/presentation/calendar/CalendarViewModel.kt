@@ -47,6 +47,7 @@ import pusan.university.plato_calendar.presentation.common.component.bottomsheet
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
+import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,6 +58,7 @@ class CalendarViewModel
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
         private val scheduleManager: ScheduleManager,
+        private val alarmScheduler: AlarmScheduler,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
             initialState =
                 CalendarState(today = scheduleManager.today.value.toLocalDate()),
@@ -340,6 +342,7 @@ class CalendarViewModel
                             !(schedule is PersonalScheduleUiModel && schedule.id == id)
                         }
                     scheduleManager.updateSchedules(updatedSchedules)
+                    alarmScheduler.cancelNotification(id)
 
                     setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                     ToastEventBus.sendSuccess("일정이 삭제되었습니다.")

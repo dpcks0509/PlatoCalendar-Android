@@ -83,8 +83,6 @@ class RefreshSchedulesCallback : ActionCallback {
                     .filterIsInstance<PersonalScheduleUiModel>()
                     .filter { !it.isCompleted }
 
-            alarmScheduler.cancelAllNotifications()
-
             if (settings.notificationsEnabled) {
                 alarmScheduler.scheduleNotificationsForSchedule(
                     personalSchedules = personalSchedules,

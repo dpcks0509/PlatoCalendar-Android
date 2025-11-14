@@ -36,14 +36,14 @@ class NotificationSyncManager
                                 .filter { !it.isCompleted }
 
                         with(settings) {
-                            alarmScheduler.cancelAllNotifications()
-
                             if (notificationsEnabled) {
                                 alarmScheduler.scheduleNotificationsForSchedule(
                                     personalSchedules = personalSchedules,
                                     firstReminderTime = firstReminderTime,
                                     secondReminderTime = secondReminderTime,
                                 )
+                            } else {
+                                alarmScheduler.cancelAllNotifications(personalSchedules)
                             }
                         }
                     }
