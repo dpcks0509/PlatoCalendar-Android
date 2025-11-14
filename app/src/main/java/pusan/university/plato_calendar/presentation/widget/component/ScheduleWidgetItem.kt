@@ -38,7 +38,7 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
         when (schedule) {
             is CourseScheduleUiModel ->
                 ScheduleWidgetUiModel(
-                    schedule.courseName.ifEmpty { schedule.title },
+                    schedule.titleWithCourseName,
                     schedule.endAt.formatTimeWithMidnightSpecialCase(),
                     if (schedule.isCompleted) {
                         R.drawable.widget_schedule_indicator_gray
