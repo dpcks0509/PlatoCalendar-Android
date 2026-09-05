@@ -9,9 +9,15 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface LoginService {
+    @GET("/login/index.php")
+    suspend fun loginPage(): Response<ResponseBody>
+
     @FormUrlEncoded
     @POST("/login/index.php")
     suspend fun login(
+        @Field("anchor") anchor: String,
+        @Field("logintoken") loginToken: String,
+        @Field("logintab") loginTab: String,
         @Field("username") userName: String,
         @Field("password") password: String,
     ): Response<Unit>
